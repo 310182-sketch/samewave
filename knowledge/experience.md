@@ -233,4 +233,4 @@
 
 - **經驗：** 工作目錄可能已經包含正確的新產品程式碼，但 `.git` 歷史和遠端仍屬於另一個專案。直接把功能分支推到新 repo 會帶入不相干的 commit ancestry，也容易再次推錯遠端。先核對預期檔案、未提交與未追蹤變更、忽略檔案和憑證；再複製工作樹但排除 `.git`，在新目錄初始化新的 `main` 和第一個提交。設定 remote 後先核對完整 owner/repo URL，再推送。
 - **適用範圍：** 把誤放在既有 checkout 的產品原型拆成獨立 GitHub 專案、從實驗分支抽取乾淨交付物，或需要避免公開另一專案歷史時。
-- **本專案做法：** 將 27 個同頻程式與文件檔案複製至獨立目錄，排除原 `.git`，檢查 `site/supabase-config.js` 未包含真實 Supabase 設定，並確認搜尋到的 JWT 只在測試 fixture 作假資料；新 repo 以乾淨 `main` 建立初始提交 `7436927`，再建立 `310182-sketch/samewave`。推送前仍須再次確認 remote URL，GitHub Actions 首次執行結果尚待取得。
+- **本專案做法：** 將 27 個同頻程式與文件檔案複製至獨立目錄，排除原 `.git`，檢查 `site/supabase-config.js` 未包含真實 Supabase 設定，並確認搜尋到的 JWT 只在測試 fixture 作假資料；新 repo 以乾淨 `main` 建立初始提交 `7436927`，建立 `310182-sketch/samewave` 後確認 remote URL，成功推送原始碼和文件。GitHub Actions 首次驗證 run 正在執行，之後仍須確認沒有誤推歷史、CI 全綠及 Pages 正式網址。

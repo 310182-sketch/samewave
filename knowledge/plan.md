@@ -17,7 +17,7 @@
 - **資料政策：** 真人房間、配對票券及原始答案最多保留 24 小時；個人歷史摘要保存 90 天且可逐筆刪除；檢舉資料保存 180 天；封鎖關係保留至解除或刪除帳號。這些是目前採用的 MVP 預設，尚未部署或在 Supabase 驗證。
 - **登入與社群：** 已加入可選的 Supabase Auth 前端入口，包含匿名登入、Google／Facebook／X OAuth、Instagram／Threads custom provider 設定、PKCE session 恢復及匿名帳號 identity linking。Chrome mock client 已驗證登入狀態和 provider 呼叫；尚無 Supabase URL／anon key，登入按鈕目前停用，live login／callback／帳號 linking 仍未設定或驗證。平台限制見 [knowledge/decision.md](decision.md)。
 - **前端設計：** 已完成第一輪整體字級、留白、按鈕及主題選項版面整理；房間、真人答題、隨機配對等待及歷史頁已接上 RPC，無設定時仍保留清楚標示的操作預覽。Chrome mock 驗證流程分支；六種寬度與鍵盤流程的前一輪檢查已通過。真人服務環境的實際網路狀態仍待驗證。
-- **發布：** GitHub 公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立，使用乾淨的 `main` 初始歷史；程式碼首次推送、Pages Actions 設定與公開部署仍待完成。預定網址為 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/)。先前 `riddle-match` 的 Pages 部署屬於另一個專案，不能視為本專案已發布。真人登入和後端尚未設定，仍維持停用狀態。
+- **發布：** GitHub 公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立，乾淨的 `main` 歷史與遊戲原始碼已推送。首次 Actions run [#1](https://github.com/310182-sketch/samewave/actions/runs/44639487232) 正在執行；Pages 設定與公開部署仍待確認。預定網址為 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/)。先前 `riddle-match` 的 Pages 部署屬於另一個專案，不能視為本專案已發布。真人登入和後端尚未設定，仍維持停用狀態。
 - **安全營運：** 前端及後端草稿已提供同房檢舉、封鎖與解除封鎖、服務端配對／開房限量及隱私告知。案件受限於服務端管理權限，限期 180 天清除。已在決策紀錄整理案件分流、人工覆核、升級及回覆時限的建議草案；目前仍沒有指定審查人員、玩家聯絡方式、值班安排或審查工具，草案不是現行服務承諾，正式公開前不得宣稱有人即時處理。
 - **工作區：** 原型位於 `site/`，可直接開啟 `site/index.html` 操作，不需安裝套件或建置。
 - **產品方向：** 本專案以獨立的 `samewave` repository 發布二選一共同點遊戲，不沿用另一專案的 repository 歷史，詳見 [knowledge/decision.md](decision.md)。
@@ -161,7 +161,8 @@
 - [x] 實作結果分享卡及使用者主動觸發的系統分享面板；使用者需自行選擇 Instagram 並確認發布。
 - [ ] 在 iOS／Android 實機確認分享檔案可交給 Instagram 限時動態，並檢查取消分享與 PNG 下載備援。
 - [x] 建立獨立公開 repository `310182-sketch/samewave`，不沿用另一專案的 Git 歷史。
-- [ ] 推送遊戲原型、文件與回歸測試至新 repo 的 `main`，確認首次 CI 通過。
+- [x] 推送遊戲原型、文件與回歸測試至新 repo 的乾淨 `main`。
+- [ ] 確認首次 GitHub Actions 驗證 run 通過並修正可能的 CI 問題。
 - [ ] 啟用 GitHub Pages Actions 部署並確認公開網址內容。
 - [ ] 為線上版本設定 Supabase URL／anon key 與 OAuth callback；確認公開金鑰及資料權限設定正確。
 - [ ] 真人房間、配對、登入、紀錄及統計完成驗證後，再部署正式版本並確認跨裝置行為。
