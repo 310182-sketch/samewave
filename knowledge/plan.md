@@ -10,14 +10,14 @@
 
 ## 目前狀態
 
-- **階段：** 互動原型及第一輪瀏覽器版可用性檢查已完成；八份 Supabase migration 草稿、自助刪除帳號 Edge Function 和可重複執行的 PGlite migration 回歸測試已建立。前端已接上邀請房的真人答題、雙方完成才揭曉、雙方確認才前進、完局結果，以及隨機配對佇列、取消、30 秒逾時、重新排隊和重新載入後恢復本人進行中的房間或配對票券；Chrome mock 流程已驗證。headless Chrome 回歸測試也涵蓋配對取消競態、房間恢復及配對票券恢復。另已加入玩家檢舉／封鎖、封鎖清單、隱私告知和受設定控制的刪除帳號入口；資料庫安全及刪除流程通過 PGlite 預檢。原型亦保留首頁、主題選擇、示範配對、五題作答和分享結果。
+- **階段：** 互動原型及第一輪瀏覽器版可用性檢查已完成；九份 Supabase migration 草稿、自助刪除帳號 Edge Function 和 13 項可重複執行的 PGlite migration 回歸測試已建立。前端已接上邀請房的真人答題、雙方完成才揭曉、雙方確認才前進、完局結果，以及隨機配對佇列、取消、30 秒逾時、重新排隊和重新載入後恢復本人進行中的房間或配對票券；Chrome mock 流程已驗證。headless Chrome 回歸測試也涵蓋配對取消競態、房間恢復及配對票券恢復。另已加入玩家檢舉／封鎖、封鎖清單、隱私告知、受設定控制的刪除帳號入口及後端審查工作流程草稿；這份新 repo 因執行環境缺少 Deno，測試將由首次 GitHub Actions 執行驗證。原型亦保留首頁、主題選擇、示範配對、五題作答和分享結果。
 - **已驗證：** Chrome headless 在 320、360、390、768、1024、1440px 檢查首頁、遊戲及結果頁，皆無水平溢出；以鍵盤在六種寬度完成五題流程。已改善選項字級、觸控尺寸、焦點提示及作答狀態語意。
 - **仍待線上驗證：** 工作區沒有 Supabase URL／公開 key，無法使用真實登入、房間或配對服務。邀請房答題與隨機配對前端已接上 RPC，並以 Chrome mock 驗證成功揭曉、雙方確認、結果讀取、配對成功、逾時重試及取消；尚未在 Supabase Realtime 或兩部裝置驗證。歷史頁查詢、分頁、默契排名及逐筆刪除 RPC 也已用 Chrome mock 驗證，但不能查詢真實對局。結果頁已能產生 1080×1920 PNG，支援系統分享面板及下載備援；尚未在 iOS／Android 實機確認 Instagram 交接。
-- **後端：** 本機 PGlite 預檢會自動依檔名排序並套用 `supabase/migrations/` 中所有 SQL migration；12 項可重複執行的回歸測試涵蓋 migration 權限、本人進行中房間／配對票券恢復權限、雙人揭曉與歷史、隨機配對相容／封鎖／取消、封鎖與配對／邀請加入共用交易鎖、歷史游標分頁與共同點排名門檻、本人歷史讀取與刪除權限、security-definer 函式固定空 `search_path` 且不能由匿名角色執行、24／90／180 天資料清理、配對／開房限量、檢舉，以及刪除帳號時關閉房間、移除本人歷史並匿名化對手歷史和檢舉帳號連結。run 53 的 PostgreSQL 16 多連線測試驗證封鎖、邀請加入、兩種配額，以及取消先鎖時配對略過、配對先鎖時取消回報 `matched`；這些檢查不等同 Supabase Auth、Realtime 或 RLS 驗證。自助刪除 Edge Function 已通過 Deno 型別、lint、格式檢查及 7 個本機 request 子測試。函式尚未部署，且尚未建立 Supabase 專案，線上 Auth、Realtime、清理排程和 Supabase 環境 RLS 仍未驗證。
+- **後端：** PGlite 測試會依檔名套用 `supabase/migrations/` 中九份 SQL migration；13 項回歸測試涵蓋原有資料流程、權限、保留期限、限量、封鎖／檢舉、帳號刪除，以及新加入的審查佇列權限、領案競態、結案和稽核到期清除。這份 repo 尚未執行此套件：目前工作站找不到 Deno，首次推送後由 GitHub Actions 驗證。run 53 的既有 PostgreSQL 16 多連線測試已驗證封鎖、邀請加入、兩種配額及取消／配對競態；這些檢查不等同 Supabase Auth、Realtime 或 RLS 驗證。自助刪除 Edge Function 的先前 Deno 驗證紀錄不代表新 repo 的 workflow 已執行。函式尚未部署、Supabase 專案尚未建立，線上 Auth、Realtime、清理排程和 Supabase 環境 RLS 仍未驗證。
 - **資料政策：** 真人房間、配對票券及原始答案最多保留 24 小時；個人歷史摘要保存 90 天且可逐筆刪除；檢舉資料保存 180 天；封鎖關係保留至解除或刪除帳號。這些是目前採用的 MVP 預設，尚未部署或在 Supabase 驗證。
 - **登入與社群：** 已加入可選的 Supabase Auth 前端入口，包含匿名登入、Google／Facebook／X OAuth、Instagram／Threads custom provider 設定、PKCE session 恢復及匿名帳號 identity linking。Chrome mock client 已驗證登入狀態和 provider 呼叫；尚無 Supabase URL／anon key，登入按鈕目前停用，live login／callback／帳號 linking 仍未設定或驗證。平台限制見 [knowledge/decision.md](decision.md)。
 - **前端設計：** 已完成第一輪整體字級、留白、按鈕及主題選項版面整理；房間、真人答題、隨機配對等待及歷史頁已接上 RPC，無設定時仍保留清楚標示的操作預覽。Chrome mock 驗證流程分支；六種寬度與鍵盤流程的前一輪檢查已通過。真人服務環境的實際網路狀態仍待驗證。
-- **發布：** GitHub Pages 與 Actions workflow 已備妥，但 `samewave` 獨立 repository 尚待建立並發布；成功後的預定網址為 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/)。先前 `riddle-match` 的 Pages 部署屬於另一個專案，不能視為本專案已發布。真人登入和後端尚未設定，仍維持停用狀態。
+- **發布：** GitHub 公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立，使用乾淨的 `main` 初始歷史；程式碼首次推送、Pages Actions 設定與公開部署仍待完成。預定網址為 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/)。先前 `riddle-match` 的 Pages 部署屬於另一個專案，不能視為本專案已發布。真人登入和後端尚未設定，仍維持停用狀態。
 - **安全營運：** 前端及後端草稿已提供同房檢舉、封鎖與解除封鎖、服務端配對／開房限量及隱私告知。案件受限於服務端管理權限，限期 180 天清除。已在決策紀錄整理案件分流、人工覆核、升級及回覆時限的建議草案；目前仍沒有指定審查人員、玩家聯絡方式、值班安排或審查工具，草案不是現行服務承諾，正式公開前不得宣稱有人即時處理。
 - **工作區：** 原型位於 `site/`，可直接開啟 `site/index.html` 操作，不需安裝套件或建置。
 - **產品方向：** 本專案以獨立的 `samewave` repository 發布二選一共同點遊戲，不沿用另一專案的 repository 歷史，詳見 [knowledge/decision.md](decision.md)。
@@ -160,7 +160,9 @@
 
 - [x] 實作結果分享卡及使用者主動觸發的系統分享面板；使用者需自行選擇 Instagram 並確認發布。
 - [ ] 在 iOS／Android 實機確認分享檔案可交給 Instagram 限時動態，並檢查取消分享與 PNG 下載備援。
-- [ ] 建立獨立的 `samewave` GitHub repository，將遊戲原型與文件發布至 `main`，啟用 GitHub Pages Actions 並確認部署成功及公開網址內容。
+- [x] 建立獨立公開 repository `310182-sketch/samewave`，不沿用另一專案的 Git 歷史。
+- [ ] 推送遊戲原型、文件與回歸測試至新 repo 的 `main`，確認首次 CI 通過。
+- [ ] 啟用 GitHub Pages Actions 部署並確認公開網址內容。
 - [ ] 為線上版本設定 Supabase URL／anon key 與 OAuth callback；確認公開金鑰及資料權限設定正確。
 - [ ] 真人房間、配對、登入、紀錄及統計完成驗證後，再部署正式版本並確認跨裝置行為。
 - [ ] 根據玩家回饋改善題目品質、配對體驗、前端版面及歷史統計可讀性。

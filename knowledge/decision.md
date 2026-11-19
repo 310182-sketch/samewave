@@ -111,6 +111,6 @@
 
 ## 發布
 
-- **現況：** `riddle-match` 的 Pages 網站屬於另一個專案，並非本遊戲的正式發布。本遊戲的 `samewave` 獨立 repository 尚待建立；預定網址為 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/)。Supabase 尚未設定，真人登入和配對仍停用。
-- **決定：** 以乾淨的 Git 歷史建立獨立 repository，避免把另一專案的猜謎版本或 Git 歷史帶入；使用現有 Pages workflow 發布 `site/`，再確認公開頁面。
-- **下一階段：** 先完成 `samewave` repository 建立、首次推送及 GitHub Pages Actions 部署；真人後端及權限驗證完成後再發布連線版本。原型部署不表示 Auth、Supabase RPC、Realtime、歷史紀錄或跨裝置功能已在線啟用。
+- **現況：** `riddle-match` 的 Pages 網站屬於另一個專案，並非本遊戲的正式發布。公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立，但尚未推送程式碼；預定網址為 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/)。Supabase 尚未設定，真人登入和配對仍停用。
+- **決定：** 採公開 repository，因為目標包含 GitHub Pages 免費發布；建立時只納入同頻原始碼和文件，不沿用另一專案歷史。已檢查用戶端設定範本沒有真實 Supabase URL／key，測試中的 JWT 為假資料；provider secret 與 service role key 不得推送。
+- **下一階段：** 推送乾淨的 `main` 歷史，讓 GitHub Actions 驗證，再設定 GitHub Pages Actions 並確認公開頁面。原型部署不表示 Auth、Supabase RPC、Realtime、歷史紀錄或跨裝置功能已在線啟用。
