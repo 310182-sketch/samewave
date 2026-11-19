@@ -111,6 +111,6 @@
 
 ## 發布
 
-- **現況：** `riddle-match` 的 Pages 網站屬於另一個專案，並非本遊戲的正式發布。公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立並推送乾淨的 `main` 初始版本；首次 Actions run 正在執行，Pages 尚未確認部署。預定網址為 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/)。Supabase 尚未設定，真人登入和配對仍停用。
+- **現況：** `riddle-match` 的 Pages 網站屬於另一個專案，並非本遊戲的正式發布。公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立並推送乾淨的 `main` 初始版本。首次 Actions run 的 verify 和 PostgreSQL 競態測試通過，但 deploy 因 Pages 尚未啟用而失敗；預定網址為 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/)。Supabase 尚未設定，真人登入和配對仍停用。
 - **決定：** 採公開 repository，因為目標包含 GitHub Pages 免費發布；建立時只納入同頻原始碼和文件，不沿用另一專案歷史。已檢查用戶端設定範本沒有真實 Supabase URL／key，測試中的 JWT 為假資料；provider secret 與 service role key 不得推送。
-- **下一階段：** 等待首次 GitHub Actions 驗證並處理失敗項目，再設定 GitHub Pages Actions 並確認公開頁面。原型部署不表示 Auth、Supabase RPC、Realtime、歷史紀錄或跨裝置功能已在線啟用。
+- **下一階段：** `actions/configure-pages@v6` 已加入 `enablement: true`，讓部署 job 自動初始化 GitHub Pages；後續 Actions run 需確認 deploy 成功和公開頁面。原型部署不表示 Auth、Supabase RPC、Realtime、歷史紀錄或跨裝置功能已在線啟用。

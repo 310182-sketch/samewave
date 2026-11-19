@@ -233,4 +233,16 @@
 
 - **經驗：** 工作目錄可能已經包含正確的新產品程式碼，但 `.git` 歷史和遠端仍屬於另一個專案。直接把功能分支推到新 repo 會帶入不相干的 commit ancestry，也容易再次推錯遠端。先核對預期檔案、未提交與未追蹤變更、忽略檔案和憑證；再複製工作樹但排除 `.git`，在新目錄初始化新的 `main` 和第一個提交。設定 remote 後先核對完整 owner/repo URL，再推送。
 - **適用範圍：** 把誤放在既有 checkout 的產品原型拆成獨立 GitHub 專案、從實驗分支抽取乾淨交付物，或需要避免公開另一專案歷史時。
-- **本專案做法：** 將 27 個同頻程式與文件檔案複製至獨立目錄，排除原 `.git`，檢查 `site/supabase-config.js` 未包含真實 Supabase 設定，並確認搜尋到的 JWT 只在測試 fixture 作假資料；新 repo 以乾淨 `main` 建立初始提交 `7436927`，建立 `310182-sketch/samewave` 後確認 remote URL，成功推送原始碼和文件。GitHub Actions 首次驗證 run 正在執行，之後仍須確認沒有誤推歷史、CI 全綠及 Pages 正式網址。
+- **本專案做法：** 將 27 個同頻程式與文件檔案複製至獨立目錄，排除原 `.git`，檢查 `site/supabase-config.js` 未包含真實 Supabase 設定，並確認搜尋到的 JWT 只在測試 fixture 作假資料；新 repo 以乾淨 `main` 建立初始提交 `7436927`，建立 `310182-sketch/samewave` 後確認 remote URL，成功推送原始碼和文件。首次 Actions run 的 verify／block_race 通過，deploy 因 Pages site 尚未建立而 404；workflow 已加入自動啟用選項，仍待第二次 run 驗證公開網址。
+
+## 新 repo 的 Pages workflow 要能初始化未設定的 Pages site
+
+- **經驗：** 新建的 GitHub repository 尚無 Pages site 時，`actions/configure-pages` 的預設查詢會收到 404，造成 verify 通過、deploy 失敗。若產品已決定使用 GitHub Pages，workflow 可明確設定 `enablement: true`，讓部署 job 建立 Actions Pages 設定，再驗證 artifact、部署 job 和公開網址。
+- **適用範圍：** 新建、尚未在 Settings > Pages 啟用 Pages 的 repository，且 GitHub Pages 是預期部署目標。
+- **本專案做法：** `samewave` 首次 run 1 的 `verify` 與 `block_race` 通過，但 `configure-pages@v6` 因 Pages site 不存在而回傳 404；workflow 已加入 `enablement: true`。此修正需由後續 Actions run 驗證，成功前不把 Pages 標示為已部署。
+
+## 審查佇列要把清單和敏感案件內容分開授權
+
+- **經驗：** 審查清單只需提供 ID、類別、狀態與時間，敘述及雙方 ID 應等審查員主動開啟單一案件後才回傳。審查員需用明確 allowlist 驗證；涉案雙方不得查閱或處理該案件；領案要原子化以避免兩位審查員同時取得同一案件；清單瀏覽、開啟、領取與結案都應記錄 actor 和事件。
+- **適用範圍：** 檢舉、申訴、濫用調查或其他只允許特定人員閱讀敏感案件內容的系統。
+- **本專案做法：** `20261120000800_moderation_review_workflow.sql` 新增私有審查人員名單、無直接表格權限的審查 RPC、案件分頁、涉案者排除、列鎖領案、指定審查員結案，以及 private audit events 和 180 天清除。PGlite 與 PostgreSQL 16 多連線測試在 GitHub Actions run 1 的 verify、block_race jobs 通過；正式 Supabase RLS、審查人員 UI、人員配置及端對端營運流程仍未驗證。

@@ -12,7 +12,7 @@
 - 匯出 1080×1920 結果分享卡；可呼叫系統分享面板或下載 PNG。Instagram 交接仍需用實機確認。
 - 可在手機與桌面瀏覽器操作。
 
-目前工作區沒有 Supabase 專案 URL／公開 key，因此登入與真人服務入口停用，使用者只能玩本機示範。`supabase/migrations/` 有九份資料庫 migration，Deno/PGlite migration 測試檔定義 13 項回歸測試；目前執行環境沒有 Deno，新 repo 的首次 GitHub Actions 驗證正在執行。另有 PostgreSQL 16 多連線競態整合測試，涵蓋封鎖與配對、邀請加入、配額、取消和審查案件競速。這些檢查不代表 Supabase 線上設定、Realtime、RLS、Edge Function 或跨裝置流程已驗證。
+目前工作區沒有 Supabase 專案 URL／公開 key，因此登入與真人服務入口停用，使用者只能玩本機示範。`supabase/migrations/` 有九份資料庫 migration；13 項 Deno/PGlite 回歸測試及 PostgreSQL 16 多連線競態測試已在 GitHub Actions run 1 的 `verify` 與 `block_race` jobs 通過，涵蓋審查權限和領案競速。該 run 的 deploy job 因新 repo 尚未啟用 Pages 而失敗，workflow 已加入 Pages 自動啟用設定，等待重跑。這些檢查不代表 Supabase 線上設定、Realtime、RLS、Edge Function 或跨裝置流程已驗證。
 
 ## Supabase Auth 設定
 
@@ -76,7 +76,7 @@ deno test --allow-env --allow-net --allow-read supabase/tests/block_match_concur
 
 ## GitHub Pages 部署
 
-公開 repository `310182-sketch/samewave` 已建立，`main` 已推送；首次 GitHub Actions run 正在執行。啟用 GitHub Pages Actions 後，`.github/workflows/pages.yml` 會將 `site/` 發布至 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/)；部署前會執行 Deno 型別／lint／格式檢查、PGlite migration 回歸測試、帳號刪除函式 request 測試、前端語法檢查、headless Chrome 房間／配對恢復測試，以及 PostgreSQL 16 多連線競態測試。Supabase URL／公開 key 尚未設定，因此真人登入及後端服務仍未啟用。
+公開 repository `310182-sketch/samewave` 已建立，`main` 已推送。首次 Actions run 的 `verify` 和 `block_race` 已通過，但 deploy 因 Pages 尚未啟用而失敗；workflow 現在會用 `actions/configure-pages` 自動啟用 Pages，等待下一次 CI 驗證。成功後會將 `site/` 發布至 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/)；Supabase URL／公開 key 尚未設定，因此真人登入及後端服務仍未啟用。
 
 `riddle-match` 是另一個專案；該 repository 的舊部署網址和 Actions 紀錄不代表本專案的發布狀態。
 
