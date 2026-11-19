@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f7f4ee">
+    <meta name="description" content="用二選一問答發現彼此的共同點。">
+    <title>同頻｜二選一共同點遊戲</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=10">
+    <script src="supabase-config.js?v=2" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.2/dist/umd/supabase.js" integrity="sha384-A97u3Qnt9GZHURO9YJZRe7VQgGUeFzcv6I1oIGnUTxQrCxnpQMwR0/G8F2zt9abZ" crossorigin="anonymous" defer></script>
+    <script src="app.js?v=10" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#home" data-home aria-label="同頻首頁">
+          <span class="brand-mark" aria-hidden="true">同</span>
+          <span>同頻<span class="brand-dot">.</span></span>
+        </a>
+        <div class="topbar-actions">
+          <span class="demo-pill"><span class="pulse-dot" aria-hidden="true"></span>互動原型</span>
+          <button class="icon-button" type="button" aria-label="遊戲說明" data-show-help>?</button>
+        </div>
+      </header>
+
+      <main>
+        <section id="home" class="view home-view" data-view="home" aria-labelledby="home-title">
+          <div class="hero-copy">
+            <p class="eyebrow"><span class="sparkle" aria-hidden="true">✳</span> 二選一共同點遊戲</p>
+            <h1 id="home-title" tabindex="-1" data-focus-target>從一個選擇，<br><span>發現一點相同。</span></h1>
+            <p class="hero-description">邀請朋友，或透過隨機配對認識新玩家。<br class="desktop-break">回答同一主題的小問題，看看你們在哪些地方很有默契。</p>
+            <div class="hero-note"><span aria-hidden="true">✦</span> 先試玩互動原型，不需要註冊</div>
+
+            <form class="entry-card" data-start-form>
+              <div class="entry-heading">
+                <span class="step-mark">01</span>
+                <div><b>準備開始</b><small>選個主題，認識一位新朋友</small></div>
+              </div>
+              <label class="field-label" for="nickname">暱稱 <span>選填</span></label>
+              <input class="text-input" id="nickname" name="nickname" type="text" maxlength="12" autocomplete="nickname" placeholder="留空會使用「小星」">
+
+              <fieldset class="topic-picker">
+                <legend>這次想聊哪個主題？</legend>
+                <div class="topic-options">
+                  <button class="topic-choice" type="button" data-topic-choice="旅行" aria-pressed="false"><span aria-hidden="true">✈</span>旅行</button>
+                  <button class="topic-choice" type="button" data-topic-choice="音樂" aria-pressed="false"><span aria-hidden="true">♫</span>音樂</button>
+                  <button class="topic-choice" type="button" data-topic-choice="日常" aria-pressed="false"><span aria-hidden="true">☼</span>日常</button>
+                  <button class="topic-choice" type="button" data-topic-choice="飲食" aria-pressed="false"><span aria-hidden="true">✿</span>飲食</button>
+                  <button class="topic-choice random-choice is-selected" type="button" data-topic-choice="隨機" aria-pressed="true"><span aria-hidden="true">✳</span>隨機主題</button>
+                </div>
+              </fieldset>
+              <div class="entry-methods">
+                <button class="primary-button" type="button" data-random-match><span>隨機配對</span><span class="button-arrow" aria-hidden="true">↗</span></button>
+                <button class="secondary-button" type="button" data-create-room>建立邀請房</button>
+              </div>
+              <button class="join-toggle" type="button" data-toggle-join aria-expanded="false" aria-controls="join-room-panel">輸入房間代碼加入</button>
+              <div class="join-room-panel hidden" id="join-room-panel" data-join-panel>
+                <label class="field-label" for="invite-code">房間代碼 <span>12 位數字或 A–F</span></label>
+                <div class="join-room-controls">
+                  <input class="text-input invite-code-input" id="invite-code" type="text" maxlength="12" inputmode="text" autocomplete="off" spellcheck="false" placeholder="例如 8F2A19C04B7D">
+                  <button class="primary-button" type="button" data-join-room>加入</button>
+                </div>
+                <p class="privacy-note" data-room-disclaimer>尚未設定真人服務時，加入代碼只會展示本機預覽。</p>
+              </div>
+              <button class="demo-start-button" type="button" data-demo-start>先玩一局示範</button>
+              <div class="entry-footer">
+                <p class="privacy-note" data-entry-disclaimer>尚未設定真人服務時，只能玩本機示範；房間與紀錄不會跨裝置或保存。</p>
+                <button class="history-link" type="button" data-open-history>查看歷史紀錄與默契統計 <span aria-hidden="true">→</span></button>
+              </div>
+            </form>
+            <section class="auth-panel" aria-labelledby="auth-title" aria-busy="false">
+              <div class="auth-heading">
+                <div>
+                  <p class="auth-eyebrow">PLAYER ACCOUNT</p>
+                  <h2 id="auth-title">登入與玩家身分</h2>
+                </div>
+                <button class="auth-signout hidden" type="button" data-auth-signout>登出</button>
+              </div>
+              <p class="auth-status" data-auth-status role="status" aria-live="polite">登入服務尚未設定；可先玩本機示範，示範資料不會保存。</p>
+              <button class="auth-anonymous-button" type="button" data-auth-anonymous disabled>匿名登入</button>
+              <div class="auth-provider-grid" aria-label="社群登入與帳號連結">
+                <button class="auth-provider-button" type="button" data-auth-provider="google" disabled>Google</button>
+                <button class="auth-provider-button" type="button" data-auth-provider="facebook" disabled>Facebook</button>
+                <button class="auth-provider-button" type="button" data-auth-provider="x" disabled>X</button>
+                <button class="auth-provider-button" type="button" data-auth-provider="instagram" disabled>Instagram</button>
+                <button class="auth-provider-button" type="button" data-auth-provider="threads" disabled>Threads</button>
+              </div>
+              <p class="auth-note">Facebook、Google、X 須先在 Supabase 啟用並設定 callback。Instagram 僅支援符合資格的專業帳號；Threads 與 Instagram 需完成 Meta 審核及 custom OAuth 設定。真人功能需設定 Supabase 專案後啟用。</p>
+              <button class="auth-delete-account hidden" type="button" data-auth-delete-account>永久刪除帳號</button>
+              <p class="auth-delete-note hidden" data-auth-delete-note></p>
+            </section>
+          </div>
+
+          <div class="preview-wrap" aria-label="二選一遊戲示意">
+            <div class="preview-card">
+              <div class="preview-topline"><span class="live-label"><span class="pulse-dot" aria-hidden="true"></span>一題，認識一點彼此</span><span class="round-tag">01 / 05</span></div>
+              <div class="preview-topic"><span aria-hidden="true">✈</span><span>本局主題</span><b>旅行</b></div>
+              <p class="preview-question">旅行時，你更喜歡哪一種安排？</p>
+              <div class="preview-answer"><span class="answer-letter">A</span><span>先規劃好行程</span></div>
+              <div class="preview-answer is-selected"><span class="answer-letter">B</span><span>留點空白隨興走</span></div>
+              <div class="preview-reveal"><span aria-hidden="true">✦</span><b>你們都選了 B</b><small>答完後立即揭曉</small></div>
+            </div>
+            <span class="decor-star star-one" aria-hidden="true">✳</span>
+            <span class="decor-star star-two" aria-hidden="true">✴</span>
+            <p class="preview-caption">不必一樣，找到共鳴就很好。</p>
+          </div>
+        </section>
+
+        <section id="matching" class="view matching-view hidden" data-view="matching" aria-live="polite">
+          <div class="match-orbit" aria-hidden="true"><span class="orbit orbit-one"></span><span class="orbit orbit-two"></span><span class="match-center">同</span><span class="orbit-dot dot-a">✦</span><span class="orbit-dot dot-b">?</span></div>
+          <p class="eyebrow centered-eyebrow"><span class="pulse-dot" aria-hidden="true"></span> <span data-match-eyebrow>配對流程預覽</span></p>
+          <h2 tabindex="-1" data-focus-target data-match-title>一個好問題，<br><span>從一位新朋友開始。</span></h2>
+          <p class="match-subtitle">本局主題：<b data-match-topic>旅行</b></p>
+          <div class="match-progress" data-match-progress aria-hidden="true"><span></span></div>
+          <p class="match-caption" data-match-caption>正在尋找想玩同一主題的人…</p>
+          <p class="demo-inline-note" data-match-note>這裡會展示配對畫面；目前尚未連接真人配對佇列。</p>
+          <p class="match-timeout-note" data-match-timeout-note>真人配對等候上限為 30 秒，登入並接上服務後啟用。</p>
+          <button class="primary-button hidden" type="button" data-use-demo><span>使用示範玩家繼續</span><span class="button-arrow" aria-hidden="true">↗</span></button>
+          <button class="primary-button hidden" type="button" data-retry-match><span>重新配對</span><span class="button-arrow" aria-hidden="true">↗</span></button>
+          <button class="text-button" type="button" data-cancel>返回首頁</button>
+        </section>
+
+        <section id="invite-room" class="view workflow-view hidden" data-view="invite-room" aria-labelledby="invite-room-title">
+          <button class="back-button workflow-back" type="button" data-home aria-label="回到首頁">← <span>回首頁</span></button>
+          <div class="workflow-mark" aria-hidden="true">⌂</div>
+          <p class="eyebrow centered-eyebrow">邀請朋友一起玩</p>
+          <h1 id="invite-room-title" data-focus-target tabindex="-1" data-room-title>你的邀請房間已準備好</h1>
+          <p class="workflow-copy" data-room-status role="status" aria-live="polite">把代碼分享給朋友，對方加入後就能開始。</p>
+          <div class="invite-code-card">
+            <span>房間代碼</span>
+            <strong data-room-code>000000000000</strong>
+            <button class="secondary-button" type="button" data-copy-room-code>複製代碼</button>
+          </div>
+          <p class="workflow-note" data-room-note>示範代碼僅供預覽，其他裝置目前無法使用。</p>
+          <div class="workflow-meta"><span>等待時間</span><b>10 分鐘</b></div>
+          <div class="workflow-actions">
+            <button class="primary-button" type="button" data-room-demo><span>先玩示範對局</span><span class="button-arrow" aria-hidden="true">↗</span></button>
+            <button class="text-button hidden" type="button" data-room-leave>離開真人房間</button>
+            <button class="text-button" type="button" data-room-home data-home>回到首頁</button>
+          </div>
+        </section>
+
+        <section id="history" class="view workflow-view history-view hidden" data-view="history" aria-labelledby="history-title">
+          <button class="back-button workflow-back" type="button" data-home aria-label="回到首頁">← <span>回首頁</span></button>
+          <div class="workflow-mark" aria-hidden="true">✦</div>
+          <p class="eyebrow centered-eyebrow">保存你的每個小發現</p>
+          <h1 id="history-title" data-focus-target tabindex="-1">歷史紀錄與默契統計</h1>
+          <p class="workflow-copy">只對你本人顯示最近 90 天的紀錄。</p>
+          <div class="history-grid">
+            <section class="history-panel" aria-labelledby="history-list-title">
+              <div class="history-panel-heading"><h2 id="history-list-title">最近對局</h2><span>90 天</span></div>
+              <div class="history-empty" data-history-empty="list"><span aria-hidden="true">◷</span><b>目前沒有已保存的對局</b><p>完成已連線的真人對局後，這裡會顯示主題、對手、共同題數與相同選擇。</p></div>
+              <div class="history-list hidden" data-history-items aria-label="最近對局清單"></div>
+              <button class="history-more hidden" type="button" data-history-more>載入更早紀錄</button>
+            </section>
+            <section class="history-panel" aria-labelledby="ranking-title">
+              <div class="history-panel-heading"><h2 id="ranking-title">最有默契</h2><span>個人統計</span></div>
+              <div class="history-empty" data-history-empty="ranking"><span aria-hidden="true">♡</span><b>累積幾場對局再來看看</b><p>和同一位玩家完成至少 3 局後，會依共同答案比例排序，並列出對局數與共同答案數。</p></div>
+              <div class="ranking-list hidden" data-history-ranking aria-label="默契統計清單"></div>
+            </section>
+          </div>
+          <section class="blocked-players-panel" aria-labelledby="blocked-players-title">
+            <div class="history-panel-heading">
+              <h2 id="blocked-players-title">已封鎖的玩家</h2>
+              <span>只有你能查看</span>
+            </div>
+            <p class="blocked-players-help">封鎖會避免再次隨機配對，也會阻止互相加入邀請房；你可以隨時解除。</p>
+            <p class="blocked-players-empty" data-blocked-empty>尚未封鎖任何玩家。</p>
+            <div class="blocked-players-list hidden" data-blocked-players aria-label="已封鎖的玩家清單"></div>
+            <button class="history-retry hidden" type="button" data-blocked-retry>重新載入封鎖清單</button>
+            <p class="blocked-players-status" data-block-status role="status" aria-live="polite">登入後可管理封鎖清單。</p>
+          </section>
+          <p class="workflow-note" data-history-status role="status" aria-live="polite">登入服務尚未設定；本機示範不會保存或查詢真實紀錄。</p>
+          <button class="history-retry hidden" type="button" data-history-retry>重新載入紀錄</button>
+          <button class="primary-button workflow-primary" type="button" data-home><span>回到首頁</span><span class="button-arrow" aria-hidden="true">↗</span></button>
+        </section>
+
+        <section id="game" class="view game-view hidden" data-view="game" aria-labelledby="game-title">
+          <div class="game-heading">
+            <button class="back-button" type="button" data-home aria-label="離開這局並返回首頁">← <span>離開這局</span></button>
+            <div class="round-center">
+              <span class="round-tag">第 <b data-question-number>1</b> 題 <span>/</span> <b>5</b></span>
+              <span class="round-divider" aria-hidden="true"></span>
+              <span class="round-topic"><span aria-hidden="true">✳</span><b data-game-topic>旅行</b></span>
+            </div>
+            <button class="more-button" type="button" data-show-help aria-label="遊戲說明">?</button>
+          </div>
+
+          <div class="game-progress" role="progressbar" aria-label="題目進度" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1" aria-valuetext="第 1 題，共 5 題"><span data-progress></span></div>
+          <div class="game-grid">
+            <section class="play-panel" aria-label="二選一問題">
+              <div class="player-row">
+                <div class="player-chip"><span class="avatar avatar-green" data-player-avatar>小</span><span><b data-player-name>小星</b><small>你</small></span></div>
+                <span class="versus">同一題</span>
+                <div class="player-chip opponent-chip"><span class="avatar avatar-orange" data-opponent-avatar>島</span><span><b data-opponent-name>小島</b><small data-opponent-mode>示範玩家</small></span></div>
+              </div>
+              <div class="question-area">
+                <p class="question-kicker">兩個選項，選一個最像你的</p>
+                <h1 id="game-title" class="game-question" data-question data-focus-target tabindex="-1">旅行時，你更喜歡哪一種安排？</h1>
+                <p class="question-instruction">先選你的答案，等雙方都答完再揭曉。</p>
+                <div class="answer-options" role="group" aria-label="選擇你的答案">
+                  <button class="answer-option" type="button" data-option="0" aria-pressed="false"><span class="option-letter">A</span><span class="option-copy" data-option-copy="0">先規劃好行程</span><span class="option-check" aria-hidden="true">✓</span></button>
+                  <button class="answer-option" type="button" data-option="1" aria-pressed="false"><span class="option-letter">B</span><span class="option-copy" data-option-copy="1">留點空白隨興走</span><span class="option-check" aria-hidden="true">✓</span></button>
+                </div>
+                <p class="remote-game-status hidden" data-remote-status role="status" aria-live="polite"></p>
+                <section class="reveal-panel hidden" data-reveal aria-live="polite" aria-labelledby="reveal-heading">
+                  <div class="reveal-title"><span class="reveal-spark" aria-hidden="true">✦</span><div><b data-reveal-heading>你們找到共同點了</b><small data-reveal-copy>一樣的選擇，也許代表相似的喜好。</small></div></div>
+                  <div class="answer-comparison">
+                    <div><small data-player-answer-label>你</small><b data-player-answer></b></div>
+                    <span class="comparison-mark" aria-hidden="true">↔</span>
+                    <div><small data-peer-answer-label>小島・示範</small><b data-peer-answer></b></div>
+                  </div>
+                  <button class="primary-button next-button" type="button" data-next><span data-next-label>下一題</span><span class="button-arrow" aria-hidden="true">↗</span></button>
+                </section>
+              </div>
+            </section>
+
+            <aside class="side-panel">
+              <div class="side-title"><span class="side-icon" aria-hidden="true">✳</span><div><b>本局小記</b><small>每題各自選擇，再一起揭曉</small></div></div>
+              <div class="score-card"><span data-match-label>目前相同</span><b><span data-match-count>0</span><small> / <span data-answered-count>0</span> 題</small></b></div>
+              <div class="how-to">
+                <p class="how-to-title">怎麼玩</p>
+                <ol><li class="active-step"><span>01</span><b>選一個最像你的答案</b></li><li><span>02</span><b>等對方也完成作答</b></li><li><span>03</span><b>看看你們是否有共鳴</b></li></ol>
+              </div>
+              <p class="safety-note"><span aria-hidden="true">♡</span> 不需要分享個人聯絡方式，也能找到共同點。</p>
+              <div class="player-safety-actions hidden" data-live-safety-actions>
+                <p>遇到不適當行為？</p>
+                <div>
+                  <button type="button" data-open-report>檢舉玩家</button>
+                  <button type="button" data-block-opponent>封鎖玩家</button>
+                </div>
+              </div>
+              <p class="demo-disclaimer" data-demo-disclaimer><span class="pulse-dot" aria-hidden="true"></span> 示範玩家與答案由本機範例資料模擬，尚未連接真人配對。</p>
+            </aside>
+          </div>
+        </section>
+
+        <section id="results" class="view results-view hidden" data-view="results" aria-labelledby="result-title">
+          <div class="result-mark" aria-hidden="true">✦</div>
+          <p class="eyebrow centered-eyebrow">這一局的小發現</p>
+          <h1 id="result-title" data-focus-target tabindex="-1">你們有 <span data-result-score>0</span> 題選得一樣。</h1>
+          <p class="result-copy" data-result-copy>每個相同的選擇，都是認識彼此的一個小線索。</p>
+          <div class="result-card">
+            <div class="result-card-heading"><b>你們的共同選擇</b><span data-result-topic>旅行</span></div>
+            <ul class="result-list" data-result-list></ul>
+            <p class="empty-result hidden" data-empty-result>答案不一樣也很好，這就是認識新觀點的開始。</p>
+          </div>
+          <p class="share-note">使用系統分享面板選擇 Instagram，並由你確認發布；也可下載 PNG。</p>
+          <div class="result-actions result-share-actions">
+            <button class="primary-button" type="button" data-share-result disabled><span>分享結果</span><span class="button-arrow" aria-hidden="true">↗</span></button>
+            <button class="secondary-button" type="button" data-download-result disabled>下載 PNG</button>
+          </div>
+          <div class="result-safety-actions hidden" data-result-safety-actions>
+            <span>需要安全處理？</span>
+            <button type="button" data-open-report>檢舉玩家</button>
+            <button type="button" data-block-opponent>封鎖玩家</button>
+          </div>
+          <div class="result-actions result-navigation-actions">
+            <button class="primary-button" type="button" data-play-again><span>再玩一局</span><span class="button-arrow" aria-hidden="true">↗</span></button>
+            <button class="secondary-button" type="button" data-home>回到首頁</button>
+          </div>
+          <p class="demo-inline-note" data-result-disclaimer>本次配對與答案為原型示範，不會保存遊戲紀錄。</p>
+        </section>
+      </main>
+
+      <footer class="site-footer"><span>同頻 © 2026</span><span class="footer-message">一個選擇，發現一點相同 <span aria-hidden="true">✦</span></span><div><button type="button" data-show-privacy>隱私與安全</button><button type="button" data-show-help>遊戲說明</button></div></footer>
+    </div>
+
+    <dialog class="modal" data-modal aria-labelledby="modal-title">
+      <button class="modal-close" type="button" data-close-modal aria-label="關閉">×</button>
+      <span class="modal-mark" aria-hidden="true">同</span>
+      <p class="eyebrow centered-eyebrow">HOW TO PLAY</p>
+      <h2 id="modal-title">用兩個選項，找到一點共鳴</h2>
+      <p class="modal-copy">選擇主題後，可以建立邀請房、輸入代碼或預覽隨機配對。完成五題後會揭曉共同選擇。設定 Supabase 並登入後可進行真人邀請房對局、查詢個人歷史；未連線時則只會使用本機示範資料。</p>
+      <button class="primary-button modal-action" type="button" data-close-modal>知道了</button>
+    </dialog>
+    <dialog class="modal privacy-modal" data-privacy-modal aria-labelledby="privacy-title">
+      <button class="modal-close" type="button" data-close-privacy aria-label="關閉隱私與安全說明">×</button>
+      <p class="eyebrow centered-eyebrow">隱私與安全</p>
+      <h2 id="privacy-title">只保存遊戲需要的資料</h2>
+      <p>本機示範只在你的瀏覽器操作，不會送出或保存暱稱、答案或對局。</p>
+      <ul>
+        <li>真人服務會處理帳號識別碼、最多 12 字的暱稱、主題、房間狀態與作答，以完成配對和揭曉。</li>
+        <li>房間、配對票券與原始答案在對局結束或逾期後最多保留 24 小時；你自己的歷史摘要保存 90 天，可在歷史頁逐筆刪除。</li>
+        <li>封鎖清單只有你能查閱，會保留到你解除封鎖或刪除帳號；封鎖會阻止再次隨機配對及互相加入邀請房。</li>
+        <li>檢舉只記錄房間、類別及你填寫的說明，不保存答案；案件最多保存 180 天。請勿在說明中填入聯絡方式或他人的敏感資料。</li>
+        <li>啟用自助刪除後，刪除帳號會移除你的歷史和封鎖清單；既有檢舉會解除雙方帳號連結，說明最多保留 180 天。</li>
+        <li>登入與資料儲存由 Supabase 提供。社群登入可能將平台提供的帳號識別或 email 存在 Supabase Auth；本遊戲不會公開顯示 email 或登入 token。</li>
+      </ul>
+      <p class="privacy-operations-note">目前原型尚未配置人工審查人員，檢舉不代表即時有人處理。遇到不適狀況請先離開對局並封鎖對方；正式公開服務前會補上審查聯絡方式與處理流程。</p>
+      <button class="primary-button modal-action" type="button" data-close-privacy>知道了</button>
+    </dialog>
+    <dialog class="modal report-modal" data-report-modal aria-labelledby="report-title">
+      <button class="modal-close" type="button" data-close-report aria-label="關閉檢舉表單">×</button>
+      <p class="eyebrow centered-eyebrow">玩家安全</p>
+      <h2 id="report-title">檢舉這位玩家</h2>
+      <p class="modal-copy">選擇最符合的原因。案件只供服務端審查，最多保存 180 天；目前原型沒有即時人工審查。</p>
+      <form data-report-form>
+        <label class="field-label" for="report-category">檢舉原因</label>
+        <select id="report-category" class="text-input" name="category" required>
+          <option value="harassment">騷擾或威脅</option>
+          <option value="hate">仇恨或歧視內容</option>
+          <option value="sexual_content">色情或不當內容</option>
+          <option value="spam">垃圾或惡意行為</option>
+          <option value="other">其他</option>
+        </select>
+        <label class="field-label" for="report-details">補充說明 <span>選填，最多 500 字</span></label>
+        <textarea class="text-input report-details" id="report-details" name="details" maxlength="500" rows="4" placeholder="請描述與本局有關的情況；不要填寫聯絡方式或敏感個資。"></textarea>
+        <p class="report-status" data-report-status role="status" aria-live="polite"></p>
+        <div class="report-actions">
+          <button class="primary-button" type="submit" data-report-submit>送出檢舉</button>
+          <button class="secondary-button" type="button" data-close-report>取消</button>
+        </div>
+      </form>
+    </dialog>
+    <div class="toast" data-toast role="status" aria-live="polite"></div>
+  </body>
+</html>

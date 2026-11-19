@@ -1,0 +1,107 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main, master, codex/commonality-quiz-prototype]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.8
+
+      - name: Check Deno types
+        run: deno check supabase/tests/migrations.test.ts supabase/tests/block_match_concurrency.test.ts supabase/functions/delete-account/index.ts
+
+      - name: Lint Deno sources
+        run: deno lint supabase/tests/migrations.test.ts supabase/tests/block_match_concurrency.test.ts supabase/functions/delete-account/index.ts
+
+      - name: Check Deno formatting
+        run: deno fmt --check supabase/tests/migrations.test.ts supabase/tests/block_match_concurrency.test.ts supabase/functions/delete-account/index.ts supabase/functions/delete-account/index.test.ts
+
+      - name: Test database migrations
+        run: deno test --allow-read --allow-net supabase/tests/migrations.test.ts
+
+      - name: Test account deletion function
+        run: deno test --allow-env --allow-net supabase/functions/delete-account/index.test.ts
+
+      - name: Check frontend JavaScript syntax
+        run: node --check site/app.js
+
+      - name: Test matchmaking cancellation race in headless Chrome
+        run: node scripts/matchmaking-cancel-race.mjs
+
+      - name: Test active room recovery in headless Chrome
+        run: node scripts/active-room-recovery.mjs
+
+      - name: Test matchmaking recovery in headless Chrome
+        run: node scripts/matchmaking-resume.mjs
+
+  block_race:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: commonality
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d commonality"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/commonality
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.8
+
+      - name: Test PostgreSQL multi-connection races
+        run: deno test --allow-env --allow-net --allow-read supabase/tests/block_match_concurrency.test.ts
+
+  deploy:
+    needs: [verify, block_race]
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload site files
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
