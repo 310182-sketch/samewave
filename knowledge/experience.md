@@ -286,9 +286,9 @@
 
 ## 靜態網站要區分搜尋收錄與 Search Console 提交
 
-- **經驗：** Google 的 `site:` 查詢能確認搜尋結果中是否已出現某個網址，但不能證明所有頁面都已收錄或保證排名。公開 `robots.txt` 和 sitemap 回應成功也不代表 sitemap 已提交到 Search Console；提交需要網站擁有權驗證。
+- **經驗：** Google 的 `site:` 查詢能確認搜尋結果中是否已出現某個網址，但不能證明所有頁面都已收錄或保證排名。公開 `robots.txt` 和 sitemap 回應成功也不代表 sitemap 已提交到 Search Console；提交需要網站擁有權驗證。Search Console 顯示「已成功提交」仍不代表已讀取或解析 sitemap，應另外檢查已提交列表中的抓取狀態與找到的 URL 數。
 - **適用範圍：** GitHub Pages 等靜態網站，以及沒有伺服器端搜尋分析工具的公開網站。
-- **本專案做法：** 2026-11-21 以 `site:310182-sketch.github.io/samewave` 查詢，Google 結果已出現同頻網站；`robots.txt` 和 `sitemap.xml` 均回 HTTP 200。Search Console 擁有權及 sitemap 提交仍待完成，因此路線圖只勾選「已確認至少一個網址可搜尋」，不宣稱已提交或保證排名。
+- **本專案做法：** 2026-11-21 以 `site:310182-sketch.github.io/samewave` 查詢，Google 結果已出現同頻網站；`robots.txt` 和 `sitemap.xml` 均回 HTTP 200。以首頁 HTML 標籤驗證 Search Console 擁有權並提交 sitemap 後，Search Console 接受提交，但詳細狀態顯示「無法讀取 Sitemap」及 0 個已探索網頁；一般及 Googlebot User-Agent 對 XML 的請求仍回 HTTP 200、`application/xml`，內容是有效的單頁 urlset。保留驗證標籤和提交紀錄，待 Google 後續處理，再依報表狀態排查；不要只憑提交成功提示就勾選 sitemap 處理完成。
 
 ## 部署破壞性 Edge Function 前先限制來源並驗證預檢
 
