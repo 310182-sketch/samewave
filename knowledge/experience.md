@@ -284,6 +284,12 @@
 - **本專案做法：** Samewave 的 `site/supabase-config.js` 已接上公開 Project URL／publishable key，首頁顯示匿名登入已啟用並列出尚未設定的 Google／Facebook／X／Instagram／Threads；README、路線圖和帳號刪除停用提示需同步記錄真實設定與未完成的端對端驗收。以 publishable key 唯讀呼叫 `/auth/v1/settings` 得 HTTP 200 並確認匿名使用者設定，未呼叫 sign-in 或建立測試帳號；同時以 OPTIONS 驗證正式 origin 為 200、未列入的 origin 為 403。這些是設定與 CORS readiness check，不代替真實登入、JWT 或刪除驗收。更新文件時也要核對相關 Pages workflow；run #13（44770155809）、#14（44771086564）和 #16（44773283489）成功部署。2026-11-21 的 live HTTP 查核確認首頁載入 `app.js?v=15`，新版停用與錯誤說明可從公開 bundle 讀到。
 - **補充：** 若破壞性功能已部署但因尚未驗收而關閉，前端應說明「目前未開放」和待完成的驗收條件，不要再寫「尚未部署」。操作失敗時也要使用「無法確認結果」等不會假設伺服器端未成功的訊息，避免因回應中斷造成使用者重複執行破壞性操作。
 
+## 靜態網站要區分搜尋收錄與 Search Console 提交
+
+- **經驗：** Google 的 `site:` 查詢能確認搜尋結果中是否已出現某個網址，但不能證明所有頁面都已收錄或保證排名。公開 `robots.txt` 和 sitemap 回應成功也不代表 sitemap 已提交到 Search Console；提交需要網站擁有權驗證。
+- **適用範圍：** GitHub Pages 等靜態網站，以及沒有伺服器端搜尋分析工具的公開網站。
+- **本專案做法：** 2026-11-21 以 `site:310182-sketch.github.io/samewave` 查詢，Google 結果已出現同頻網站；`robots.txt` 和 `sitemap.xml` 均回 HTTP 200。Search Console 擁有權及 sitemap 提交仍待完成，因此路線圖只勾選「已確認至少一個網址可搜尋」，不宣稱已提交或保證排名。
+
 ## 部署破壞性 Edge Function 前先限制來源並驗證預檢
 
 - **經驗：** 會刪除帳號或其他使用者資料的 Edge Function，應同時以 Auth JWT 確認呼叫者、由 token 取得操作對象、將服務端管理 key 留在平台 secrets，並限制精確網站 origin。部署後先用不改動資料的 CORS `OPTIONS` 預檢確認只允許正式網站與預期 method，再進行真實登入和刪除驗收；未完成破壞性路徑驗收前，產品介面保持停用。

@@ -17,7 +17,7 @@
 - **資料政策：** 真人房間、配對票券及原始答案最多保留 24 小時；個人歷史摘要保存 90 天且可逐筆刪除；檢舉資料保存 180 天；封鎖關係保留至解除或刪除帳號。相關 migration 與清理排程已部署，但資料保留週期和逾期刪除尚未經過實際時間週期驗證。
 - **登入與社群：** 已加入可選的 Supabase Auth 前端入口，包含匿名登入、Google／Facebook／X OAuth、Instagram／Threads custom provider 設定、PKCE session 恢復及匿名帳號 identity linking。首頁登入卡片置於遊戲設定下方，並為匿名登入及各 provider 顯示不同圖標；動態狀態更新保留圖標。Chrome mock client 已驗證登入狀態和 provider 呼叫；Supabase Anonymous Auth、Manual Linking 與 redirect 已設定。公開頁顯示登入服務就緒且匿名登入按鈕可用；社群 OAuth provider 維持關閉。新手提示已說明匿名登入狀態及社群登入設定進度；實際登入 session、callback 與帳號 linking 尚未驗證。平台限制見 [knowledge/decision.md](decision.md)。
 - **前端設計：** 已完成第一輪整體字級、留白、按鈕及主題選項版面整理；登入卡片以獨立視覺層級呈現，同時保留先玩示範的主要流程。房間、真人答題、隨機配對等待及歷史頁已接上 RPC，無設定時仍保留清楚標示的操作預覽。Chrome mock 驗證流程分支；六種寬度與鍵盤流程的前一輪檢查已通過。真人服務環境的實際網路狀態仍待驗證。
-- **發布：** GitHub Pages 已在 repository Settings 選擇 GitHub Actions 作為來源。Actions [run #16](https://github.com/310182-sketch/samewave/actions/runs/44773283489) 的 `verify`、`block_race` 和 `deploy` 全部成功；公開網站網址為 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/)，首頁與審查頁回應 HTTP 200，並載入目前的 `app.js?v=15`、`moderation.js?v=2` 和 Supabase 公開 client 設定；首頁顯示「留空會使用『企鵝』」提示。Google Search Console 尚未驗證與提交 sitemap。
+- **發布：** GitHub Pages 已在 repository Settings 選擇 GitHub Actions 作為來源。Actions [run #20](https://github.com/310182-sketch/samewave/actions/runs/44775025157) 的 `verify`、`block_race` 和 `deploy` 全部成功；公開網站網址為 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/)，首頁與審查頁回應 HTTP 200，並載入目前的 `app.js?v=15`、`moderation.js?v=2` 和 Supabase 公開 client 設定；首頁顯示「留空會使用『企鵝』」提示。Google `site:` 搜尋已能找到網站；Search Console 尚未驗證與提交 sitemap。
 - **安全營運：** 前端及後端草稿已提供同房檢舉、封鎖與解除封鎖、服務端配對／開房限量及隱私告知；後端另提供審查員 allowlist、遮蔽細節的案件清單、領案／結案及私有稽核事件，PGlite 驗證已在 CI 通過。尚無審查員 UI，也沒有指定審查人員、玩家聯絡方式或值班安排；流程草案不是現行服務承諾，正式公開前不得宣稱有人即時處理。
 - **工作區：** 原型位於 `site/`，可直接開啟 `site/index.html` 操作，不需安裝套件或建置。
 - **產品方向：** 本專案以獨立的 `samewave` repository 發布二選一共同點遊戲，不沿用另一專案的 repository 歷史，詳見 [knowledge/decision.md](decision.md)。
@@ -176,11 +176,11 @@
 - [x] 建立獨立公開 repository `310182-sketch/samewave`，不沿用另一專案的 Git 歷史。
 - [x] 推送遊戲原型、文件與回歸測試至新 repo 的乾淨 `main`。
 - [x] GitHub Actions run #5 的 Deno/PGlite `verify`、headless Chrome 和 PostgreSQL 16 `block_race` jobs 通過。
-- [x] 加入公開首頁的搜尋標題、描述、canonical、Open Graph metadata、robots.txt 和 sitemap.xml；尚未確認 Google 收錄。
+- [x] 加入公開首頁的搜尋標題、描述、canonical、Open Graph metadata、robots.txt 和 sitemap.xml；Google `site:310182-sketch.github.io/samewave` 搜尋已回傳網站。
 - [x] 在 repository Settings > Pages 選擇 GitHub Actions 作為發布來源；Actions run #5 的部署 job 通過。
 - [x] 確認公開網址、`robots.txt` 和 `sitemap.xml` 均可讀取；README 已有網站立即遊玩連結。
 - [x] 將網站網址填入 GitHub About 的 Website 欄位並確認公開 repo 頁顯示正確連結。
-- [ ] 驗證 Google Search Console 網站擁有權並提交 sitemap；Google 收錄與排名仍由搜尋引擎決定。
+- [ ] 驗證 Google Search Console 網站擁有權並提交 sitemap；網站已出現在 `site:` 搜尋結果，但收錄完整性和搜尋排名仍由 Google 決定。
 - [x] 為線上版本設定 Supabase URL／公開 publishable key；Anonymous Auth、Manual Linking 和正式網站 redirect allow list 已設定，社群 OAuth callback 仍待設定。
 - [x] 修正帳號刪除停用說明：Edge Function 已部署但尚未用真實登入者驗收，介面改為說明「目前尚未開放」及待驗收條件；操作錯誤訊息改成不推斷刪除一定失敗，並遞增 `app.js` 快取版本；Actions run #16 部署成功。
 - [ ] 在正式網站以真實帳號完成登入、房間／配對、遊戲、歷史及統計端對端驗收，並確認跨裝置行為。
