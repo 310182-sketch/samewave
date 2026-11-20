@@ -10,7 +10,7 @@
 
 ## 目前狀態
 
-- **階段：** 互動原型及第一輪瀏覽器版可用性檢查已完成；目前工作樹含十份 Supabase migration 草稿、自助刪除帳號 Edge Function 和 14 項 PGlite migration 回歸測試。留空暱稱預設已依產品回饋統一為「企鵝」，本次回歸驗證待 CI。最新主題目錄 migration 擴充 6 類並同步題庫、房間／票券檢查及 RPC 驗證；尚待最新 CI 確認。前端已接上邀請房真人答題、配對佇列、取消、逾時、重新排隊及重新載入恢復，Chrome mock 流程已驗證。另已加入玩家檢舉／封鎖、隱私告知、受控刪除帳號入口及受限審查後端。原型保留首頁、主題選擇、示範配對、五題作答和分享結果。
+- **階段：** 互動原型及第一輪瀏覽器版可用性檢查已完成；目前工作樹含十份 Supabase migration 草稿、自助刪除帳號 Edge Function 和 14 項 PGlite migration 回歸測試。留空暱稱預設已依產品回饋統一為「企鵝」；Actions run #7 的 verify、block_race 和 deploy 通過，公開頁 HTTP 200 並載入新版 app.js。最新主題目錄 migration 同步題庫、房間／票券檢查及 RPC 驗證也已由 run #7 確認。前端已接上邀請房真人答題、配對佇列、取消、逾時、重新排隊及重新載入恢復，Chrome mock 流程已驗證。另已加入玩家檢舉／封鎖、隱私告知、受控刪除帳號入口及受限審查後端。原型保留首頁、主題選擇、示範配對、五題作答和分享結果。
 - **已驗證：** Chrome headless 在 320、360、390、768、1024、1440px 檢查首頁、遊戲及結果頁，皆無水平溢出；以鍵盤在六種寬度完成五題流程。已改善選項字級、觸控尺寸、焦點提示及作答狀態語意。
 - **仍待線上驗證：** 專用 Supabase 專案已建立於 Singapore，Anonymous Auth、Manual Linking 和 GitHub Pages／localhost redirect 已設定；網站公開 URL／key 尚未寫入 site/supabase-config.js，資料庫 migration 也尚未套用。真人登入、房間或配對尚不能使用。邀請房答題與隨機配對前端已接上 RPC，並以 Chrome mock 驗證成功揭曉、雙方確認、結果讀取、配對成功、逾時重試及取消；尚未在 Supabase Realtime 或兩部裝置驗證。歷史頁查詢、分頁、默契排名及逐筆刪除 RPC 也已用 Chrome mock 驗證，但不能查詢真實對局。結果頁已能產生 1080×1920 PNG，支援系統分享面板及下載備援；尚未在 iOS／Android 實機確認 Instagram 交接。
 - **後端：** PGlite 測試依檔名套用十份 SQL migration；14 項 Deno/PGlite 回歸測試涵蓋核心資料流程、新增主題與審查權限。Actions run #5 的 `verify` 和 PostgreSQL 16 `block_race` 全部通過。Supabase 專案及 Auth 基礎設定已完成，但 migrations 尚未部署，公開前端設定仍空白；正式 RLS、Realtime、Edge Function 部署和跨裝置服務仍未驗證。
@@ -92,7 +92,7 @@
 - [x] 用 Chrome 重驗 320、360、390、768、1024、1440px 首頁、遊戲及結果頁，確認沒有水平溢出；以鍵盤在六種寬度完成五題流程。
 - [x] 加入登入與玩家身分介面；未設定 Supabase 時清楚停用登入入口，且不影響本機示範流程。
 - [x] 將登入卡片放在遊戲設定下方並提高辨識度；為匿名登入、Google、Facebook、X、Instagram 和 Threads 加入各自圖標，動態更新按鈕文案時保留圖標。
-- [x] 將留空暱稱提示、遊戲畫面預設、前端 fallback 與資料庫 RPC 的空值／空白 fallback 統一為「企鵝」；Deno/PGlite 回歸測試覆蓋建立房間、加入房間和隨機配對。部署後更改既有 RPC 預設時應新增 forward-only migration。
+- [x] 將留空暱稱提示、遊戲畫面預設、前端 fallback 與資料庫 RPC 的空值／空白 fallback 統一為「企鵝」；Deno/PGlite 回歸測試覆蓋建立房間、加入房間和隨機配對；Actions run #7 的 verify、block_race 和 deploy 成功。部署後更改既有 RPC 預設時應新增 forward-only migration。
 - [ ] 完成後端後，再以不同裝置驗證房間邀請、隨機配對及 90 天歷史查詢權限。
 - [x] 加入建立邀請房、複製示範代碼及輸入房間代碼的前端預覽；畫面清楚說明尚未建立跨裝置房間。
 - [x] 在已登入且已設定 Supabase 時接上 `create_invite_room`、`join_invite_room` RPC；保留無設定時的明確示範模式，顯示服務回傳的代碼與加入狀態。
