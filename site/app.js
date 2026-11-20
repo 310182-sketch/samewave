@@ -1612,7 +1612,7 @@
     deleteAccountNote.classList.toggle("hidden", !user);
     deleteAccountNote.textContent = accountDeletionEnabled
       ? "刪除會移除帳號、個人歷史及封鎖清單；已送出的檢舉會去除帳號連結，說明最多保留 180 天。"
-      : "自助刪除尚未部署到 Supabase；完成 Edge Function 設定後才會啟用。";
+      : "自助刪除目前尚未開放；完成真實登入、刪除權限與資料收尾驗收後再啟用。";
 
     $$("[data-auth-provider]").forEach((button) => {
       const name = button.dataset.authProvider;
@@ -1818,7 +1818,7 @@
       authState.notice = "帳號已刪除；你的歷史和封鎖清單已清除，檢舉說明會依期限刪除。";
     } catch (error) {
       console.warn("Account deletion failed", error);
-      authState.notice = "帳號刪除沒有完成。請確認 Supabase 已部署刪除帳號函式並設定允許的網站來源。";
+      authState.notice = "無法確認帳號刪除結果。請重新整理或重新登入，確認帳號狀態後再決定是否重試。";
     } finally {
       authState.busy = false;
       refreshAuthPanel();
