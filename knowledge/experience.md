@@ -258,3 +258,9 @@
 - **經驗：** 題目主題不只出現在前端按鈕，也會影響每局題目查找、歷史顯示、邀請房建立、配對相容性、資料表檢查限制和「隨機主題」可抽取的範圍。新增類別應使用穩定的資料庫 key，並同步維護前端顯示名稱、題庫、RPC 驗證和資料表 constraint；用 forward-only migration 更新已存在的資料庫。回歸測試應逐一驗證新 key 可建立邀請房及相同主題配對，也應確認未知 key 會被拒絕。
 - **適用範圍：** 以使用者選擇的分類決定題目或媒合相容性的問答遊戲、推薦系統和其他前後端共用 taxonomy 的產品。
 - **本專案做法：** 在 `20261120000900_expand_topic_catalog.sql` 擴充 `question_bank`、`game_rooms` 和 `matchmaking_queue` 的允許值，新增影視娛樂、興趣嗜好、運動、寵物、閱讀學習及藝術文化六類題目，並更新邀請房與配對 RPC 驗證。前端 `topicChoiceKeys`、`topicLabels` 和題目字典共用對應 key；14 項 Deno/PGlite 測試新增每個新類別的邀請房／隨機配對及未知類別拒絕案例，最新 CI 尚待執行。
+
+## 審查工作區只在 RPC 驗證後顯示案件
+
+- **經驗：** 管理介面可在前端恢復 Auth session，但不能把「已登入」等同「有審查權限」。先用 allowlist RPC 確認帳號，再顯示佇列；清單只取案件 ID、類別、狀態和時間，開啟單筆時才呼叫詳情 RPC。切換帳號、登出或請求過期時清空案件內容；領取和結案仍交給服務端原子檢查。
+- **適用範圍：** 需由少數授權人員查看敏感案件內容、一般登入者不應直接查表的檢舉或申訴工作區。
+- **本專案做法：** `site/moderation.html` 以非匿名 provider 登入，`moderation.js` 先呼叫 `list_moderation_reports` 驗證 reviewer，再按需呼叫清單、詳情、領案與結案 RPC；所有文字用 DOM `textContent` 顯示，結案需二次確認。此頁尚待 CI、瀏覽器流程和真實 Supabase reviewer 帳號驗證，不代表已建立人工值班或玩家回覆流程。

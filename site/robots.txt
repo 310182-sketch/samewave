@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://310182-sketch.github.io/samewave/sitemap.xml

@@ -55,8 +55,8 @@ values
   ('culture', 2, '看現場表演時，你更享受？', '音樂與節奏的感染力', '演出和故事的張力'),
   ('culture', 3, '走進一座陌生城市，你會留意？', '老建築與在地歷史', '當代設計與新空間'),
   ('culture', 4, '接觸不同文化時，你比較想？', '體驗節慶和日常習俗', '欣賞藝術和表演'),
-  ('culture', 5, '在文化活動中，你更喜歡？', '和人交流分享看法', '安靜感受作品'),
-  ('on conflict (topic_key, question_no) do nothing;
+  ('culture', 5, '在文化活動中，你更喜歡？', '和人交流分享看法', '安靜感受作品')
+on conflict (topic_key, question_no) do nothing;
 
 create or replace function public.create_invite_room(
   p_topic_choice text,

@@ -154,7 +154,7 @@
 - [ ] 在兩部不同裝置上驗證建立房間、代碼加入、隨機配對、完整遊戲、歷史查詢和統計。
 - [ ] 使用正式 Supabase Auth／RLS 驗證封鎖及解除封鎖、邀請房封鎖競態、檢舉權限、限量競態與 180 天清理排程。
 - [x] 建立僅授權審查人員可用的後端案件佇列 RPC 與審查紀錄，包含狀態、處理結果、存取稽核及到期清除；CI 驗證一般玩家不能讀取案件表或審查員清單。
-- [ ] 建立只供 allowlist 審查員使用的案件檢視與處理介面；尚未設定 Supabase 專案或審查員帳號。
+- [x] 建立獨立審查工作區：以已登入 session 呼叫 allowlist RPC 驗證身分，清單只顯示必要欄位，點開才載入案件內容；支援分頁、篩選、領案及確認後結案。尚未設定 Supabase 專案或審查員帳號，線上登入與實際案件流程待驗證。
 - [ ] 依核准的案件分流流程完成檢舉提交、人工審查、玩家回覆、升級及期限清除的端對端驗證。
 - [ ] 部署帳號刪除 Edge Function，設定 `ALLOWED_ORIGINS` 和 Supabase 後端 service role secret，真人驗證後才將 `accountDeletionEnabled` 設為 `true`。
 - [ ] 在正式 Supabase 驗證匿名及社群帳號刪除、JWT／origin 拒絕、Auth 資料清理、歷史匿名化及正在進行的對局收尾。
@@ -167,8 +167,10 @@
 - [x] 建立獨立公開 repository `310182-sketch/samewave`，不沿用另一專案的 Git 歷史。
 - [x] 推送遊戲原型、文件與回歸測試至新 repo 的乾淨 `main`。
 - [x] GitHub Actions run #1、#2 的 Deno/PGlite `verify`、headless Chrome 和 PostgreSQL 16 `block_race` jobs 通過。
+- [x] 加入公開首頁的搜尋標題、描述、canonical、Open Graph metadata、robots.txt 和 sitemap.xml；尚未確認 Google 收錄。
 - [ ] 在 repository Settings > Pages 一次性選擇 GitHub Actions 作為發布來源；run #2 的 annotation 顯示預設 integration token 無權呼叫 Create Pages site API。啟用後再確認 workflow 部署與公開網址。
-- [ ] 確認公開網址內容和正式 Pages 設定。
+- [ ] 確認公開網址內容、robots.txt、sitemap 和正式 Pages 設定，並將網站網址加到 repo README 與 GitHub About 的 Website 欄位。
+- [ ] 驗證 Google Search Console 網站擁有權並提交 sitemap；Google 收錄與排名仍由搜尋引擎決定。
 - [ ] 為線上版本設定 Supabase URL／anon key 與 OAuth callback；確認公開金鑰及資料權限設定正確。
 - [ ] 真人房間、配對、登入、紀錄及統計完成驗證後，再部署正式版本並確認跨裝置行為。
 - [ ] 根據玩家回饋改善題目品質、配對體驗、前端版面及歷史統計可讀性。

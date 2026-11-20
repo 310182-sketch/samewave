@@ -986,9 +986,17 @@ Deno.test("expanded topic catalog supports questions, invite rooms, and live mat
       group by topic_key
       order by topic_key
     `);
-    assertEquals(catalog.rows.length, 10, "all ten topic categories are seeded");
+    assertEquals(
+      catalog.rows.length,
+      10,
+      "all ten topic categories are seeded",
+    );
     for (const topic of catalog.rows) {
-      assertEquals(topic.question_count, 5, `${topic.topic_key} has five questions`);
+      assertEquals(
+        topic.question_count,
+        5,
+        `${topic.topic_key} has five questions`,
+      );
     }
 
     for (const topicKey of topicKeys) {
@@ -998,8 +1006,16 @@ Deno.test("expanded topic catalog supports questions, invite rooms, and live mat
         "select public.create_invite_room($1, $2) as response",
         [topicKey, "Host"],
       );
-      assertEquals(invitation.status, "waiting", `${topicKey} invite room is created`);
-      assertEquals(invitation.topic_key, topicKey, `${topicKey} invite keeps its topic`);
+      assertEquals(
+        invitation.status,
+        "waiting",
+        `${topicKey} invite room is created`,
+      );
+      assertEquals(
+        invitation.topic_key,
+        topicKey,
+        `${topicKey} invite keeps its topic`,
+      );
       await rpc(
         db,
         users.host,
@@ -1022,18 +1038,31 @@ Deno.test("expanded topic catalog supports questions, invite rooms, and live mat
         "select public.queue_for_match($1, $2) as response",
         [topicKey, "Second"],
       );
-      assertEquals(waiting.status, "waiting", `${topicKey} player enters the queue`);
-      assertEquals(matched.status, "matched", `${topicKey} players match`);
-      assertEquals(matched.topic_key, topicKey, `${topicKey} room keeps its topic`);
+      assertEquals(
+        waiting.status,
+        "waiting",
+        `${topicKey} player enters the queue`,
+      );
+      assertEquals(
+        matched.status,
+        "matched",
+        `${topicKey} players match`,
+      );
+      assertEquals(
+        matched.topic_key,
+        topicKey,
+        `${topicKey} room keeps its topic`,
+      );
     }
 
     await assertRejects(
-      () => rpc(
-        db,
-        users.blocked,
-        "select public.queue_for_match($1, $2) as response",
-        ["unsupported", "Player"],
-      ),
+      () =>
+        rpc(
+          db,
+          users.blocked,
+          "select public.queue_for_match($1, $2) as response",
+          ["unsupported", "Player"],
+        ),
       "Unsupported topic choice",
     );
   } finally {
