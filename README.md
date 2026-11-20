@@ -15,7 +15,7 @@
 - 匯出 1080×1920 結果分享卡；可呼叫系統分享面板或下載 PNG。Instagram 交接仍需用實機確認。
 - 可在手機與桌面瀏覽器操作。
 
-網站已接上 Samewave Supabase 專案，Anonymous Auth 與 Manual Linking 已啟用；匿名登入按鈕已開放，但真實登入 session 和跨裝置流程尚未驗收。Google、Facebook、X、Instagram、Threads 社群登入仍未設定。十份資料庫 migration 已透過 Supabase SQL Editor 套用，官方 CLI migration ledger 已修復，並確認十個本機版本皆與遠端已套用版本一致；主要資料表、RPC、RLS、Realtime publication 和兩個清理排程也已核對。`delete-account` Edge Function 已部署並限制正式網站 origin，但尚未用真實登入者驗收，前端刪除入口維持關閉。GitHub Actions [run #13](https://github.com/310182-sketch/samewave/actions/runs/44770155809) 的驗證、PostgreSQL 16 `block_race` 與 Pages 部署均成功；CI 通過不代表 Auth、Realtime、RLS 或跨裝置流程已完成端對端驗收。
+網站已接上 Samewave Supabase 專案，Anonymous Auth 與 Manual Linking 已啟用；匿名登入按鈕已開放，但真實登入 session 和跨裝置流程尚未驗收。Google、Facebook、X、Instagram、Threads 社群登入仍未設定。十份資料庫 migration 已透過 Supabase SQL Editor 套用，官方 CLI migration ledger 已修復，並確認十個本機版本皆與遠端已套用版本一致；主要資料表、RPC、RLS、Realtime publication 和兩個清理排程也已核對。`delete-account` Edge Function 已部署並限制正式網站 origin，但尚未用真實登入者驗收，前端刪除入口維持關閉。GitHub Actions [run #29](https://github.com/310182-sketch/samewave/actions/runs/44785419073) 的驗證、PostgreSQL 16 `block_race` 與 Pages 部署均成功；run #28 也確認 Pages artifact 重試修正。CI 通過不代表 Auth、Realtime、RLS 或跨裝置流程已完成端對端驗收。
 
 ## Supabase Auth 設定
 
@@ -74,7 +74,7 @@ deno test --allow-env --allow-net --allow-read supabase/tests/block_match_concur
 
 ## GitHub Pages 部署
 
-公開 repository `310182-sketch/samewave` 的 Pages 發布來源已設為 GitHub Actions。最新 [run #13](https://github.com/310182-sketch/samewave/actions/runs/44770155809) 的 `verify`、`block_race` 和 `deploy` 全部成功；網站 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/) 已上線，`robots.txt` 與 `sitemap.xml` 也可公開讀取。網站已載入 Samewave Supabase 公開設定；匿名登入和真人遊戲仍待真實 session 及跨裝置驗收。
+公開 repository `310182-sketch/samewave` 的 Pages 發布來源已設為 GitHub Actions。[run #29](https://github.com/310182-sketch/samewave/actions/runs/44785419073) 的 `verify`、`block_race` 和 `deploy` 全部成功；run #28 驗證了 Pages artifact 重試修正。網站 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/) 已上線，`robots.txt` 與 `sitemap.xml` 可公開讀取。Search Console 仍顯示無法讀取 sitemap，雖然 sitemap 對 Googlebot 回 HTTP 200。網站已載入 Samewave Supabase 公開設定；匿名登入和真人遊戲仍待真實 session 及跨裝置驗收。
 
 `riddle-match` 是另一個專案；該 repository 的舊部署網址和 Actions 紀錄不代表本專案的發布狀態。
 
