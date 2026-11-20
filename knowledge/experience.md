@@ -281,7 +281,7 @@
 
 - **經驗：** 靜態前端從「本機示範」切換為連接真實 Auth 後，登入卡、配對說明和社群登入備註都要反映目前實際設定。避免保留「尚未設定後端」等過期文案，也不要把「已設定／已啟用」誤寫成「真人端對端流程已驗證」。清楚區分 Auth 設定就緒、使用者完成登入、以及房間／配對／歷史已通過實際驗收。
 - **適用範圍：** 分階段上線的 web app，特別是 Auth、OAuth provider、付款或其他外部服務由設定逐步開通的產品。
-- **本專案做法：** Supabase config 部署後，首頁顯示登入服務已就緒、匿名登入已開啟，以及 Google／Facebook／X／Instagram／Threads 仍待設定；更新登入說明涵蓋邀請房、隨機配對和歷史紀錄，並遞增 `app.js` query version。匿名登入 API 狀態已確認，但未建立真實測試 session，因此沒有把登入流程或跨裝置遊戲標成已驗收。
+- **本專案做法：** Samewave 的 `site/supabase-config.js` 已接上公開 Project URL／publishable key，首頁顯示匿名登入已啟用並列出尚未設定的 Google／Facebook／X／Instagram／Threads；README 和路線圖需同步記錄這些已完成的設定，同時保留真實 session、房間 RPC 與跨裝置流程未驗收的界線。匿名 Auth 設定 API 已確認，但沒有建立正式環境測試 session。更新文件時也要核對最新 Pages workflow；2026-11-21 的 run #13（44770155809）已成功部署。
 
 ## 部署破壞性 Edge Function 前先限制來源並驗證預檢
 

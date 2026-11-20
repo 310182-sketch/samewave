@@ -68,7 +68,7 @@
 - **登入行為：** 玩家可匿名登入；已登入玩家按社群 provider 時使用 Supabase identity linking，保留現有匿名帳號。以 PKCE 保存和恢復 session，不在畫面顯示 email 或 provider token。
 - **安全界線：** URL 和 anon／publishable key 屬公開 client 設定；provider client secret 和 service role key 只存在 Supabase Auth／後端。未提供設定或 SDK 時，登入按鈕停用且本機示範繼續運作。登入成功目前仍不代表真人配對或歷史功能已連線。
 - **尚待外部設定：** Google／Facebook／X provider app 和 callback、Instagram／Threads custom OAuth 尚未設定；公開網站已接上專案 URL／publishable key，但 live login 尚待 smoke check。
-- **推薦：** 使用已建立的 Samewave Supabase 專案完成 schema 與匿名登入驗證；再設定 Google／Facebook／X callback 和 linking。Meta custom provider 等 app review 和帳號資格確認後再開放。
+- **推薦：** 使用已部署的 Samewave Supabase 專案驗證匿名登入、session 恢復和真人 RPC；再設定 Google／Facebook／X callback 和 linking。Meta custom provider 等 app review 和帳號資格確認後再開放。
 
 ## 歷史紀錄與共同點統計
 
@@ -111,9 +111,9 @@
 
 ## 發布
 
-- **現況：** `riddle-match` 的 Pages 網站屬於另一個專案。公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立，Pages source 已設為 GitHub Actions，網站網址為 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/)。同頻已設定公開 Supabase URL／publishable key，十份 migration 已套用，Realtime publication 和清理排程已核對；尚待公開新版部署與匿名登入 smoke check。
+- **現況：** `riddle-match` 的 Pages 網站屬於另一個專案。公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立，Pages source 已設為 GitHub Actions，網站網址為 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/)。同頻已設定公開 Supabase URL／publishable key，十份 migration 已套用，Realtime publication 和清理排程已核對；GitHub Actions run #13（44770155809）部署成功。匿名登入和真人服務的真實 session／跨裝置驗收仍待完成。
 - **決定：** 採公開 repository，因為目標包含 GitHub Pages 免費發布；建立時只納入同頻原始碼和文件，不沿用另一專案歷史。已檢查用戶端設定範本沒有真實 Supabase URL／key，測試中的 JWT 為假資料；provider secret 與 service role key 不得推送。
-- **下一階段：** 同步 SQL Editor 手動套用的 migration ledger、完成匿名登入驗證；以兩部裝置驗證 Auth、RLS、Realtime、RPC、歷史和配對，並測試帳號刪除 Edge Function。公開靜態網站及 schema 部署仍不代表真人遊戲已完成端對端驗收。
+- **下一階段：** 安全同步 SQL Editor 手動套用的 migration ledger；以專用測試 session 完成匿名登入驗證，再用兩部裝置測試 Auth、RLS、Realtime、RPC、歷史和配對。帳號刪除 Edge Function 已部署且限制 origin，但要經明確核准才用一次性帳號驗證實際刪除。公開靜態網站及 schema 部署仍不代表真人遊戲已完成端對端驗收。
 
 
 ## Samewave Supabase 專案設定

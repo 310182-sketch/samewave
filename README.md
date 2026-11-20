@@ -15,11 +15,11 @@
 - 匯出 1080×1920 結果分享卡；可呼叫系統分享面板或下載 PNG。Instagram 交接仍需用實機確認。
 - 可在手機與桌面瀏覽器操作。
 
-目前尚未接上 Supabase 專案，因此社群登入、真人房間和配對仍停用，只能玩本機示範。十份 migration 和 14 項 Deno/PGlite 回歸測試已通過 GitHub Actions run #5 的 `verify`；PostgreSQL 16 `block_race` 與 Pages `deploy` 也通過。公開網站、`robots.txt` 和 `sitemap.xml` 均回傳 HTTP 200。CI 通過不代表 Supabase Auth、Realtime、RLS、Edge Function 或跨裝置流程已在線驗證。
+網站已接上 Samewave Supabase 專案，Anonymous Auth 與 Manual Linking 已啟用；匿名登入按鈕已開放，但真實登入 session 和跨裝置流程尚未驗收。Google、Facebook、X、Instagram、Threads 社群登入仍未設定。十份資料庫 migration 已透過 Supabase SQL Editor 套用，主要資料表、RPC、檢舉 RLS、答案表直讀限制、Realtime publication 和兩個清理排程已核對；CLI migration ledger 尚待安全補齊。`delete-account` Edge Function 已部署並限制正式網站 origin，但尚未用真實登入者驗收，前端刪除入口維持關閉。GitHub Actions [run #13](https://github.com/310182-sketch/samewave/actions/runs/44770155809) 的驗證、PostgreSQL 16 `block_race` 與 Pages 部署均成功；CI 通過不代表 Auth、Realtime、RLS 或跨裝置流程已完成端對端驗收。
 
 ## Supabase Auth 設定
 
-`site/supabase-config.js` 是公開用戶端設定範本。建立 Supabase 專案後，填入 project URL 和 anon／publishable key，並在 Dashboard 啟用 Anonymous Auth 及已完成設定的 provider：
+`site/supabase-config.js` 已配置 Samewave 專案的公開 Project URL 與 publishable key。Supabase Dashboard 已啟用 Anonymous Auth 和 Manual Linking；社群 providers 目前維持關閉，待各平台 credentials、callback 與審核完成後才啟用：
 
 - `google`、`facebook`、`x` 設為 `true` 後，分別使用 Supabase 內建 provider；程式將 X 對應至 Supabase 的 `twitter` provider ID。
 - `instagram`、`threads` 填入 Supabase custom provider 的完整識別碼，例如 `custom:instagram`、`custom:threads`。只有在 Meta app 資格、審核與 Supabase custom OAuth 設定完成後才啟用。
@@ -37,7 +37,7 @@ providers: {
 }
 ```
 
-瀏覽器以 Supabase JS v2.119.2 初始化匿名登入、OAuth、session 恢復及匿名帳號的 identity linking；CDN 檔案使用 SRI 固定完整性。未設定 URL／key 或 SDK 無法載入時，登入入口維持停用，示範流程仍可使用。配對、歷史及統計 RPC 已接入前端，但因尚無 Supabase 專案設定，真人登入和線上資料尚未驗證。anon／publishable key 是公開用戶端設定；service role key 和各 provider client secret 僅能留在 Supabase 後端設定。
+瀏覽器以 Supabase JS v2.119.2 初始化匿名登入、OAuth、session 恢復及匿名帳號的 identity linking；CDN 檔案使用 SRI 固定完整性。正式網站已載入專案設定，匿名登入服務已開啟；真實登入 session、重新載入後的恢復及 linking 尚未驗收。未設定 URL／key 或 SDK 無法載入時，登入入口會停用，示範流程仍可使用。配對、歷史及統計 RPC 已接入前端，但真人遊戲尚未在 Supabase 完成端對端驗證。anon／publishable key 是公開用戶端設定；service role key 和各 provider client secret 僅能留在 Supabase 後端設定。
 
 匿名帳號連結前，需在 Supabase Auth 設定中啟用 **Manual Linking**。OAuth redirect allow list 必須包含實際網站子路徑；本機應透過 HTTP localhost 預覽，而不是直接開啟 HTML 檔。
 
@@ -45,16 +45,11 @@ providers: {
 
 刪除帳號由 `supabase/functions/delete-account/` 的 Edge Function 執行：函式先驗證目前登入者，再以 Supabase 後端的 service role 刪除該使用者。資料庫會先關閉該玩家的進行中房間；玩家自己的歷史和封鎖關係會移除，其他玩家的歷史會匿名化，既有檢舉則解除帳號連結並保留至 180 天期限。靜態前端不會取得 service role key。
 
-建立 Supabase 專案後部署函式，並將 `ALLOWED_ORIGINS` 設為逗號分隔的精確網站 origin（例如 `https://<owner>.github.io` 和本機 HTTP origin；不要附網站子路徑）。只有確認 Edge Function、secret 和 CORS origin 設定完成後，才在 `site/supabase-config.js` 設定 `accountDeletionEnabled: true`；範本預設為 `false`，避免顯示無法使用的按鈕。正式 origin 尚未確定前不要打開此開關。
+函式已部署並啟用 JWT 驗證；`ALLOWED_ORIGINS` 目前只允許 `https://310182-sketch.github.io`。正式網站的 CORS 預檢回應 200，未允許的 origin 回應 403。尚未用真實登入 session 驗證 JWT 和刪除後資料收尾，因此公開設定的 `accountDeletionEnabled` 維持 `false`，刪除入口保持關閉；完成驗收前不要打開此開關。
 
-```sh
-supabase functions deploy delete-account
-supabase secrets set ALLOWED_ORIGINS="https://<owner>.github.io,http://localhost:8000"
-```
+## 真人配對後端
 
-## 真人配對後端草稿
-
-`supabase/migrations/` 收錄十份 Supabase PostgreSQL schema 與 RPC 草稿，包含十類題庫、隨機配對、12 位邀請代碼、雙人作答同步、玩家各自保存 90 天的對局摘要、共同點排名、封鎖／檢舉、服務端限量、審查工作流程及帳號刪除清理；房間、配對票券和原始作答最多保留 24 小時，檢舉保存 180 天。PGlite 測試會自動依序套用所有 migration；這份獨立 repo 尚未驗證，且不代表已部署至 Supabase，也不驗證 Supabase Auth、Realtime、pg_cron 或線上 RLS。正式連接前須建立 Supabase 專案、啟用匿名登入、依序套用並驗證 migration、確認 RLS／Realtime／RPC 權限與清理排程，再設定公開用戶端 URL 與 anon key。不要將 service role key 放進靜態網站。
+`supabase/migrations/` 收錄十份 PostgreSQL schema 與 RPC，涵蓋十類題庫、隨機配對、12 位邀請代碼、雙人作答同步、各玩家保存 90 天的對局摘要、共同點排名、封鎖／檢舉、服務端限量、審查工作流程及帳號刪除清理；房間、配對票券和原始作答最多保留 24 小時，檢舉保存 180 天。十份 migration 已在 Samewave Supabase 專案透過 SQL Editor 套用；主要 schema 和權限設定已核對，兩個 `pg_cron` 清理排程皆 active。由於 SQL Editor 部署沒有建立 `supabase_migrations.schema_migrations`，下一次 schema 變更前須先以官方 CLI 安全登記既有 migration，再用 `migration list` 核對；此前不要執行 `supabase db push` 或重跑已套用 SQL。PGlite 和 PostgreSQL 16 測試通過 CI，但不取代真實 Auth、完整 RLS、Realtime 和跨裝置驗收。不要將 service role key 放進靜態網站。
 
 ### 本機 migration 回歸測試
 
@@ -79,7 +74,7 @@ deno test --allow-env --allow-net --allow-read supabase/tests/block_match_concur
 
 ## GitHub Pages 部署
 
-公開 repository `310182-sketch/samewave` 的 Pages 發布來源已設為 GitHub Actions。Actions run #5 的 `verify`、`block_race` 和 `deploy` 全部通過；網站 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/) 已上線，`robots.txt` 與 `sitemap.xml` 也可公開讀取。README 已放置「立即遊玩」連結。Supabase 專案尚未建立或接入，因此真人登入與後端服務仍未啟用。
+公開 repository `310182-sketch/samewave` 的 Pages 發布來源已設為 GitHub Actions。最新 [run #13](https://github.com/310182-sketch/samewave/actions/runs/44770155809) 的 `verify`、`block_race` 和 `deploy` 全部成功；網站 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/) 已上線，`robots.txt` 與 `sitemap.xml` 也可公開讀取。網站已載入 Samewave Supabase 公開設定；匿名登入和真人遊戲仍待真實 session 及跨裝置驗收。
 
 `riddle-match` 是另一個專案；該 repository 的舊部署網址和 Actions 紀錄不代表本專案的發布狀態。
 
@@ -93,10 +88,11 @@ deno test --allow-env --allow-net --allow-read supabase/tests/block_match_concur
 
 ## 下一步
 
-- 建立 Supabase 專案並填入 `site/supabase-config.js`，啟用 Anonymous Auth 和 Manual Linking，依序套用十份 migration，並在專案內驗證 RLS、Realtime、RPC 權限和資料清除排程。
+- 先透過官方 Supabase CLI 將 SQL Editor 已套用的十份 migration 安全登記為 applied，再以 `supabase migration list` 核對；完成前不要執行 `supabase db push`。
+- 使用專用測試 session 驗證匿名登入、登出、重新載入後的 session 恢復和匿名帳號 linking；再以兩部裝置驗證邀請房、隨機配對、完整答題、歷史查詢及統計的 Auth／RLS／Realtime 權限。
 - 建立並設定 Facebook、Google、X provider app，驗證登入、callback、session 恢復和匿名帳號 linking；依 Meta 資格與 app review 結果評估 Instagram、Threads custom OAuth。
-- 部署帳號刪除 Edge Function，設定並驗證允許的 origin 和後端 service role secret，再驗證刪除帳號資料收尾。
-- 使用兩部裝置走完邀請房、隨機配對、答題、結果、歷史查詢和默契統計，並檢查封鎖、檢舉與帳號刪除權限。
+- 經明確核准後，以一次性測試帳號驗證帳號刪除 Edge Function 的 JWT／origin 拒絕與資料收尾；驗收通過後再決定是否開啟前端刪除入口。
+- 在 Supabase 真人環境檢查封鎖、檢舉、限量與清理排程；建立並實際驗證審查員和玩家聯絡流程。
 - 在 iOS／Android 實機與 VoiceOver／TalkBack 檢查無障礙操作、分享交接和文字放大，收集玩家回饋。
 - 建立人工檢舉審查、玩家聯絡及緊急升級流程；完成前不得宣稱檢舉有人即時處理。
 - 依公開服務地區覆核隱私告知與資料保存政策，並做行動裝置及讀屏檢查。
