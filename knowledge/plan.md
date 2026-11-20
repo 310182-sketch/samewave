@@ -13,11 +13,11 @@
 - **階段：** 互動原型及第一輪瀏覽器版可用性檢查已完成；目前工作樹含十份 Supabase migration 草稿、自助刪除帳號 Edge Function 和 14 項 PGlite migration 回歸測試。最新主題目錄 migration 擴充 6 類並同步題庫、房間／票券檢查及 RPC 驗證；尚待最新 CI 確認。前端已接上邀請房真人答題、配對佇列、取消、逾時、重新排隊及重新載入恢復，Chrome mock 流程已驗證。另已加入玩家檢舉／封鎖、隱私告知、受控刪除帳號入口及受限審查後端。原型保留首頁、主題選擇、示範配對、五題作答和分享結果。
 - **已驗證：** Chrome headless 在 320、360、390、768、1024、1440px 檢查首頁、遊戲及結果頁，皆無水平溢出；以鍵盤在六種寬度完成五題流程。已改善選項字級、觸控尺寸、焦點提示及作答狀態語意。
 - **仍待線上驗證：** 工作區沒有 Supabase URL／公開 key，無法使用真實登入、房間或配對服務。邀請房答題與隨機配對前端已接上 RPC，並以 Chrome mock 驗證成功揭曉、雙方確認、結果讀取、配對成功、逾時重試及取消；尚未在 Supabase Realtime 或兩部裝置驗證。歷史頁查詢、分頁、默契排名及逐筆刪除 RPC 也已用 Chrome mock 驗證，但不能查詢真實對局。結果頁已能產生 1080×1920 PNG，支援系統分享面板及下載備援；尚未在 iOS／Android 實機確認 Instagram 交接。
-- **後端：** PGlite 測試會依檔名套用 `supabase/migrations/` 中十份 SQL migration；14 項回歸測試涵蓋既有資料流程、權限、保留期限、配額、封鎖／檢舉、帳號刪除、審查流程及新增主題與真人配對。此前 Actions run #1、#2 的 `verify` 與 PostgreSQL `block_race` 通過；本次新增的主題 migration 和回歸案例尚待 CI 驗證。本機未安裝 Deno，因此以 GitHub runner 為此套件的驗證環境。CI 通過不等同 Supabase Auth、Realtime 或正式 RLS 驗證。Edge Function 尚未部署、Supabase 專案尚未建立，線上服務仍未驗證。
+- **後端：** PGlite 測試依檔名套用十份 SQL migration；14 項 Deno/PGlite 回歸測試涵蓋核心資料流程、新增主題與審查權限。Actions run #5 的 `verify` 和 PostgreSQL 16 `block_race` 全部通過。Supabase 專案 URL／公開 key 尚未取得，因此真人登入、Realtime、正式 RLS、Edge Function 部署和跨裝置服務仍未驗證。
 - **資料政策：** 真人房間、配對票券及原始答案最多保留 24 小時；個人歷史摘要保存 90 天且可逐筆刪除；檢舉資料保存 180 天；封鎖關係保留至解除或刪除帳號。這些是目前採用的 MVP 預設，尚未部署或在 Supabase 驗證。
 - **登入與社群：** 已加入可選的 Supabase Auth 前端入口，包含匿名登入、Google／Facebook／X OAuth、Instagram／Threads custom provider 設定、PKCE session 恢復及匿名帳號 identity linking。首頁登入卡片置於遊戲設定下方，並為匿名登入及各 provider 顯示不同圖標；動態狀態更新保留圖標。Chrome mock client 已驗證登入狀態和 provider 呼叫；尚無 Supabase URL／anon key，登入按鈕目前停用，live login／callback／帳號 linking 仍未設定或驗證。平台限制見 [knowledge/decision.md](decision.md)。
 - **前端設計：** 已完成第一輪整體字級、留白、按鈕及主題選項版面整理；登入卡片以獨立視覺層級呈現，同時保留先玩示範的主要流程。房間、真人答題、隨機配對等待及歷史頁已接上 RPC，無設定時仍保留清楚標示的操作預覽。Chrome mock 驗證流程分支；六種寬度與鍵盤流程的前一輪檢查已通過。真人服務環境的實際網路狀態仍待驗證。
-- **發布：** GitHub 公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立，乾淨的 `main` 歷史與遊戲原始碼已推送。run [#1](https://github.com/310182-sketch/samewave/actions/runs/44639487232) 與 [#2](https://github.com/310182-sketch/samewave/actions/runs/44640119382) 的 `verify` 和 `block_race` 均通過；兩次 deploy 都在 `Configure Pages` 失敗，即使 workflow 已設定 `enablement: true`。run #2 annotation 顯示 GitHub Actions integration 無權呼叫 Create Pages site API；需由 repo 管理者一次性啟用 Pages，之後才可由 Actions 部署。截至 2026-11-20，預定網址 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/) 回傳 404，尚未發布。先前 `riddle-match` 的 Pages 部署屬於另一個專案，不能視為本專案已發布。真人登入和後端尚未設定，仍維持停用狀態。
+- **發布：** GitHub Pages 已在 repository Settings 選擇 GitHub Actions 作為來源。Actions run [#5](https://github.com/310182-sketch/samewave/actions/runs/44753381651) 的 `verify`、`block_race` 和 `deploy` 全部通過；公開首頁、`robots.txt` 和 `sitemap.xml` 均回傳 HTTP 200。網址為 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/)，README 與 GitHub About 的 Website 欄位都連到正式網站。Google Search Console 尚未驗證與提交 sitemap；Supabase 專案尚未接入，真人登入和後端功能仍停用。
 - **安全營運：** 前端及後端草稿已提供同房檢舉、封鎖與解除封鎖、服務端配對／開房限量及隱私告知；後端另提供審查員 allowlist、遮蔽細節的案件清單、領案／結案及私有稽核事件，PGlite 驗證已在 CI 通過。尚無審查員 UI，也沒有指定審查人員、玩家聯絡方式或值班安排；流程草案不是現行服務承諾，正式公開前不得宣稱有人即時處理。
 - **工作區：** 原型位於 `site/`，可直接開啟 `site/index.html` 操作，不需安裝套件或建置。
 - **產品方向：** 本專案以獨立的 `samewave` repository 發布二選一共同點遊戲，不沿用另一專案的 repository 歷史，詳見 [knowledge/decision.md](decision.md)。
@@ -92,6 +92,7 @@
 - [x] 用 Chrome 重驗 320、360、390、768、1024、1440px 首頁、遊戲及結果頁，確認沒有水平溢出；以鍵盤在六種寬度完成五題流程。
 - [x] 加入登入與玩家身分介面；未設定 Supabase 時清楚停用登入入口，且不影響本機示範流程。
 - [x] 將登入卡片放在遊戲設定下方並提高辨識度；為匿名登入、Google、Facebook、X、Instagram 和 Threads 加入各自圖標，動態更新按鈕文案時保留圖標。
+- [ ] 將留空暱稱提示、遊戲畫面預設、前端 fallback 與資料庫 RPC 的空值／空白 fallback 統一為「小芯」；以回歸測試覆蓋建立房間、加入房間和隨機配對。
 - [ ] 完成後端後，再以不同裝置驗證房間邀請、隨機配對及 90 天歷史查詢權限。
 - [x] 加入建立邀請房、複製示範代碼及輸入房間代碼的前端預覽；畫面清楚說明尚未建立跨裝置房間。
 - [x] 在已登入且已設定 Supabase 時接上 `create_invite_room`、`join_invite_room` RPC；保留無設定時的明確示範模式，顯示服務回傳的代碼與加入狀態。
@@ -122,7 +123,7 @@
 - [x] 加入 JWT 驗證的 `delete-account` Edge Function，固定 Supabase JS `2.119.2` 版本並通過 Deno 型別、lint 與格式檢查；由後端 service role 刪除呼叫者本人，以精確 origin allow list 限制瀏覽器呼叫，service role key 不出現在前端。
 - [x] 以 Deno 和本機 mock Auth API 測試刪除函式 CORS、origin、HTTP method、缺少／無效 Bearer token，以及忽略用戶端指定 ID、只以已驗證 token 對應的使用者 ID 呼叫管理刪除；測試不連接正式 Supabase 或刪除真實帳號。
 - [x] 加入 Auth 使用者刪除前關閉進行中房間、清除房間代碼、取消等待票券和調整對局保留時間的 trigger；PGlite 驗證房間關閉、本人歷史 cascade 清除、對手歷史匿名化、封鎖關係清除，以及檢舉資料保留並解除雙方帳號連結。
-- [ ] 將 Deno／PGlite migration 回歸測試擴至 14 項，並驗證第十份 forward-only 主題 migration；自動讀取並依檔名排序套用所有 SQL migration，新增案例涵蓋十類題庫、六個新增類別的邀請房／隨機配對，以及未知 topic 拒絕。舊版 13 項測試已通過 run #1、#2；本次新增項目待最新 CI 確認。
+- [x] 將 Deno／PGlite migration 回歸測試擴至 14 項，並驗證第十份 forward-only 主題 migration；新增案例涵蓋十類題庫、六個新增類別的邀請房／隨機配對，以及未知 topic 拒絕。Actions run #5 通過。
 - [x] 加入 `get_my_active_room` authenticated RPC，讓登入玩家以自己的 `auth.uid()` 恢復等待或進行中的房間；逾期房間先套用清理，邀請代碼只回傳給建立者，匿名及非成員無法探索他人房間。PGlite 驗證權限、等待／遊戲中狀態及回傳資料。
 - [x] 加入 `get_my_matchmaking_ticket` authenticated RPC；只依 `auth.uid()` 查詢本人尚有效的等待票券，逾時時更新票券狀態，並在房間查詢與配對完成競速時回傳本人剛配對的有效房間。PGlite 驗證本人／他人隔離、等待／逾時／已配對狀態及匿名拒絕。
 - [x] 在一次性 PostgreSQL 16 資料庫加入多連線整合測試，重現封鎖交易和隨機配對、邀請加入的交錯，確認兩種請求都等待共用 advisory lock，並在封鎖提交後分別不配對和拒絕加入；run 45 的 GitHub Actions `block_race` job 通過。測試僅允許連接 loopback 主機。
@@ -166,10 +167,11 @@
 - [ ] 在 iOS／Android 實機確認分享檔案可交給 Instagram 限時動態，並檢查取消分享與 PNG 下載備援。
 - [x] 建立獨立公開 repository `310182-sketch/samewave`，不沿用另一專案的 Git 歷史。
 - [x] 推送遊戲原型、文件與回歸測試至新 repo 的乾淨 `main`。
-- [x] GitHub Actions run #1、#2 的 Deno/PGlite `verify`、headless Chrome 和 PostgreSQL 16 `block_race` jobs 通過。
+- [x] GitHub Actions run #5 的 Deno/PGlite `verify`、headless Chrome 和 PostgreSQL 16 `block_race` jobs 通過。
 - [x] 加入公開首頁的搜尋標題、描述、canonical、Open Graph metadata、robots.txt 和 sitemap.xml；尚未確認 Google 收錄。
-- [ ] 在 repository Settings > Pages 一次性選擇 GitHub Actions 作為發布來源；run #2 的 annotation 顯示預設 integration token 無權呼叫 Create Pages site API。啟用後再確認 workflow 部署與公開網址。
-- [ ] 確認公開網址內容、robots.txt、sitemap 和正式 Pages 設定，並將網站網址加到 repo README 與 GitHub About 的 Website 欄位。
+- [x] 在 repository Settings > Pages 選擇 GitHub Actions 作為發布來源；Actions run #5 的部署 job 通過。
+- [x] 確認公開網址、`robots.txt` 和 `sitemap.xml` 均可讀取；README 已有網站立即遊玩連結。
+- [x] 將網站網址填入 GitHub About 的 Website 欄位並確認公開 repo 頁顯示正確連結。
 - [ ] 驗證 Google Search Console 網站擁有權並提交 sitemap；Google 收錄與排名仍由搜尋引擎決定。
 - [ ] 為線上版本設定 Supabase URL／anon key 與 OAuth callback；確認公開金鑰及資料權限設定正確。
 - [ ] 真人房間、配對、登入、紀錄及統計完成驗證後，再部署正式版本並確認跨裝置行為。

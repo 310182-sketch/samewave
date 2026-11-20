@@ -111,6 +111,6 @@
 
 ## 發布
 
-- **現況：** `riddle-match` 的 Pages 網站屬於另一個專案，並非本遊戲的正式發布。公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立並推送乾淨的 `main` 初始版本。Actions run #1、#2 的 verify 和 PostgreSQL 競態測試通過，但兩次 deploy 都在 `Configure Pages` 失敗；截至 2026-11-20，預定網址 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/) 回傳 404。Supabase 尚未設定，真人登入和配對仍停用。
+- **現況：** `riddle-match` 的 Pages 網站屬於另一個專案。公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立，Pages source 已設為 GitHub Actions。run #5 的 verify、PostgreSQL 競態測試和 deploy 通過；[https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/) 已公開，首頁、robots.txt 和 sitemap.xml 回傳 HTTP 200。Supabase 專案尚未接入，真人登入和配對仍停用。
 - **決定：** 採公開 repository，因為目標包含 GitHub Pages 免費發布；建立時只納入同頻原始碼和文件，不沿用另一專案歷史。已檢查用戶端設定範本沒有真實 Supabase URL／key，測試中的 JWT 為假資料；provider secret 與 service role key 不得推送。
-- **下一階段：** `actions/configure-pages@v6` 已加入 `enablement: true`，但 run #2 仍在該步驟失敗；需先檢查 Actions job log 和 repository Pages 權限，再確認 deploy 成功及公開網址內容。原型部署不表示 Auth、Supabase RPC、Realtime、歷史紀錄或跨裝置功能已在線啟用。
+- **下一階段：** 建立或取得 Supabase 專案、啟用 Anonymous Auth 和 Manual Linking、套用 migration 並部署 Edge Function；以真實帳號和兩部裝置驗證 Auth、RLS、Realtime、RPC、歷史和配對。公開靜態網站不表示後端功能已在線啟用。

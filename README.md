@@ -15,7 +15,7 @@
 - 匯出 1080×1920 結果分享卡；可呼叫系統分享面板或下載 PNG。Instagram 交接仍需用實機確認。
 - 可在手機與桌面瀏覽器操作。
 
-目前工作區沒有 Supabase 專案 URL／公開 key，因此登入與真人服務入口停用，使用者只能玩本機示範。工作樹已有十份資料庫 migration 和 14 項 Deno/PGlite 測試；原有版本的 `verify` 與 PostgreSQL 16 `block_race` jobs 在 Actions run #1、#2 通過，新增主題 migration 尚待最新 CI 驗證。兩次 deploy 都在 `Configure Pages` 失敗，預定 Pages 網址目前回傳 404，尚未發布。這些檢查不代表 Supabase 線上設定、Realtime、RLS、Edge Function 或跨裝置流程已驗證。
+目前尚未接上 Supabase 專案，因此社群登入、真人房間和配對仍停用，只能玩本機示範。十份 migration 和 14 項 Deno/PGlite 回歸測試已通過 GitHub Actions run #5 的 `verify`；PostgreSQL 16 `block_race` 與 Pages `deploy` 也通過。公開網站、`robots.txt` 和 `sitemap.xml` 均回傳 HTTP 200。CI 通過不代表 Supabase Auth、Realtime、RLS、Edge Function 或跨裝置流程已在線驗證。
 
 ## Supabase Auth 設定
 
@@ -79,7 +79,7 @@ deno test --allow-env --allow-net --allow-read supabase/tests/block_match_concur
 
 ## GitHub Pages 部署
 
-公開 repository `310182-sketch/samewave` 已建立，`main` 已推送。Actions run #1、#2 的 `verify` 和 `block_race` 均通過，但兩次 deploy 都在 `Configure Pages` 失敗；即使 workflow 加入 `enablement: true` 仍未部署。預定網址 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/) 目前回傳 404。Supabase URL／公開 key 尚未設定，因此真人登入及後端服務仍未啟用。
+公開 repository `310182-sketch/samewave` 的 Pages 發布來源已設為 GitHub Actions。Actions run #5 的 `verify`、`block_race` 和 `deploy` 全部通過；網站 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/) 已上線，`robots.txt` 與 `sitemap.xml` 也可公開讀取。README 已放置「立即遊玩」連結。Supabase 專案尚未建立或接入，因此真人登入與後端服務仍未啟用。
 
 `riddle-match` 是另一個專案；該 repository 的舊部署網址和 Actions 紀錄不代表本專案的發布狀態。
 

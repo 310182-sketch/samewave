@@ -233,13 +233,13 @@
 
 - **經驗：** 工作目錄可能已經包含正確的新產品程式碼，但 `.git` 歷史和遠端仍屬於另一個專案。直接把功能分支推到新 repo 會帶入不相干的 commit ancestry，也容易再次推錯遠端。先核對預期檔案、未提交與未追蹤變更、忽略檔案和憑證；再複製工作樹但排除 `.git`，在新目錄初始化新的 `main` 和第一個提交。設定 remote 後先核對完整 owner/repo URL，再推送。
 - **適用範圍：** 把誤放在既有 checkout 的產品原型拆成獨立 GitHub 專案、從實驗分支抽取乾淨交付物，或需要避免公開另一專案歷史時。
-- **本專案做法：** 將 27 個同頻程式與文件檔案複製至獨立目錄，排除原 `.git`，檢查 `site/supabase-config.js` 未包含真實 Supabase 設定，並確認搜尋到的 JWT 只在測試 fixture 作假資料；新 repo 以乾淨 `main` 建立初始提交 `7436927`，建立 `310182-sketch/samewave` 後確認 remote URL，成功推送原始碼和文件。Actions run #1、#2 的 verify／block_race 通過，但 deploy 都在 `Configure Pages` 因 integration token 無權建立 Pages site 而失敗；設定 `enablement: true` 未能解決。網站尚未發布，需由 repo 管理者先在 Settings > Pages 選擇 GitHub Actions。
+- **本專案做法：** 將 27 個同頻程式與文件檔案複製至獨立目錄，排除原 `.git`，確認 `site/supabase-config.js` 沒有真實設定，再以乾淨 `main` 推送到 `310182-sketch/samewave`。run #1、#2 因 Pages 尚未設定而在 `Configure Pages` 失敗；即使加上 `enablement: true` 也無法授予 integration token 建立 site 的權限。管理者在 Settings > Pages 選擇 GitHub Actions 後，run #5 的 verify、block_race、deploy 全部通過，公開首頁、robots.txt 和 sitemap.xml 均回傳 HTTP 200。
 
 ## 新 repo 的 Pages site 需由管理者先啟用
 
 - **經驗：** 新建 repository 尚未設定 Pages 時，`actions/configure-pages` 可嘗試建立 Pages site，但預設 GitHub Actions integration token 可能沒有呼叫 Create Pages site API 的權限，並回報 `Resource not accessible by integration`。`enablement: true` 本身不會提升 token 權限；需先由有權限的管理者在 repository Settings > Pages 選擇 GitHub Actions，之後再讓 workflow 部署並檢查公開網址。
 - **適用範圍：** GitHub Pages 尚未在 repository 設定頁啟用，且部署 workflow 使用預設 `GITHUB_TOKEN`／GitHub Actions integration 的新 repo。
-- **本專案做法：** `samewave` 的 run #1、#2 中 verify 與 block_race 通過，但兩次 deploy 都在 `Configure Pages` 因 integration token 無權建立 Pages site 而失敗。即使 workflow 設定 `enablement: true` 仍相同；目前預定網址回傳 404。待管理者在 Settings > Pages 選擇 GitHub Actions 後，再檢查部署及公開頁面。
+- **本專案做法：** `samewave` 的 run #1、#2 中 verify 與 block_race 通過，但 deploy 因 Pages site 尚未啟用而失敗。確認 `enablement: true` 沒有管理權限後，改由 repo 管理者在 Settings > Pages 選擇 GitHub Actions；run #5 隨後完成部署，公開首頁和 sitemap 均可讀取。
 
 ## 審查佇列要把清單和敏感案件內容分開授權
 
@@ -264,3 +264,9 @@
 - **經驗：** 管理介面可在前端恢復 Auth session，但不能把「已登入」等同「有審查權限」。先用 allowlist RPC 確認帳號，再顯示佇列；清單只取案件 ID、類別、狀態和時間，開啟單筆時才呼叫詳情 RPC。切換帳號、登出或請求過期時清空案件內容；領取和結案仍交給服務端原子檢查。
 - **適用範圍：** 需由少數授權人員查看敏感案件內容、一般登入者不應直接查表的檢舉或申訴工作區。
 - **本專案做法：** `site/moderation.html` 以非匿名 provider 登入，`moderation.js` 先呼叫 `list_moderation_reports` 驗證 reviewer，再按需呼叫清單、詳情、領案與結案 RPC；所有文字用 DOM `textContent` 顯示，結案需二次確認。此頁尚待 CI、瀏覽器流程和真實 Supabase reviewer 帳號驗證，不代表已建立人工值班或玩家回覆流程。
+
+## 預設暱稱要在前端提示與服務端 RPC 保持一致
+
+- **經驗：** 可選暱稱的預設值會出現在輸入提示、尚未進入遊戲時的畫面、前端送出前的 fallback，以及房間建立、加入與配對 RPC。只改提示文字可能造成遊戲顯示名稱和後端保存名稱不一致；前後端應使用同一預設，並覆蓋空字串與只有空白的輸入。
+- **適用範圍：** 有訪客模式或可選顯示名稱的多人遊戲、房間邀請、配對佇列及任何同時由瀏覽器與服務端正規化暱稱的產品。
+- **本專案做法：** 將提示、遊戲玩家標籤、前端 state 與讀取器、SQL RPC 的 `trim` 後 fallback 統一為「小芯」，並遞增 `app.js` 查詢版本以避免舊快取。Deno/PGlite 回歸案例檢查前端預設，並驗證邀請房建立者、加入者及隨機配對輸入空白暱稱後都保存「小芯」。

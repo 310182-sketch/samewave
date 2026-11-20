@@ -1070,6 +1070,89 @@ Deno.test("expanded topic catalog supports questions, invite rooms, and live mat
   }
 });
 
+Deno.test("blank nicknames use 小芯 across the UI, invite rooms, and matching", async () => {
+  const html = await Deno.readTextFile(
+    new URL("../../site/index.html", import.meta.url),
+  );
+  const app = await Deno.readTextFile(
+    new URL("../../site/app.js", import.meta.url),
+  );
+  assert(
+    html.includes('placeholder="留空會使用「小芯」"'),
+    "nickname placeholder shows the default",
+  );
+  assert(
+    html.includes("data-player-name>小芯<"),
+    "game screen starts with the default nickname",
+  );
+  assert(app.includes('nickname: "小芯"'), "client state uses the default");
+  assertEquals(
+    (app.match(/\|\| "小芯"/g) ?? []).length,
+    2,
+    "both client nickname readers use the default",
+  );
+
+  const db = await createDatabase();
+  try {
+    await insertUsers(db);
+    const invitation = await rpc(
+      db,
+      users.host,
+      "select public.create_invite_room($1, $2) as response",
+      ["travel", "  "],
+    );
+    const host = await db.query<{ nickname: string }>(
+      `select nickname from public.room_members
+       where room_id = $1::uuid and user_id = $2::uuid`,
+      [invitation.room_id, users.host],
+    );
+    assertEquals(
+      host.rows[0]?.nickname,
+      "小芯",
+      "blank invite creator nickname uses the default",
+    );
+
+    const joined = await rpc(
+      db,
+      users.guest,
+      "select public.join_invite_room($1, $2) as response",
+      [invitation.invite_code, ""],
+    );
+    assertEquals(joined.status, "joined", "blank nickname player joins room");
+    const guest = await db.query<{ nickname: string }>(
+      `select nickname from public.room_members
+       where room_id = $1::uuid and user_id = $2::uuid`,
+      [invitation.room_id, users.guest],
+    );
+    assertEquals(
+      guest.rows[0]?.nickname,
+      "小芯",
+      "blank invite joiner nickname uses the default",
+    );
+
+    const queued = await rpc(
+      db,
+      users.blocked,
+      "select public.queue_for_match($1, $2) as response",
+      ["travel", "  "],
+    );
+    assertEquals(queued.status, "waiting", "blank nickname enters queue");
+    const ticket = await db.query<{ nickname: string }>(
+      `select nickname from public.matchmaking_queue
+       where user_id = $1::uuid and status = 'waiting'
+       order by created_at desc limit 1`,
+      [users.blocked],
+    );
+    assertEquals(
+      ticket.rows[0]?.nickname,
+      "小芯",
+      "blank matchmaking nickname uses the default",
+    );
+  } finally {
+    await db.close();
+  }
+});
+
 Deno.test("history cursor and commonality ranking enforce their time and match limits", async () => {
   const db = await createDatabase();
   try {
