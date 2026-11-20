@@ -70,7 +70,7 @@
 
 - **經驗：** 如果把答題結果寫進玩家可訂閱的即時資料列，另一位玩家可能在自己作答前讀到答案。事件只需通知房間進度變了；敏感答案應由伺服器函式檢查玩家身分和同房作答數，再決定是否回傳。
 - **適用範圍：** 多人遊戲、協作表單和需要同步狀態但不能過早揭露資料的即時應用。
-- **本專案做法：** Supabase migration 初稿只發布不含答案的房間狀態；答案表不授予用戶端直接讀取權限，RPC 設計為兩人都答完才回傳雙方選擇。此設計尚未套用到 Supabase，RLS、Realtime publication 和函式權限仍需在實際專案驗證。
+- **本專案做法：** Supabase migration 只發布不含答案的房間狀態；答案表不授予用戶端直接讀取權限，RPC 設計為兩人都答完才回傳雙方選擇。十份 migration 已部署；線上查核確認答案表用戶端無直讀權，房間表已加入 Realtime publication。雙裝置作答與玩家角色的端對端權限仍待驗證。
 
 ## Web Share API 分享圖片需要先準備好檔案
 
@@ -100,13 +100,13 @@
 
 - **經驗：** 已部署的 migration 是環境變更紀錄；直接改寫舊檔不會同步修正已套用資料庫，反而會造成新舊環境的 migration 歷史不一致。
 - **適用範圍：** 使用版本化 SQL migration 管理 PostgreSQL、Supabase 或其他資料庫結構的專案。
-- **本專案做法：** 保留初版即時配對 migration，另建後續檔案加入邀請房間與歷史摘要。新檔案目前仍是草稿，尚未部署；部署前要在乾淨資料庫按版本順序套用並檢查權限和資料保留行為。
+- **本專案做法：** 保留初版即時配對 migration，另建後續檔案加入邀請房間與歷史摘要。十份檔案已按版本順序部署到 Supabase；因透過 SQL Editor 手動套用，CLI ledger 尚未同步。後續部署需先修復 migration 歷史，再以乾淨資料庫和正式 Supabase 分別檢查權限及保留行為。
 
 ## 沒有 Supabase 專案時可用 PGlite 預檢 SQL migration
 
 - **經驗：** PGlite 可在瀏覽器執行 PostgreSQL，讓 migration 在建立雲端專案前先做套用和 RPC 回歸測試。把最小 `auth.users`、`auth.uid()`、角色及登入 claim stub 寫進版本控制，可讓後續 migration 修改重複檢查 PostgreSQL／PLpgSQL 語法、權限邊界及核心資料流程，不必依賴一次性的手動 smoke test。
 - **適用範圍：** 使用 PostgreSQL、RPC、觸發器和 RLS 的 Supabase 專案，且本機沒有 Docker、PostgreSQL 或 Supabase CLI 時。
-- **本專案做法：** `supabase/tests/migrations.test.ts` 以固定版本的 PGlite 自動讀取 `supabase/migrations/` 內所有 SQL 檔案，再按檔名順序套用；新增 migration 不必再更新測試中的重複清單。測試可用 `deno test --allow-read --allow-net supabase/tests/migrations.test.ts` 重複執行。現有 14 項測試涵蓋 migration／權限、房間與配對票券恢復、security-definer 權限、雙人揭曉與歷史、配對與封鎖、主題目錄擴充、歷史範圍與排名、保留期限、限量、檢舉及帳號刪除收尾；本次新增主題案例尚待最新 CI 執行。測試需以不同 JWT subject 呼叫 security-definer RPC，驗證讀取與刪除都只作用於該玩家資料，並確認未登入呼叫被拒絕；刪除帳號測試也應同時核對 cascade、匿名化和保留期限，避免只看 Auth row 是否消失。所有應用 security-definer 函式都固定空 `search_path`，回歸測試直接檢查 `pg_proc.proconfig`，並確認匿名角色沒有任何應用 security-definer 函式的執行權。PGlite 的共用鎖檢查只能驗證不變條件；PostgreSQL 16 多連線整合測試另已驗證封鎖與配對／邀請加入、兩種帳號限量競態。這些本機檢查仍不等同 Supabase Auth／Realtime／pg_cron／RLS 環境驗證。
+- **本專案做法：** `supabase/tests/migrations.test.ts` 以固定版本的 PGlite 自動讀取 `supabase/migrations/` 內所有 SQL 檔案，再按檔名順序套用；新增 migration 不必再更新測試中的重複清單。測試可用 `deno test --allow-read --allow-net supabase/tests/migrations.test.ts` 重複執行。現有 14 項測試涵蓋 migration／權限、房間與配對票券恢復、security-definer 權限、雙人揭曉與歷史、配對與封鎖、主題目錄擴充、歷史範圍與排名、保留期限、限量、檢舉及帳號刪除收尾；Actions run #7 的 verify 與 PostgreSQL 16 `block_race` 通過。測試需以不同 JWT subject 呼叫 security-definer RPC，驗證讀取與刪除都只作用於該玩家資料，並確認未登入呼叫被拒絕；刪除帳號測試也應同時核對 cascade、匿名化和保留期限，避免只看 Auth row 是否消失。所有應用 security-definer 函式都固定空 `search_path`，回歸測試直接檢查 `pg_proc.proconfig`，並確認匿名角色沒有任何應用 security-definer 函式的執行權。PGlite 的共用鎖檢查只能驗證不變條件；PostgreSQL 16 多連線整合測試另已驗證封鎖與配對／邀請加入、兩種帳號限量競態。這些本機檢查仍不等同 Supabase Auth 或跨裝置遊戲驗收。
 
 ## 多連線交易競態要用真實 PostgreSQL 驗證
 
@@ -257,7 +257,7 @@
 
 - **經驗：** 題目主題不只出現在前端按鈕，也會影響每局題目查找、歷史顯示、邀請房建立、配對相容性、資料表檢查限制和「隨機主題」可抽取的範圍。新增類別應使用穩定的資料庫 key，並同步維護前端顯示名稱、題庫、RPC 驗證和資料表 constraint；用 forward-only migration 更新已存在的資料庫。回歸測試應逐一驗證新 key 可建立邀請房及相同主題配對，也應確認未知 key 會被拒絕。
 - **適用範圍：** 以使用者選擇的分類決定題目或媒合相容性的問答遊戲、推薦系統和其他前後端共用 taxonomy 的產品。
-- **本專案做法：** 在 `20261120000900_expand_topic_catalog.sql` 擴充 `question_bank`、`game_rooms` 和 `matchmaking_queue` 的允許值，新增影視娛樂、興趣嗜好、運動、寵物、閱讀學習及藝術文化六類題目，並更新邀請房與配對 RPC 驗證。前端 `topicChoiceKeys`、`topicLabels` 和題目字典共用對應 key；14 項 Deno/PGlite 測試新增每個新類別的邀請房／隨機配對及未知類別拒絕案例，最新 CI 尚待執行。
+- **本專案做法：** 在 `20261120000900_expand_topic_catalog.sql` 擴充 `question_bank`、`game_rooms` 和 `matchmaking_queue` 的允許值，新增影視娛樂、興趣嗜好、運動、寵物、閱讀學習及藝術文化六類題目，並更新邀請房與配對 RPC 驗證。前端 `topicChoiceKeys`、`topicLabels` 和題目字典共用對應 key；14 項 Deno/PGlite 測試新增每個新類別的邀請房／隨機配對及未知類別拒絕案例，Actions run #7 通過。
 
 ## 審查工作區只在 RPC 驗證後顯示案件
 
@@ -276,4 +276,10 @@
 
 - **經驗：** 變更空白暱稱的文案，也要同步更新遊戲畫面初始值、前端 state 和讀取 fallback、所有會建立／加入房間或建立配對票券的資料庫 RPC，以及驗證這些流程的回歸案例。靜態網站需遞增前端 script 查詢版本，避免瀏覽器繼續載入舊 bundle。尚未部署的 migration 可直接修正；資料庫一旦套用，之後應使用 forward-only migration 更新函式，不要改寫已部署 migration。
 - **適用範圍：** 同時由客戶端與服務端正規化可選名稱、設定值或預設分類的應用程式，特別是已使用版本化資料庫 migration 的服務。
-- **本專案做法：** 依使用者選擇將預設由「小芯」改為「企鵝」，更新 placeholder、玩家標籤、兩處前端 fallback、七處 SQL fallback 和 Deno/PGlite 測試，並將 app.js 查詢版本由 12 遞增為 13。Supabase migration 尚未部署，因此這次可更新現有 migration；若先部署再更名，應新增 migration。Actions run #7 的 verify、block_race 與 deploy 全部成功；公開 GitHub Pages 回應 HTTP 200，並載入 app.js?v=13。
+- **本專案做法：** 依使用者選擇將預設由「小芯」改為「企鵝」，更新 placeholder、玩家標籤、兩處前端 fallback、七處 SQL fallback 和 Deno/PGlite 測試，並將 app.js 查詢版本由 12 遞增為 13。變更完成後 Actions run #7 的 verify、block_race 與 deploy 全部成功；公開 GitHub Pages 回應 HTTP 200，並載入 `app.js?v=13`。Supabase migration 套用後如需再改 RPC fallback，必須新增 forward-only migration。
+
+## 手動套用 Supabase migration 後先同步遠端版本紀錄
+
+- **經驗：** 透過 Supabase SQL Editor 手動執行 migration 會更新資料庫結構，但不會自動建立 CLI 使用的 `supabase_migrations.schema_migrations` 紀錄。之後若直接執行 `supabase db push`，CLI 可能把這些 migration 視為尚未套用並重複執行。應先確認遠端 schema 與每個 migration 的實際效果，再用 Supabase CLI 的 migration repair 流程登記已套用版本；不得為了補紀錄而重跑已套用的非冪等 SQL。
+- **適用範圍：** 先以 Supabase Dashboard／SQL Editor 部署、後續打算改用 Supabase CLI 或版本化 migration pipeline 的專案。
+- **本專案做法：** 十份 Samewave migration 依檔名順序已透過 SQL Editor 成功套用；唯讀查核確認主要資料表、函式、檢舉 RLS、答案表直讀限制、房間 Realtime publication 和清理排程。`to_regclass('supabase_migrations.schema_migrations')` 回傳 null，且兩個 `pg_cron` 清理 job 均 active。尚未安裝或登入 Supabase CLI，因此未建立遠端 migration 歷史；下一次 schema 變更前先核對各版本並同步 ledger。
