@@ -10,10 +10,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=10">
+    <link rel="stylesheet" href="styles.css?v=12">
     <script src="supabase-config.js?v=2" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.2/dist/umd/supabase.js" integrity="sha384-A97u3Qnt9GZHURO9YJZRe7VQgGUeFzcv6I1oIGnUTxQrCxnpQMwR0/G8F2zt9abZ" crossorigin="anonymous" defer></script>
-    <script src="app.js?v=10" defer></script>
+    <script src="app.js?v=11" defer></script>
   </head>
   <body>
     <div class="app-shell">
@@ -51,6 +51,12 @@
                   <button class="topic-choice" type="button" data-topic-choice="音樂" aria-pressed="false"><span aria-hidden="true">♫</span>音樂</button>
                   <button class="topic-choice" type="button" data-topic-choice="日常" aria-pressed="false"><span aria-hidden="true">☼</span>日常</button>
                   <button class="topic-choice" type="button" data-topic-choice="飲食" aria-pressed="false"><span aria-hidden="true">✿</span>飲食</button>
+                  <button class="topic-choice" type="button" data-topic-choice="影視娛樂" aria-pressed="false"><span aria-hidden="true">🎬</span>影視娛樂</button>
+                  <button class="topic-choice" type="button" data-topic-choice="興趣嗜好" aria-pressed="false"><span aria-hidden="true">🧩</span>興趣嗜好</button>
+                  <button class="topic-choice" type="button" data-topic-choice="運動" aria-pressed="false"><span aria-hidden="true">⚽</span>運動</button>
+                  <button class="topic-choice" type="button" data-topic-choice="寵物" aria-pressed="false"><span aria-hidden="true">🐾</span>寵物</button>
+                  <button class="topic-choice" type="button" data-topic-choice="閱讀學習" aria-pressed="false"><span aria-hidden="true">📚</span>閱讀學習</button>
+                  <button class="topic-choice" type="button" data-topic-choice="藝術文化" aria-pressed="false"><span aria-hidden="true">🎭</span>藝術文化</button>
                   <button class="topic-choice random-choice is-selected" type="button" data-topic-choice="隨機" aria-pressed="true"><span aria-hidden="true">✳</span>隨機主題</button>
                 </div>
               </fieldset>
@@ -73,22 +79,45 @@
                 <button class="history-link" type="button" data-open-history>查看歷史紀錄與默契統計 <span aria-hidden="true">→</span></button>
               </div>
             </form>
+
             <section class="auth-panel" aria-labelledby="auth-title" aria-busy="false">
               <div class="auth-heading">
-                <div>
-                  <p class="auth-eyebrow">PLAYER ACCOUNT</p>
-                  <h2 id="auth-title">登入與玩家身分</h2>
+                <div class="auth-heading-copy">
+                  <span class="auth-mark" aria-hidden="true">同</span>
+                  <div>
+                    <p class="auth-eyebrow">玩家帳號</p>
+                    <h2 id="auth-title">登入與玩家身分</h2>
+                  </div>
                 </div>
                 <button class="auth-signout hidden" type="button" data-auth-signout>登出</button>
               </div>
               <p class="auth-status" data-auth-status role="status" aria-live="polite">登入服務尚未設定；可先玩本機示範，示範資料不會保存。</p>
-              <button class="auth-anonymous-button" type="button" data-auth-anonymous disabled>匿名登入</button>
+              <button class="auth-anonymous-button" type="button" data-auth-anonymous disabled>
+                <svg class="auth-method-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm0 2c-4.14 0-7.5 2.13-7.5 4.75V21h15v-2.25C19.5 16.13 16.14 14 12 14Z" fill="currentColor"/></svg>
+                <span data-auth-anonymous-label>匿名登入</span>
+              </button>
+              <p class="auth-provider-heading">或使用社群帳號</p>
               <div class="auth-provider-grid" aria-label="社群登入與帳號連結">
-                <button class="auth-provider-button" type="button" data-auth-provider="google" disabled>Google</button>
-                <button class="auth-provider-button" type="button" data-auth-provider="facebook" disabled>Facebook</button>
-                <button class="auth-provider-button" type="button" data-auth-provider="x" disabled>X</button>
-                <button class="auth-provider-button" type="button" data-auth-provider="instagram" disabled>Instagram</button>
-                <button class="auth-provider-button" type="button" data-auth-provider="threads" disabled>Threads</button>
+                <button class="auth-provider-button" type="button" data-auth-provider="google" disabled>
+                  <svg class="auth-provider-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M23.49 12.27c0-.79-.07-1.55-.2-2.27H12v4.3h6.44a5.5 5.5 0 0 1-2.38 3.6v2.8h3.85c2.25-2.08 3.58-5.14 3.58-8.43Z" fill="#4285F4"/><path d="M12 24c3.24 0 5.95-1.08 7.93-2.93l-3.85-2.99c-1.07.72-2.43 1.14-4.08 1.14-3.14 0-5.8-2.12-6.76-4.97H1.27v3.09A12 12 0 0 0 12 24Z" fill="#34A853"/><path d="M5.24 14.25a7.2 7.2 0 0 1 0-4.5V6.66H1.27a12 12 0 0 0 0 10.68l3.97-3.09Z" fill="#FBBC05"/><path d="M12 4.78c1.77 0 3.35.61 4.6 1.81l3.44-3.44C17.95 1.19 15.24 0 12 0A12 12 0 0 0 1.27 6.66l3.97 3.09C6.2 6.9 8.86 4.78 12 4.78Z" fill="#EA4335"/></svg>
+                  <span data-auth-provider-label>Google</span>
+                </button>
+                <button class="auth-provider-button" type="button" data-auth-provider="facebook" disabled>
+                  <svg class="auth-provider-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M24 12a12 12 0 1 0-13.88 11.86v-8.39H7.08V12h3.04V9.35c0-3 1.79-4.66 4.52-4.66 1.31 0 2.68.23 2.68.23v2.95h-1.51c-1.49 0-1.95.93-1.95 1.88V12h3.32l-.53 3.47h-2.79v8.39A12 12 0 0 0 24 12Z" fill="#1877F2"/><path d="M16.65 15.47 17.18 12h-3.32V9.75c0-.95.46-1.88 1.95-1.88h1.51V4.92s-1.37-.23-2.68-.23c-2.73 0-4.52 1.66-4.52 4.66V12H7.08v3.47h3.04v8.39a12.2 12.2 0 0 0 3.74 0v-8.39h2.79Z" fill="#fff"/></svg>
+                  <span data-auth-provider-label>Facebook</span>
+                </button>
+                <button class="auth-provider-button" type="button" data-auth-provider="x" disabled>
+                  <svg class="auth-provider-icon auth-provider-icon-x" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.9 2h3.1l-6.78 7.75L23.2 22h-6.4l-5.02-7.2L5.5 22H2.4l7.25-8.3L1.6 2h6.56l4.54 6.7L18.9 2Zm-1.08 18h1.72L7.05 3.9H5.2L17.82 20Z" fill="currentColor"/></svg>
+                  <span data-auth-provider-label>X</span>
+                </button>
+                <button class="auth-provider-button" type="button" data-auth-provider="instagram" disabled>
+                  <svg class="auth-provider-icon" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="instagramGradient" x1="2" y1="22" x2="22" y2="2" gradientUnits="userSpaceOnUse"><stop stop-color="#FFB347"/><stop offset=".48" stop-color="#E1306C"/><stop offset="1" stop-color="#833AB4"/></linearGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#instagramGradient)"/><rect x="6.5" y="6.5" width="11" height="11" rx="3.5" fill="none" stroke="#fff" stroke-width="1.8"/><circle cx="12" cy="12" r="2.7" fill="none" stroke="#fff" stroke-width="1.8"/><circle cx="17.1" cy="6.9" r="1.1" fill="#fff"/></svg>
+                  <span data-auth-provider-label>Instagram</span>
+                </button>
+                <button class="auth-provider-button" type="button" data-auth-provider="threads" disabled>
+                  <svg class="auth-provider-icon auth-provider-icon-threads" viewBox="0 0 24 24" aria-hidden="true"><text x="1.1" y="20" font-family="Georgia,serif" font-size="22" font-weight="700" fill="currentColor">@</text></svg>
+                  <span data-auth-provider-label>Threads</span>
+                </button>
               </div>
               <p class="auth-note">Facebook、Google、X 須先在 Supabase 啟用並設定 callback。Instagram 僅支援符合資格的專業帳號；Threads 與 Instagram 需完成 Meta 審核及 custom OAuth 設定。真人功能需設定 Supabase 專案後啟用。</p>
               <button class="auth-delete-account hidden" type="button" data-auth-delete-account>永久刪除帳號</button>

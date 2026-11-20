@@ -478,15 +478,22 @@ body { font-size: 16px; line-height: 1.55; }
 .history-view > .workflow-note { margin-top: 17px; }
 
 /* Optional Supabase Auth */
-.auth-panel { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 15px; }
+.auth-panel { max-width: 470px; position: relative; overflow: hidden; margin: 0 0 17px; border: 1px solid #d8e1d2; border-radius: 16px; padding: 18px 19px; background: linear-gradient(145deg, #edf3e9 0%, #fbfaf6 78%); box-shadow: 0 14px 35px #43583b13; }
+.auth-panel::before { position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--green); content: ""; }
 .auth-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.auth-eyebrow { margin: 0 0 4px; color: var(--green); font-size: 9px; font-weight: 700; letter-spacing: 1.1px; }
-.auth-heading h2 { margin: 0; font-size: 16px; letter-spacing: -.03em; }
-.auth-status { margin: 8px 0 10px; color: #62665d; font-size: 12px; line-height: 1.6; }
-.auth-anonymous-button,.auth-provider-button,.auth-signout { min-height: 42px; border: 1px solid #dfe4d9; border-radius: 9px; background: #fffefa; color: var(--green-dark); font-size: 12px; font-weight: 700; cursor: pointer; transition: .18s ease; }
-.auth-anonymous-button { width: 100%; border-color: var(--green); background: var(--green); color: white; }
-.auth-provider-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; margin-top: 8px; }
-.auth-provider-button { width: 100%; padding: 0 8px; }
+.auth-heading-copy { display: flex; align-items: center; gap: 12px; }
+.auth-mark { width: 44px; height: 44px; display: grid; flex: 0 0 auto; place-items: center; border-radius: 14px 14px 14px 5px; background: var(--green); color: white; font-size: 19px; font-weight: 800; }
+.auth-eyebrow { margin: 0 0 3px; color: var(--green); font-size: 12px; font-weight: 700; letter-spacing: .4px; }
+.auth-heading h2 { margin: 0; font-size: 20px; line-height: 1.35; letter-spacing: -.03em; }
+.auth-status { margin: 13px 0 12px; border-left: 3px solid #9eaf95; border-radius: 8px; padding: 10px 12px; background: #ffffffc9; color: #515b4d; font-size: 13px; line-height: 1.65; }
+.auth-anonymous-button,.auth-provider-button,.auth-signout { min-height: 44px; border: 1px solid #d7dfd2; border-radius: 10px; background: #fffefa; color: var(--green-dark); font-size: 13px; font-weight: 700; cursor: pointer; transition: .18s ease; }
+.auth-anonymous-button { width: 100%; min-height: 50px; display: flex; align-items: center; justify-content: center; gap: 9px; border-color: var(--green); background: var(--green); color: white; font-size: 15px; }
+.auth-method-icon { width: 19px; height: 19px; flex: 0 0 auto; }
+.auth-provider-heading { margin: 13px 0 7px; color: #5d6758; font-size: 12px; font-weight: 700; }
+.auth-provider-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.auth-provider-button { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 0 8px; }
+.auth-provider-icon { width: 20px; height: 20px; display: block; flex: 0 0 auto; }
+.auth-provider-icon-threads { width: 22px; height: 22px; }
 .auth-signout { min-height: 34px; padding: 0 11px; color: #62665d; font-size: 11px; }
 .auth-delete-account { width: 100%; min-height: 42px; margin-top: 11px; border: 1px solid #e4c9c2; border-radius: 9px; padding: 0 12px; background: #fffaf8; color: #8b4f3b; font-size: 12px; font-weight: 700; cursor: pointer; }
 .auth-delete-account:not(:disabled):hover { background: #fbf0ec; }
@@ -494,8 +501,9 @@ body { font-size: 16px; line-height: 1.55; }
 .auth-delete-note { margin: 6px 0 0; color: #81756e; font-size: 11px; line-height: 1.6; }
 .auth-anonymous-button:not(:disabled):hover { background: var(--green-dark); }
 .auth-provider-button:not(:disabled):hover,.auth-signout:not(:disabled):hover { border-color: #b9c5b1; background: var(--green-soft); }
-.auth-anonymous-button:disabled,.auth-provider-button:disabled,.auth-signout:disabled { opacity: .52; }
-.auth-note { margin: 9px 0 0; color: #797d71; font-size: 11px; line-height: 1.65; }
+.auth-anonymous-button:disabled { border-color: #70846a; background: #70846a; opacity: .9; }
+.auth-provider-button:disabled,.auth-signout:disabled { opacity: .62; }
+.auth-note { margin: 10px 0 0; color: #687163; font-size: 12px; line-height: 1.65; }
 .auth-panel[aria-busy="true"] .auth-status { color: var(--green-dark); }
 
 @media (max-width: 650px) {

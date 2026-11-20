@@ -29,6 +29,48 @@
       { prompt: "和朋友聚餐時，你比較在意？", choices: ["大家能一起分享食物", "每個人都吃到喜歡的"], demoAnswer: 0 },
       { prompt: "甜點擺在面前，你會？", choices: ["先拍照再開始吃", "趁熱趁新鮮馬上吃"], demoAnswer: 1 },
       { prompt: "喝飲料時，你偏好？", choices: ["固定點最愛的那款", "偶爾換個新口味"], demoAnswer: 1 }
+    ],
+    影視娛樂: [
+      { prompt: "看影視作品時，你最容易被什麼吸引？", choices: ["精彩的故事", "鮮明的畫面與氛圍"], demoAnswer: 0 },
+      { prompt: "追劇時你比較喜歡？", choices: ["一次看好幾集", "留著慢慢享受"], demoAnswer: 1 },
+      { prompt: "挑一部新作品時，你會先看？", choices: ["朋友推薦", "預告或片段"], demoAnswer: 0 },
+      { prompt: "休閒時打開影音平台，你通常想看？", choices: ["輕鬆好笑的內容", "引人好奇的故事"], demoAnswer: 1 },
+      { prompt: "看完喜歡的作品後，你比較會？", choices: ["找人分享心得", "回味最喜歡的片段"], demoAnswer: 0 }
+    ],
+    興趣嗜好: [
+      { prompt: "開始一項新興趣時，你會先？", choices: ["跟著入門教學試試看", "直接動手邊做邊學"], demoAnswer: 1 },
+      { prompt: "週末有一段空閒，你比較想？", choices: ["做點手作或創作", "出門走走找靈感"], demoAnswer: 0 },
+      { prompt: "做興趣活動時，你偏好？", choices: ["自己專心完成", "找朋友一起玩"], demoAnswer: 1 },
+      { prompt: "遇到喜歡的新嗜好，你會？", choices: ["先試最基本的玩法", "很快想挑戰進階內容"], demoAnswer: 0 },
+      { prompt: "你比較享受興趣中的哪一部分？", choices: ["完成一個作品或目標", "過程裡的新發現"], demoAnswer: 1 }
+    ],
+    運動: [
+      { prompt: "活動身體時，你通常偏好？", choices: ["戶外走動與跑跳", "室內運動或伸展"], demoAnswer: 0 },
+      { prompt: "做運動時你比較喜歡？", choices: ["和大家組隊", "照自己的步調進行"], demoAnswer: 1 },
+      { prompt: "看一場比賽時，你最期待？", choices: ["緊張的攻防變化", "選手展現技巧"], demoAnswer: 0 },
+      { prompt: "安排運動時間，你會選？", choices: ["早一點開始一天", "忙完後放鬆活動"], demoAnswer: 1 },
+      { prompt: "運動時哪種感覺更吸引你？", choices: ["突破自己的紀錄", "享受流汗後的輕鬆"], demoAnswer: 1 }
+    ],
+    寵物: [
+      { prompt: "和熟悉的動物相處時，你更喜歡？", choices: ["一起散步活動", "安靜陪伴一會兒"], demoAnswer: 1 },
+      { prompt: "如果照顧寵物，你比較期待？", choices: ["一起玩耍互動", "觀察牠慢慢熟悉你"], demoAnswer: 0 },
+      { prompt: "看到可愛的動物內容，你會先看？", choices: ["活潑逗趣的日常", "溫馨療癒的陪伴"], demoAnswer: 1 },
+      { prompt: "你覺得理想的寵物個性是？", choices: ["親人又愛互動", "自在而有自己的步調"], demoAnswer: 1 },
+      { prompt: "在公園遇見不認識的狗，你會？", choices: ["先詢問飼主能否打招呼", "保持距離欣賞牠"], demoAnswer: 0 }
+    ],
+    閱讀學習: [
+      { prompt: "挑一本書時，你比較會選？", choices: ["想像豐富的故事", "新的知識或真實經驗"], demoAnswer: 0 },
+      { prompt: "想學會一件新事物，你通常先？", choices: ["找文章或書來讀", "看示範後親自練習"], demoAnswer: 1 },
+      { prompt: "讀到有用的內容，你會？", choices: ["記下重點方便回看", "先繼續讀完再整理"], demoAnswer: 0 },
+      { prompt: "你比較喜歡哪種閱讀節奏？", choices: ["每天讀一小段", "有空時一次讀久一點"], demoAnswer: 1 },
+      { prompt: "遇到感興趣的主題，你想？", choices: ["先廣泛看看不同面向", "挑一個方向深入研究"], demoAnswer: 1 }
+    ],
+    藝術文化: [
+      { prompt: "逛展覽時，你比較喜歡？", choices: ["聽導覽了解背景", "照自己的步調欣賞"], demoAnswer: 1 },
+      { prompt: "看現場表演時，你更享受？", choices: ["音樂與節奏的感染力", "演出和故事的張力"], demoAnswer: 0 },
+      { prompt: "走進一座陌生城市，你會留意？", choices: ["老建築與在地歷史", "當代設計與新空間"], demoAnswer: 0 },
+      { prompt: "接觸不同文化時，你比較想？", choices: ["體驗節慶和日常習俗", "欣賞藝術和表演"], demoAnswer: 1 },
+      { prompt: "在文化活動中，你更喜歡？", choices: ["和人交流分享看法", "安靜感受作品"], demoAnswer: 1 }
     ]
   };
 
@@ -1479,8 +1521,31 @@
     instagram: "Instagram",
     threads: "Threads"
   };
-  const topicLabels = { travel: "旅行", music: "音樂", daily: "日常", food: "飲食" };
-  const topicChoiceKeys = { 旅行: "travel", 音樂: "music", 日常: "daily", 飲食: "food", 隨機: "random" };
+  const topicLabels = {
+    travel: "旅行",
+    music: "音樂",
+    daily: "日常",
+    food: "飲食",
+    entertainment: "影視娛樂",
+    hobbies: "興趣嗜好",
+    sports: "運動",
+    pets: "寵物",
+    reading: "閱讀學習",
+    culture: "藝術文化"
+  };
+  const topicChoiceKeys = {
+    旅行: "travel",
+    音樂: "music",
+    日常: "daily",
+    飲食: "food",
+    影視娛樂: "entertainment",
+    興趣嗜好: "hobbies",
+    運動: "sports",
+    寵物: "pets",
+    閱讀學習: "reading",
+    藝術文化: "culture",
+    隨機: "random"
+  };
 
   function configuredAuthProvider(name) {
     const providers = authState.config && authState.config.providers;
@@ -1501,6 +1566,7 @@
     const panel = $(".auth-panel");
     const message = $("[data-auth-status]");
     const anonymousButton = $("[data-auth-anonymous]");
+    const anonymousLabel = $("[data-auth-anonymous-label]");
     const signOutButton = $("[data-auth-signout]");
     const deleteAccountButton = $("[data-auth-delete-account]");
     const deleteAccountNote = $("[data-auth-delete-note]");
@@ -1536,7 +1602,7 @@
     message.textContent = status;
     panel.setAttribute("aria-busy", String(authState.busy));
     anonymousButton.disabled = !authState.client || authState.busy || Boolean(user);
-    anonymousButton.textContent = user
+    anonymousLabel.textContent = user
       ? (isAnonymousUser(user) ? "已匿名登入" : "已有帳號登入")
       : "匿名登入";
     signOutButton.classList.toggle("hidden", !user);
@@ -1554,7 +1620,7 @@
       const identities = user?.identities || [];
       const linked = identities.some((identity) => identity.provider === provider || identity.provider === name);
       button.disabled = !authState.client || !provider || authState.busy || linked;
-      button.textContent = linked
+      button.querySelector("[data-auth-provider-label]").textContent = linked
         ? `${authProviderLabels[name]} 已連結`
         : user
           ? `連結 ${authProviderLabels[name]}`

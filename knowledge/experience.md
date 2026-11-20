@@ -106,7 +106,7 @@
 
 - **經驗：** PGlite 可在瀏覽器執行 PostgreSQL，讓 migration 在建立雲端專案前先做套用和 RPC 回歸測試。把最小 `auth.users`、`auth.uid()`、角色及登入 claim stub 寫進版本控制，可讓後續 migration 修改重複檢查 PostgreSQL／PLpgSQL 語法、權限邊界及核心資料流程，不必依賴一次性的手動 smoke test。
 - **適用範圍：** 使用 PostgreSQL、RPC、觸發器和 RLS 的 Supabase 專案，且本機沒有 Docker、PostgreSQL 或 Supabase CLI 時。
-- **本專案做法：** `supabase/tests/migrations.test.ts` 以固定版本的 PGlite 自動讀取 `supabase/migrations/` 內所有 SQL 檔案，再按檔名順序套用；新增 migration 不必再更新測試中的重複清單。測試可用 `deno test --allow-read --allow-net supabase/tests/migrations.test.ts` 重複執行。12 項測試涵蓋 migration／權限、本人房間與配對票券恢復權限、security-definer 函式固定空 `search_path` 且不能由 `anon` 執行、雙人答案揭曉與歷史、隨機配對主題相容／封鎖排除／取消、封鎖與配對／邀請加入共用交易鎖、歷史游標分頁／90 天範圍／三局排名門檻、本人歷史讀取和刪除權限、24／90／180 天清理、配對與開房限量、檢舉，以及帳號刪除時關閉房間、移除本人歷史、匿名化對手歷史並移除案件雙方帳號 ID。測試需以不同 JWT subject 呼叫 security-definer RPC，驗證讀取與刪除都只作用於該玩家資料，並確認未登入呼叫被拒絕；刪除帳號測試也應同時核對 cascade、匿名化和保留期限，避免只看 Auth row 是否消失。所有應用 security-definer 函式都固定空 `search_path`，回歸測試直接檢查 `pg_proc.proconfig`，並確認匿名角色沒有任何應用 security-definer 函式的執行權。PGlite 的共用鎖檢查只能驗證不變條件；PostgreSQL 16 多連線整合測試另已驗證封鎖與配對／邀請加入、兩種帳號限量競態。這些本機檢查仍不等同 Supabase Auth／Realtime／pg_cron／RLS 環境驗證。
+- **本專案做法：** `supabase/tests/migrations.test.ts` 以固定版本的 PGlite 自動讀取 `supabase/migrations/` 內所有 SQL 檔案，再按檔名順序套用；新增 migration 不必再更新測試中的重複清單。測試可用 `deno test --allow-read --allow-net supabase/tests/migrations.test.ts` 重複執行。現有 14 項測試涵蓋 migration／權限、房間與配對票券恢復、security-definer 權限、雙人揭曉與歷史、配對與封鎖、主題目錄擴充、歷史範圍與排名、保留期限、限量、檢舉及帳號刪除收尾；本次新增主題案例尚待最新 CI 執行。測試需以不同 JWT subject 呼叫 security-definer RPC，驗證讀取與刪除都只作用於該玩家資料，並確認未登入呼叫被拒絕；刪除帳號測試也應同時核對 cascade、匿名化和保留期限，避免只看 Auth row 是否消失。所有應用 security-definer 函式都固定空 `search_path`，回歸測試直接檢查 `pg_proc.proconfig`，並確認匿名角色沒有任何應用 security-definer 函式的執行權。PGlite 的共用鎖檢查只能驗證不變條件；PostgreSQL 16 多連線整合測試另已驗證封鎖與配對／邀請加入、兩種帳號限量競態。這些本機檢查仍不等同 Supabase Auth／Realtime／pg_cron／RLS 環境驗證。
 
 ## 多連線交易競態要用真實 PostgreSQL 驗證
 
@@ -233,16 +233,28 @@
 
 - **經驗：** 工作目錄可能已經包含正確的新產品程式碼，但 `.git` 歷史和遠端仍屬於另一個專案。直接把功能分支推到新 repo 會帶入不相干的 commit ancestry，也容易再次推錯遠端。先核對預期檔案、未提交與未追蹤變更、忽略檔案和憑證；再複製工作樹但排除 `.git`，在新目錄初始化新的 `main` 和第一個提交。設定 remote 後先核對完整 owner/repo URL，再推送。
 - **適用範圍：** 把誤放在既有 checkout 的產品原型拆成獨立 GitHub 專案、從實驗分支抽取乾淨交付物，或需要避免公開另一專案歷史時。
-- **本專案做法：** 將 27 個同頻程式與文件檔案複製至獨立目錄，排除原 `.git`，檢查 `site/supabase-config.js` 未包含真實 Supabase 設定，並確認搜尋到的 JWT 只在測試 fixture 作假資料；新 repo 以乾淨 `main` 建立初始提交 `7436927`，建立 `310182-sketch/samewave` 後確認 remote URL，成功推送原始碼和文件。首次 Actions run 的 verify／block_race 通過，deploy 因 Pages site 尚未建立而 404；workflow 已加入自動啟用選項，仍待第二次 run 驗證公開網址。
+- **本專案做法：** 將 27 個同頻程式與文件檔案複製至獨立目錄，排除原 `.git`，檢查 `site/supabase-config.js` 未包含真實 Supabase 設定，並確認搜尋到的 JWT 只在測試 fixture 作假資料；新 repo 以乾淨 `main` 建立初始提交 `7436927`，建立 `310182-sketch/samewave` 後確認 remote URL，成功推送原始碼和文件。Actions run #1、#2 的 verify／block_race 通過，但 deploy 都在 `Configure Pages` 因 integration token 無權建立 Pages site 而失敗；設定 `enablement: true` 未能解決。網站尚未發布，需由 repo 管理者先在 Settings > Pages 選擇 GitHub Actions。
 
-## 新 repo 的 Pages workflow 要能初始化未設定的 Pages site
+## 新 repo 的 Pages site 需由管理者先啟用
 
-- **經驗：** 新建的 GitHub repository 尚無 Pages site 時，`actions/configure-pages` 的預設查詢會收到 404，造成 verify 通過、deploy 失敗。若產品已決定使用 GitHub Pages，workflow 可明確設定 `enablement: true`，讓部署 job 建立 Actions Pages 設定，再驗證 artifact、部署 job 和公開網址。
-- **適用範圍：** 新建、尚未在 Settings > Pages 啟用 Pages 的 repository，且 GitHub Pages 是預期部署目標。
-- **本專案做法：** `samewave` 首次 run 1 的 `verify` 與 `block_race` 通過，但 `configure-pages@v6` 因 Pages site 不存在而回傳 404；workflow 已加入 `enablement: true`。此修正需由後續 Actions run 驗證，成功前不把 Pages 標示為已部署。
+- **經驗：** 新建 repository 尚未設定 Pages 時，`actions/configure-pages` 可嘗試建立 Pages site，但預設 GitHub Actions integration token 可能沒有呼叫 Create Pages site API 的權限，並回報 `Resource not accessible by integration`。`enablement: true` 本身不會提升 token 權限；需先由有權限的管理者在 repository Settings > Pages 選擇 GitHub Actions，之後再讓 workflow 部署並檢查公開網址。
+- **適用範圍：** GitHub Pages 尚未在 repository 設定頁啟用，且部署 workflow 使用預設 `GITHUB_TOKEN`／GitHub Actions integration 的新 repo。
+- **本專案做法：** `samewave` 的 run #1、#2 中 verify 與 block_race 通過，但兩次 deploy 都在 `Configure Pages` 因 integration token 無權建立 Pages site 而失敗。即使 workflow 設定 `enablement: true` 仍相同；目前預定網址回傳 404。待管理者在 Settings > Pages 選擇 GitHub Actions 後，再檢查部署及公開頁面。
 
 ## 審查佇列要把清單和敏感案件內容分開授權
 
 - **經驗：** 審查清單只需提供 ID、類別、狀態與時間，敘述及雙方 ID 應等審查員主動開啟單一案件後才回傳。審查員需用明確 allowlist 驗證；涉案雙方不得查閱或處理該案件；領案要原子化以避免兩位審查員同時取得同一案件；清單瀏覽、開啟、領取與結案都應記錄 actor 和事件。
 - **適用範圍：** 檢舉、申訴、濫用調查或其他只允許特定人員閱讀敏感案件內容的系統。
 - **本專案做法：** `20261120000800_moderation_review_workflow.sql` 新增私有審查人員名單、無直接表格權限的審查 RPC、案件分頁、涉案者排除、列鎖領案、指定審查員結案，以及 private audit events 和 180 天清除。PGlite 與 PostgreSQL 16 多連線測試在 GitHub Actions run 1 的 verify、block_race jobs 通過；正式 Supabase RLS、審查人員 UI、人員配置及端對端營運流程仍未驗證。
+
+## 多種登入方式需保留各自圖標與可更新標籤
+
+- **經驗：** 登入入口若同時支援匿名及多個 OAuth provider，應以各 provider 可辨識的圖標幫助掃視；圖標需標記為裝飾，按鈕的文字名稱仍要完整描述動作。登入、連結、已連結等狀態會動態改變按鈕文案時，將文案放在獨立文字節點更新，避免直接設定按鈕 `textContent` 把 SVG 圖標刪掉。若訪客示範仍是主要上手路徑，登入卡片放在遊戲操作之後，並以狀態說明解釋服務未設定時為何停用。
+- **適用範圍：** 同時提供訪客／匿名模式和多種社群登入的網站或 app；尤其適用於 provider 按鈕需在登入、帳號連結和已連結狀態間切換的介面。
+- **本專案做法：** 首頁將登入卡片留在主題與配對表單下方，卡片仍以獨立底色和狀態提示辨識；匿名、Google、Facebook、X、Instagram、Threads 各自使用不同圖標。按鈕標籤使用獨立 span，`refreshAuthPanel` 只更新標籤節點；Supabase 未設定時保留停用狀態並說明本機示範不會保存資料。
+
+## 新增配對主題需保持前後端目錄一致
+
+- **經驗：** 題目主題不只出現在前端按鈕，也會影響每局題目查找、歷史顯示、邀請房建立、配對相容性、資料表檢查限制和「隨機主題」可抽取的範圍。新增類別應使用穩定的資料庫 key，並同步維護前端顯示名稱、題庫、RPC 驗證和資料表 constraint；用 forward-only migration 更新已存在的資料庫。回歸測試應逐一驗證新 key 可建立邀請房及相同主題配對，也應確認未知 key 會被拒絕。
+- **適用範圍：** 以使用者選擇的分類決定題目或媒合相容性的問答遊戲、推薦系統和其他前後端共用 taxonomy 的產品。
+- **本專案做法：** 在 `20261120000900_expand_topic_catalog.sql` 擴充 `question_bank`、`game_rooms` 和 `matchmaking_queue` 的允許值，新增影視娛樂、興趣嗜好、運動、寵物、閱讀學習及藝術文化六類題目，並更新邀請房與配對 RPC 驗證。前端 `topicChoiceKeys`、`topicLabels` 和題目字典共用對應 key；14 項 Deno/PGlite 測試新增每個新類別的邀請房／隨機配對及未知類別拒絕案例，最新 CI 尚待執行。

@@ -12,7 +12,7 @@
 ## 二選一原型
 
 - **狀態：** 已實作互動原型。
-- **決定：** 每局配對兩位玩家，主題從旅行、音樂、日常、飲食中擇一，也可隨機選擇；原型一局五題，每題兩個選項，雙方都答完才揭曉。結果頁顯示相同答案題數和共同選擇。
+- **決定：** 每局配對兩位玩家，主題從旅行、音樂、日常、飲食、影視娛樂、興趣嗜好、運動、寵物、閱讀學習、藝術文化十類中擇一，也可隨機選擇；每類先提供五道二選一題目，一局五題，雙方都答完才揭曉。結果頁顯示相同答案題數和共同選擇。
 - **示範模式：** 原型由本機範例資料提供示範對象及答案，畫面需清楚標示模擬資料；尚未實作真人配對、跨裝置同步或保存遊戲紀錄。
 - **適用範圍：** 瀏覽器互動原型，不代表正式版題數、配對期限、紀錄保存或登入規格已全部定案。
 
@@ -27,12 +27,12 @@
 
 ## 真人配對與後端
 
-- **狀態：** Supabase 為目前真人 MVP 的實作預設；八份 migration 已在 PGlite 本機預檢環境套用，可重複執行的回歸測試檢查邀請對局、雙人揭曉／推進、歷史、安全 RPC、帳號刪除收尾、房間恢復及配對票券恢復；前端真人流程已接上 RPC 並以 mock 驗證，但尚未在 Supabase 驗證。
+- **狀態：** Supabase 為目前真人 MVP 的實作預設；十份 migration 和 14 項 PGlite 測試已寫入工作樹，新增主題 migration 尚待 CI 執行；先前 migration 回歸測試檢查邀請對局、雙人揭曉／推進、歷史、安全 RPC、帳號刪除收尾、房間恢復及配對票券恢復。前端真人流程已接上 RPC 並以 mock 驗證，但尚未在 Supabase 驗證。
 - **決定：** 以 Supabase Anonymous Auth 驗證玩家、PostgreSQL RPC 執行建立房間／加入房間／原子配對與答案提交，Realtime 傳遞房間狀態。
 - **安全規則：** 答案留在資料庫；只有同一房間兩位玩家都完成作答後才回傳雙方答案。以 RLS 限制玩家資料存取，不開放用戶端直讀答案表；service role key 不放在前端。
 - **同步規則：** 揭曉後兩位玩家都按「下一題」才推進；先按的人等待對方。正式閒置時間、離線及重新連線行為仍需實測及定案。
 - **資料保存：** 房間、配對票券、暱稱及原始答案於結束／逾期後最多保留 24 小時；每位玩家的歷史摘要保存 90 天且可提前刪除；檢舉資料保存 180 天；封鎖清單保留至解除或刪除帳號。
-- **未完成條件：** 建立 Supabase 環境、套用八份 migration 和部署 Edge Function；在 Supabase 實測 RLS／Realtime／RPC 權限、清理排程和匿名 Auth；接上前端並用不同裝置驗證整局流程。PGlite 預檢不涵蓋 Supabase Auth、Realtime publication、pg_cron 或 Supabase 專案設定。
+- **未完成條件：** 建立 Supabase 環境、套用十份 migration 和部署 Edge Function；在 Supabase 實測 RLS／Realtime／RPC 權限、清理排程和匿名 Auth；接上前端並用不同裝置驗證整局流程。PGlite 預檢不涵蓋 Supabase Auth、Realtime publication、pg_cron 或 Supabase 專案設定。
 
 ## 匿名與社群登入
 
@@ -111,6 +111,6 @@
 
 ## 發布
 
-- **現況：** `riddle-match` 的 Pages 網站屬於另一個專案，並非本遊戲的正式發布。公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立並推送乾淨的 `main` 初始版本。首次 Actions run 的 verify 和 PostgreSQL 競態測試通過，但 deploy 因 Pages 尚未啟用而失敗；預定網址為 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/)。Supabase 尚未設定，真人登入和配對仍停用。
+- **現況：** `riddle-match` 的 Pages 網站屬於另一個專案，並非本遊戲的正式發布。公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立並推送乾淨的 `main` 初始版本。Actions run #1、#2 的 verify 和 PostgreSQL 競態測試通過，但兩次 deploy 都在 `Configure Pages` 失敗；截至 2026-11-20，預定網址 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/) 回傳 404。Supabase 尚未設定，真人登入和配對仍停用。
 - **決定：** 採公開 repository，因為目標包含 GitHub Pages 免費發布；建立時只納入同頻原始碼和文件，不沿用另一專案歷史。已檢查用戶端設定範本沒有真實 Supabase URL／key，測試中的 JWT 為假資料；provider secret 與 service role key 不得推送。
-- **下一階段：** `actions/configure-pages@v6` 已加入 `enablement: true`，讓部署 job 自動初始化 GitHub Pages；後續 Actions run 需確認 deploy 成功和公開頁面。原型部署不表示 Auth、Supabase RPC、Realtime、歷史紀錄或跨裝置功能已在線啟用。
+- **下一階段：** `actions/configure-pages@v6` 已加入 `enablement: true`，但 run #2 仍在該步驟失敗；需先檢查 Actions job log 和 repository Pages 權限，再確認 deploy 成功及公開網址內容。原型部署不表示 Auth、Supabase RPC、Realtime、歷史紀錄或跨裝置功能已在線啟用。
