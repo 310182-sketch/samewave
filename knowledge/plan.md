@@ -10,10 +10,10 @@
 
 ## 目前狀態
 
-- **階段：** 互動原型、第一輪瀏覽器可用性檢查及 GitHub Pages 部署已完成。十份 Supabase migration 已在 Samewave 專案透過 SQL Editor 套用；主要資料表、RPC、檢舉 RLS、答案表直讀限制及房間 Realtime publication 已線上核對。兩個 `pg_cron` 清理工作皆啟用。專案未建立 `supabase_migrations.schema_migrations` 版本紀錄，後續 CLI migration 操作前必須先安全同步歷史。留空暱稱預設統一為「企鵝」；新版網站已載入 Supabase URL／公開 publishable key，前端 Auth client 顯示服務就緒，Auth 設定 API 確認匿名使用者功能已啟用。帳號刪除 Edge Function 已部署並限定 GitHub Pages origin，但尚未通過真實 JWT／帳號刪除驗收，前端按鈕維持關閉。社群 OAuth 仍未啟用。
+- **階段：** 互動原型、第一輪瀏覽器可用性檢查及 GitHub Pages 部署已完成。十份 Supabase migration 已透過 SQL Editor 套用，並由官方 CLI 修復 migration ledger；`migration list` 確認十個本機版本皆對應遠端已套用版本。唯讀查核確認主要資料表、RPC、RLS、房間 Realtime publication 及兩個啟用中的 `pg_cron` 清理工作。留空暱稱預設統一為「企鵝」；新版網站已載入 Supabase URL／公開 publishable key，Auth 設定 API 確認匿名使用者功能已啟用。帳號刪除 Edge Function 已部署並限定 GitHub Pages origin，但尚未通過真實 JWT／帳號刪除驗收，前端按鈕維持關閉。社群 OAuth 仍未啟用。
 - **已驗證：** Chrome headless 在 320、360、390、768、1024、1440px 檢查首頁、遊戲及結果頁，皆無水平溢出；以鍵盤在六種寬度完成五題流程。已改善選項字級、觸控尺寸、焦點提示及作答狀態語意。GitHub Actions [run #16](https://github.com/310182-sketch/samewave/actions/runs/44773283489) 的 verify、block_race 和 deploy 通過；隨後以 HTTP 讀取公開首頁與審查頁皆回應 200，確認載入 `app.js?v=15`、`moderation.js?v=2`，新版帳號刪除提示及案件 DOM 清除程式已發布。這些 CI 和靜態頁檢查不代表 Supabase 真實登入或跨裝置遊戲已驗收。
 - **仍待線上驗證：** 匿名登入及 session 恢復、真人房間／配對／歷史資料、完整 RLS 權限和跨裝置流程尚未實測。邀請房答題與隨機配對前端已接上 RPC，Chrome mock 驗證成功揭曉、雙方確認、結果讀取、配對成功、逾時重試及取消；尚未在 Supabase Realtime 或兩部裝置驗證。歷史頁查詢、分頁、默契排名及逐筆刪除也僅以 mock 驗證。結果分享卡尚未在 iOS／Android 實機確認 Instagram 交接。
-- **後端：** PGlite 依檔名套用十份 SQL migration，14 項 Deno/PGlite 回歸測試及 PostgreSQL 16 多連線競態測試已由 CI 執行。十份 migration 已手動部署至 Supabase；已核對題庫十類共 50 題、核心資料表、歷史／檢舉／審查 RPC、檢舉資料 RLS、答案表無用戶端直讀權和房間 Realtime publication。`samewave-purge-expired-game-data` 每 15 分鐘、`purge-expired-moderation-reports` 每日 03:17 排程均為 active。唯讀線上查核確認 Auth settings API 回 HTTP 200 且 `external.anonymous_users` 為 `true`；`delete-account` Edge Function 已部署，正式 origin 的 OPTIONS 回 200、未列入的 origin 回 403。這些結果不驗證真實登入或刪除；兩者仍待驗收。社群 OAuth 未設定，真人跨裝置流程未驗證。
+- **後端：** PGlite 依檔名套用十份 SQL migration，14 項 Deno/PGlite 回歸測試及 PostgreSQL 16 多連線競態測試已由 CI 執行。十份 migration 已部署至 Supabase，官方 CLI 的遠端版本清單現與本機完全吻合；唯讀查核確認題庫十類共 50 題、核心資料表與 RLS、歷史／檢舉／審查 RPC、帳號刪除觸發器、共用交易鎖、房間 Realtime publication 及清理排程。`samewave-purge-expired-game-data` 每 15 分鐘、`purge-expired-moderation-reports` 每日 03:17 均為 active。Auth settings API 回 HTTP 200 且 `external.anonymous_users` 為 `true`；`delete-account` Edge Function 已部署，正式 origin 的 OPTIONS 回 200、未列入的 origin 回 403。真實登入、帳號刪除與跨裝置流程仍待驗收。社群 OAuth 未設定。
 - **資料政策：** 真人房間、配對票券及原始答案最多保留 24 小時；個人歷史摘要保存 90 天且可逐筆刪除；檢舉資料保存 180 天；封鎖關係保留至解除或刪除帳號。相關 migration 與清理排程已部署，但資料保留週期和逾期刪除尚未經過實際時間週期驗證。
 - **登入與社群：** 已加入可選的 Supabase Auth 前端入口，包含匿名登入、Google／Facebook／X OAuth、Instagram／Threads custom provider 設定、PKCE session 恢復及匿名帳號 identity linking。首頁登入卡片置於遊戲設定下方，並為匿名登入及各 provider 顯示不同圖標；動態狀態更新保留圖標。Chrome mock client 已驗證登入狀態和 provider 呼叫；Supabase Anonymous Auth、Manual Linking 與 redirect 已設定。公開頁顯示登入服務就緒且匿名登入按鈕可用；社群 OAuth provider 維持關閉。新手提示已說明匿名登入狀態及社群登入設定進度；實際登入 session、callback 與帳號 linking 尚未驗證。平台限制見 [knowledge/decision.md](decision.md)。
 - **前端設計：** 已完成第一輪整體字級、留白、按鈕及主題選項版面整理；登入卡片以獨立視覺層級呈現，同時保留先玩示範的主要流程。房間、真人答題、隨機配對等待及歷史頁已接上 RPC，無設定時仍保留清楚標示的操作預覽。Chrome mock 驗證流程分支；六種寬度與鍵盤流程的前一輪檢查已通過。真人服務環境的實際網路狀態仍待驗證。
@@ -112,7 +112,7 @@
 
 ### 3. 完整後端與真人遊戲服務
 
-- [ ] 完成完整真人線上服務後端驗收：資料庫 migration、Anonymous Auth／Manual Linking、核心 schema、主要 RLS、Realtime publication、清理排程及帳號刪除 Edge Function 已部署或設定；仍須補齊 migration ledger，並以真實登入、跨裝置對局和權限測試驗證。migration、mock 或 CI 通過都不單獨算完成。
+- [ ] 完成完整真人線上服務後端驗收：資料庫 migration、migration ledger、Anonymous Auth／Manual Linking、核心 schema、主要 RLS、Realtime publication、清理排程及帳號刪除 Edge Function 已部署或設定；仍須以真實登入、跨裝置對局和權限測試驗證。migration、mock 或 CI 通過都不單獨算完成。
 - [x] 建立第一版 Supabase SQL migration 初稿，含題庫、配對佇列、房間、答案、RLS、Realtime 安全房間狀態、RPC 及清除函式。
 - [x] 擴充 migration 草稿，加入 12 位邀請代碼、建立／加入房間 RPC、單一有效房間檢查及隨機配對互斥。
 - [x] 加入完成對局時的雙方私人歷史摘要、90 天查詢與保留、逐筆刪除、共同點排名及帳號刪除匿名化草稿。
@@ -139,15 +139,15 @@
 - [x] 將重新載入恢復進行中房間加入 headless Chrome mock 並接入 Pages workflow；本機 migration 與瀏覽器檢查通過；run 59 的 verify、block_race 及 deploy 全部成功。
 - [x] 將重新載入恢復隨機配對票券、延續原等待期限及配對成功後進房加入 headless Chrome mock 和 Pages workflow；本機檢查通過；run 61 的 verify、block_race 及 deploy 全部成功。
 - [x] 建立獨立 Samewave Supabase 專案（Singapore），啟用 Anonymous Auth 和 Manual Linking，並設定 GitHub Pages／localhost redirect allow list。
-- [x] 將十份 SQL migration 依檔名順序透過 Supabase SQL Editor 套用；查核主要資料表、RPC 和題庫。專案沒有 `supabase_migrations.schema_migrations`，CLI migration 歷史待同步。
-- [ ] 安全連到 Samewave Supabase 專案後，用官方 CLI 將 `20261119000100`、`20261120000100` 至 `20261120000900` 十個已手動套用版本執行 `migration repair --status applied`，再以 `migration list` 核對；完成前不執行 `db push`。具體命令和連線前提記在 [knowledge/decision.md](decision.md)。
+- [x] 將十份 SQL migration 依檔名順序透過 Supabase SQL Editor 套用；後續 CLI ledger 曾缺少這些版本，已在下一項同步。
+- [x] 以官方 Supabase CLI 將 `20261119000100`、`20261120000100` 至 `20261120000900` 十個已部署版本執行 `migration repair --status applied`，並確認 `migration list` 的 local／remote 版本完全相同。修復前唯讀核對 schema、題庫、RPC、觸發器、RLS、Realtime 和清理排程；沒有執行 `db push` 或重跑 SQL。詳見 [knowledge/decision.md](decision.md)。
 - [x] 啟用 `pg_cron` 並建立即時遊戲資料每 15 分鐘、檢舉資料每日 03:17 的清理排程；線上確認兩者皆 active。
 - [x] 為網站設定 Supabase 專案 URL／公開 publishable key；帳號刪除維持關閉、社群 provider 維持未設定。
 - [x] 線上核對檢舉資料 RLS、玩家無法直讀答案表，以及房間表加入 Realtime publication；完整角色權限和真實玩家資料存取仍待端對端測試。
 - [x] 前端接上匿名登入、session 恢復、匿名帳號手動 linking 與各 provider 呼叫；Supabase Anonymous Auth／Manual Linking 已啟用。真實登入與 linking 測試仍待完成。
 - [ ] 建立 Google／Facebook／X provider app 並驗證 OAuth callback。
 - [ ] 依 Meta 的帳號資格及 app review 狀態加入 Instagram、Threads custom OAuth，確認 provider 身分能連結到原匿名玩家。
-- [ ] 使用實際 Supabase 專案設定驗證匿名登入／登出、頁面重載後的 session 恢復及匿名帳號 linking。
+- [ ] 使用實際 Supabase 專案設定驗證匿名登入／登出、頁面重載後的 session 恢復及匿名帳號 linking；production 測試帳號需依 [decision.md](decision.md) 先取得明確授權。
 - [x] 將邀請房建立、代碼加入、房主狀態查詢及離房接上 authenticated RPC；Chrome mock 流程已驗證，Supabase 真人環境仍待驗收。
 - [x] 加入遊戲房間後以 `get_room_state` 還原題目，訂閱 `game_rooms` Realtime 更新並保留輪詢備援；Realtime 事件只觸發重新查詢，不傳送答案。
 - [x] 以 `submit_answer` 送出答案，只在伺服器確認雙方都回答後顯示答案；以 `continue_room` 等待雙方確認並推進題目，結束後讀取 `get_room_results`。Chrome mock 驗證五題作答、答案揭曉、確認等待和完局結果。
@@ -159,14 +159,14 @@
 - [ ] 使用 Supabase 真實使用者資料驗證歷史分頁游標、90 天保留、逐筆刪除、排名門檻及只允許本人查詢的權限。
 - [x] 前端只使用公開 project URL／publishable key；帳號刪除 function 使用 Supabase 管理的服務端 default secret，沒有把 service-role key 放入 repository 或網站。
 - [ ] 設定並安全保存 Google／Facebook／X 與 Meta custom OAuth provider secret。
-- [ ] 在兩部不同裝置上驗證建立房間、代碼加入、隨機配對、完整遊戲、歷史查詢和統計。
+- [ ] 在兩部不同裝置上驗證建立房間、代碼加入、隨機配對、完整遊戲、歷史查詢和統計；production 測試帳號與清理需依 [decision.md](decision.md) 取得授權。
 - [ ] 使用正式 Supabase Auth／RLS 驗證封鎖及解除封鎖、邀請房封鎖競態、檢舉權限、限量競態與 180 天清理排程。
 - [x] 建立僅授權審查人員可用的後端案件佇列 RPC 與審查紀錄，包含狀態、處理結果、存取稽核及到期清除；CI 驗證一般玩家不能讀取案件表或審查員清單。
 - [x] 建立獨立審查工作區：以已登入 session 呼叫 allowlist RPC 驗證身分，清單只顯示必要欄位，點開才載入案件內容；支援分頁、篩選、領案及確認後結案。權限重查失敗、登出或切換帳號時會隱藏工作區、清空案件 DOM 並關閉待確認操作。尚未建立審查員帳號；線上登入與實際案件流程待驗證。
 - [ ] 依核准的案件分流流程完成檢舉提交、人工審查、玩家回覆、升級及期限清除的端對端驗證。
 - [x] 部署 `delete-account` Edge Function，啟用 JWT 驗證、設定精確 `ALLOWED_ORIGINS`，並使用 Supabase 管理的服務端 `SUPABASE_SERVICE_ROLE_KEY` default secret；OPTIONS 預檢確認 Samewave GitHub Pages origin 回 200 且回傳精確允許標頭，未允許的 origin 回 403 且不回傳允許標頭。
 - [ ] 以真實登入者驗證 Edge Function JWT、錯誤 origin 拒絕及帳號刪除資料處理；驗收前維持 `accountDeletionEnabled: false`。
-- [ ] 在正式 Supabase 驗證匿名及社群帳號刪除、JWT／origin 拒絕、Auth 資料清理、歷史匿名化及正在進行的對局收尾。
+- [ ] 在正式 Supabase 驗證匿名及社群帳號刪除、JWT／origin 拒絕、Auth 資料清理、歷史匿名化及正在進行的對局收尾；執行任何真實帳號刪除前須依 [decision.md](decision.md) 取得明確授權。
 - [ ] 在 Supabase 真人環境檢查檢舉表單、對局安全操作和封鎖清單；再以 iOS／Android 與 VoiceOver／TalkBack 驗證。
 
 ### 4. 分享與發布

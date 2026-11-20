@@ -273,9 +273,9 @@
 
 ## 手動套用 Supabase migration 後先同步遠端版本紀錄
 
-- **經驗：** 透過 Supabase SQL Editor 手動執行 migration 會更新資料庫結構，但不會自動建立 CLI 使用的 `supabase_migrations.schema_migrations` 紀錄。之後若直接執行 `supabase db push`，CLI 可能把這些 migration 視為尚未套用並重複執行。應先確認遠端 schema 與每個 migration 的實際效果，再用 Supabase CLI 的 migration repair 流程登記已套用版本；不得為了補紀錄而重跑已套用的非冪等 SQL。
+- **經驗：** 透過 Supabase SQL Editor 手動執行 migration 會更新資料庫結構，但不會自動建立 CLI 使用的 `supabase_migrations.schema_migrations` 紀錄。之後若直接執行 `supabase db push`，CLI 可能把這些 migration 視為尚未套用並重複執行。應先以唯讀查詢核對遠端 schema、資料、函式、觸發器和排程，再用 Supabase CLI 的 `migration repair --status applied` 登記已套用版本，最後用 `migration list` 逐一確認 local／remote 版本一致；不得為了補紀錄而重跑已套用的非冪等 SQL。
 - **適用範圍：** 先以 Supabase Dashboard／SQL Editor 部署、後續打算改用 Supabase CLI 或版本化 migration pipeline 的專案。
-- **本專案做法：** 十份 Samewave migration 依檔名順序已透過 SQL Editor 成功套用；唯讀查核確認主要資料表、函式、檢舉 RLS、答案表直讀限制、房間 Realtime publication 和清理排程。`to_regclass('supabase_migrations.schema_migrations')` 回傳 null，且兩個 `pg_cron` 清理 job 均 active。尚未安裝或登入 Supabase CLI，因此未建立遠端 migration 歷史；下一次 schema 變更前先核對各版本並同步 ledger。
+- **本專案做法：** Samewave 的十份 migration 依檔名順序已透過 SQL Editor 套用。以唯讀 Supabase CLI 查核確認 50 題分屬 10 個 topic、重要資料表與 RLS、帳號刪除 triggers、共用 advisory lock 的四個 RPC、房間／配對恢復 RPC、審查私有資料表、房間 Realtime publication，以及兩個 active `pg_cron` jobs。透過 Supabase 網頁驗證碼登入官方 CLI，未複製或輸出 access token；以 `migration repair --status applied --remote=<project-ref> --yes` 登記十個已部署版本，`migration list --remote=<project-ref>` 顯示 local／remote 完全一致。沒有執行 `db push` 或重跑 SQL。此流程適用於先手動部署、後續改用 CLI 管理的 Supabase 專案；真實登入和跨裝置驗收仍需另外完成。
 
 ## 後端上線後同步更新登入狀態與操作說明
 

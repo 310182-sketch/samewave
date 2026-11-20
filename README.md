@@ -15,7 +15,7 @@
 - 匯出 1080×1920 結果分享卡；可呼叫系統分享面板或下載 PNG。Instagram 交接仍需用實機確認。
 - 可在手機與桌面瀏覽器操作。
 
-網站已接上 Samewave Supabase 專案，Anonymous Auth 與 Manual Linking 已啟用；匿名登入按鈕已開放，但真實登入 session 和跨裝置流程尚未驗收。Google、Facebook、X、Instagram、Threads 社群登入仍未設定。十份資料庫 migration 已透過 Supabase SQL Editor 套用，主要資料表、RPC、檢舉 RLS、答案表直讀限制、Realtime publication 和兩個清理排程已核對；CLI migration ledger 尚待安全補齊。`delete-account` Edge Function 已部署並限制正式網站 origin，但尚未用真實登入者驗收，前端刪除入口維持關閉。GitHub Actions [run #13](https://github.com/310182-sketch/samewave/actions/runs/44770155809) 的驗證、PostgreSQL 16 `block_race` 與 Pages 部署均成功；CI 通過不代表 Auth、Realtime、RLS 或跨裝置流程已完成端對端驗收。
+網站已接上 Samewave Supabase 專案，Anonymous Auth 與 Manual Linking 已啟用；匿名登入按鈕已開放，但真實登入 session 和跨裝置流程尚未驗收。Google、Facebook、X、Instagram、Threads 社群登入仍未設定。十份資料庫 migration 已透過 Supabase SQL Editor 套用，官方 CLI migration ledger 已修復，並確認十個本機版本皆與遠端已套用版本一致；主要資料表、RPC、RLS、Realtime publication 和兩個清理排程也已核對。`delete-account` Edge Function 已部署並限制正式網站 origin，但尚未用真實登入者驗收，前端刪除入口維持關閉。GitHub Actions [run #13](https://github.com/310182-sketch/samewave/actions/runs/44770155809) 的驗證、PostgreSQL 16 `block_race` 與 Pages 部署均成功；CI 通過不代表 Auth、Realtime、RLS 或跨裝置流程已完成端對端驗收。
 
 ## Supabase Auth 設定
 
@@ -49,7 +49,7 @@ providers: {
 
 ## 真人配對後端
 
-`supabase/migrations/` 收錄十份 PostgreSQL schema 與 RPC，涵蓋十類題庫、隨機配對、12 位邀請代碼、雙人作答同步、各玩家保存 90 天的對局摘要、共同點排名、封鎖／檢舉、服務端限量、審查工作流程及帳號刪除清理；房間、配對票券和原始作答最多保留 24 小時，檢舉保存 180 天。十份 migration 已在 Samewave Supabase 專案透過 SQL Editor 套用；主要 schema 和權限設定已核對，兩個 `pg_cron` 清理排程皆 active。由於 SQL Editor 部署沒有建立 `supabase_migrations.schema_migrations`，下一次 schema 變更前須先以官方 CLI 安全登記既有 migration，再用 `migration list` 核對；此前不要執行 `supabase db push` 或重跑已套用 SQL。PGlite 和 PostgreSQL 16 測試通過 CI，但不取代真實 Auth、完整 RLS、Realtime 和跨裝置驗收。不要將 service role key 放進靜態網站。
+`supabase/migrations/` 收錄十份 PostgreSQL schema 與 RPC，涵蓋十類題庫、隨機配對、12 位邀請代碼、雙人作答同步、各玩家保存 90 天的對局摘要、共同點排名、封鎖／檢舉、服務端限量、審查工作流程及帳號刪除清理；房間、配對票券和原始作答最多保留 24 小時，檢舉保存 180 天。十份 migration 已在 Samewave Supabase 專案透過 SQL Editor 套用，並以官方 CLI 登記為已套用；`migration list` 已確認十個本機版本與遠端版本一致。唯讀查核確認主要 schema、RLS、Realtime publication 和兩個 `pg_cron` 清理排程皆 active。PGlite 和 PostgreSQL 16 測試通過 CI，但不取代真實 Auth、完整 RLS、Realtime 和跨裝置驗收。不要將 service role key 放進靜態網站。
 
 ### 本機 migration 回歸測試
 

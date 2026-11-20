@@ -27,7 +27,7 @@
 
 ## 真人配對與後端
 
-- **狀態：** Supabase 為目前真人 MVP 的實作預設；十份 migration 已手動部署並核對主要 schema，14 項 PGlite 回歸測試和 PostgreSQL 16 多連線競態測試已納入 CI。線上已確認檢舉 RLS、答案表直讀限制、Realtime publication 和兩個清理排程；登入後端到端 RPC 權限、真實配對與跨裝置遊戲仍未驗證。SQL Editor 手動套用未建立 CLI migration ledger，後續 schema 變更前要先同步遠端版本紀錄。
+- **狀態：** Supabase 為目前真人 MVP 的實作預設；十份 migration 已手動部署，且官方 CLI migration ledger 已修復並逐一確認 local／remote 版本相符。14 項 PGlite 回歸測試和 PostgreSQL 16 多連線競態測試已納入 CI。線上已確認主要資料表、RLS、Realtime publication 和兩個清理排程；登入後端到端 RPC 權限、真實配對與跨裝置遊戲仍未驗證。後續 schema 變更可透過 CLI 管理，但每次部署前仍須檢視差異並驗證正式資料庫。
 - **決定：** 以 Supabase Anonymous Auth 驗證玩家、PostgreSQL RPC 執行建立房間／加入房間／原子配對與答案提交，Realtime 傳遞房間狀態。
 - **安全規則：** 答案留在資料庫；只有同一房間兩位玩家都完成作答後才回傳雙方答案。以 RLS 限制玩家資料存取，不開放用戶端直讀答案表；service role key 不放在前端。
 - **同步規則：** 揭曉後兩位玩家都按「下一題」才推進；先按的人等待對方。正式閒置時間、離線及重新連線行為仍需實測及定案。
@@ -113,7 +113,7 @@
 
 - **現況：** `riddle-match` 的 Pages 網站屬於另一個專案。公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立，Pages source 已設為 GitHub Actions，網站網址為 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/)。同頻已設定公開 Supabase URL／publishable key，十份 migration 已套用，Realtime publication 和清理排程已核對；GitHub Actions run #13（44770155809）部署成功。匿名登入和真人服務的真實 session／跨裝置驗收仍待完成。
 - **決定：** 採公開 repository，因為目標包含 GitHub Pages 免費發布；建立時只納入同頻原始碼和文件，不沿用另一專案歷史。已檢查用戶端設定範本沒有真實 Supabase URL／key，測試中的 JWT 為假資料；provider secret 與 service role key 不得推送。
-- **下一階段：** 安全同步 SQL Editor 手動套用的 migration ledger；以專用測試 session 完成匿名登入驗證，再用兩部裝置測試 Auth、RLS、Realtime、RPC、歷史和配對。帳號刪除 Edge Function 已部署且限制 origin，但要經明確核准才用一次性帳號驗證實際刪除。公開靜態網站及 schema 部署仍不代表真人遊戲已完成端對端驗收。
+- **下一階段：** 以專用測試 session 完成匿名登入驗證，再用兩部裝置測試 Auth、RLS、Realtime、RPC、歷史和配對。帳號刪除 Edge Function 已部署且限制 origin，但要經明確核准才用一次性帳號驗證實際刪除。公開靜態網站及 schema 部署仍不代表真人遊戲已完成端對端驗收。
 
 
 ## Samewave Supabase 專案設定
@@ -121,18 +121,24 @@
 - **狀態：** 專用專案已建立並部署 schema；公開網站設定已加入 URL／publishable key。
 - **決定：** Samewave 使用獨立 Supabase 專案 bbpfgavabdsdayuprhbp（Singapore），不與 riddle-match 共用資料庫。已啟用 Anonymous Auth 和 Manual Linking，並把 GitHub Pages 與 localhost 回跳網址加入 Auth allow list；此設定不代表 OAuth providers 已啟用。
 - **安全界線：** site/supabase-config.js 只放公開 Project URL 和 publishable key；不得放 service role key、資料庫密碼或 OAuth client secret。社群 provider 維持關閉，直到其 callback 和 credentials 設定完成。
-- **下一步：** 同步 CLI migration ledger；驗證匿名登入與帳號刪除 Edge Function，最後以兩部裝置驗證 Supabase Auth、RLS、Realtime、RPC 和歷史流程。
+- **下一步：** 驗證匿名登入與帳號刪除 Edge Function，最後以兩部裝置驗證 Supabase Auth、RLS、Realtime、RPC 和歷史流程。
+
+## 正式 Supabase 真人驗收帳號
+
+- **狀態：** Samewave Supabase 是 production 環境。匿名登入會建立持久的 Auth 使用者記錄；本專案尚未取得建立正式測試使用者或刪除使用者的明確授權。不得用正式匿名登入按鈕建立測試使用者，也不得為清理測試資料呼叫帳號刪除功能。
+- **推薦：** 由使用者明確授權後，建立兩個一次性匿名測試帳號，分別在兩部裝置或獨立瀏覽器 profile 完成房間、配對、RLS、歷史與 session 恢復驗收；驗收後先列出預計清理的測試 ID 與資料，再取得刪除授權。若不希望在 production 建立測試使用者，先建立獨立 staging 專案並將同一組 migrations 部署至該環境。
+- **刪除驗收：** `delete-account` 涉及不可逆資料刪除，除建立測試帳號外還需另外明確授權；驗收前維持 `accountDeletionEnabled: false`。
 
 ## 手動部署後的 Supabase migration ledger
 
-- **狀態：** 十份 migration 已透過 SQL Editor 套用；唯讀查核確認 `supabase_migrations.schema_migrations` 不存在。官方 Supabase CLI 的 migration repair 流程會從本機 migration 檔讀取版本並將其登記為已套用；目前這台工作機沒有 Supabase CLI，也沒有 CLI 登入狀態或資料庫密碼環境變數。
-- **待登記版本：** `20261119000100`、`20261120000100`、`20261120000200`、`20261120000300`、`20261120000400`、`20261120000500`、`20261120000600`、`20261120000700`、`20261120000800`、`20261120000900`。
-- **推薦操作：** CLI 安裝並安全連到專案 `bbpfgavabdsdayuprhbp` 後，從 repository 根目錄執行：
+- **狀態：** 十份 migration 已透過 SQL Editor 套用。2026-11-21 以官方 Supabase CLI 3.2.0 的瀏覽器驗證流程登入 Samewave 專案；CLI access token 保存在本機 CLI 設定，沒有貼入聊天或版控。唯讀查核先確認 `supabase_migrations.schema_migrations` 不存在，再核對十份 migration 對應的資料表、RPC、RLS、觸發器、Realtime、題庫和清理排程。
+- **完成記錄：** 專案 `bbpfgavabdsdayuprhbp` 的十個已手動部署版本均已用官方 CLI 登記為 applied，並由 `migration list --remote=bbpfgavabdsdayuprhbp` 確認 local／remote 逐一一致。
+- **操作命令：**
 
   ```sh
-  supabase migration repair --status applied 20261119000100 20261120000100 20261120000200 20261120000300 20261120000400 20261120000500 20261120000600 20261120000700 20261120000800 20261120000900
-  supabase migration list
+  supabase migration repair --status applied --remote=bbpfgavabdsdayuprhbp --yes 20261119000100 20261120000100 20261120000200 20261120000300 20261120000400 20261120000500 20261120000600 20261120000700 20261120000800 20261120000900
+  supabase migration list --remote=bbpfgavabdsdayuprhbp
   ```
 
-  核對十個版本都標為 remote applied；完成前不要執行 `supabase db push`，也不要重跑已套用的 SQL。
-- **安全界線：** 專案 access token、資料庫密碼及管理 key 不進版控；migration repair 只維護版本紀錄，不代替 schema／權限檢查。
+  `repair` 僅登記 migration 歷史，沒有重跑 SQL 或執行 `db push`。後續新增 schema 變更前，先檢視本機與遠端版本及 migration 影響。
+- **安全界線：** 專案 access token、資料庫密碼及管理 key 不進版控、不貼入聊天；migration repair 只維護版本紀錄，不代替 schema／權限檢查。真實登入、跨裝置權限及帳號刪除驗收仍未完成。
