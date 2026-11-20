@@ -47,6 +47,17 @@
     refreshQueue: $("[data-refresh-queue]"),
     caseEmpty: $("[data-case-empty]"),
     caseContent: $("[data-case-content]"),
+    caseFields: [
+      $("[data-case-id]"),
+      $("[data-case-category]"),
+      $("[data-case-status]"),
+      $("[data-case-created]"),
+      $("[data-case-room]"),
+      $("[data-case-reporter]"),
+      $("[data-case-reported]"),
+      $("[data-case-assignee]"),
+      $("[data-case-details]")
+    ],
     caseTitle: $("#case-title"),
     caseActionStatus: $("[data-case-action-status]"),
     claimCase: $("[data-claim-case]"),
@@ -93,6 +104,9 @@
     state.activeReportId = null;
     state.activeReport = null;
     state.detailRequestId += 1;
+    state.pendingResolution = null;
+    if (elements.confirmDialog.open) elements.confirmDialog.close();
+    for (const field of elements.caseFields) field.textContent = "";
     elements.caseEmpty.textContent = "請從左側清單選擇一筆案件。";
     elements.caseEmpty.classList.remove("hidden");
     elements.caseContent.classList.add("hidden");
@@ -101,10 +115,10 @@
 
   function resetForAccountChange() {
     state.reviewer = false;
+    state.authRequestId += 1;
     state.queueRequestId += 1;
     state.busy = false;
     clearQueue();
-    clearCase();
     setSensitiveViewVisible(false);
   }
 
@@ -209,6 +223,9 @@
     const userId = state.session?.user?.id;
     state.activeReportId = reportId;
     state.activeReport = null;
+    state.pendingResolution = null;
+    if (elements.confirmDialog.open) elements.confirmDialog.close();
+    for (const field of elements.caseFields) field.textContent = "";
     renderQueue();
     elements.caseEmpty.textContent = "正在安全載入案件內容…";
     elements.caseEmpty.classList.remove("hidden");
@@ -339,24 +356,33 @@
     const requestId = ++state.authRequestId;
 
     if (!session?.user) {
+      resetForAccountChange();
       setStatus(state.client
         ? "請使用已設定的審查員社群帳號登入。匿名帳號不具審查權限。"
         : "尚未設定 Supabase 服務；審查員登入暫不可用。檢舉資料不會載入此頁。");
       return;
     }
     if (isAnonymous(session.user)) {
+      resetForAccountChange();
       setStatus("目前登入的是匿名帳號。請改用核准的審查員社群帳號登入；案件內容仍保持鎖定。");
       return;
     }
     setStatus("正在確認審查員權限…");
-    const { error } = await state.client.rpc("list_moderation_reports", {
-      p_status: "pending",
-      p_page_size: 1,
-      p_after_created_at: null,
-      p_after_id: null
-    });
+    let permissionError = null;
+    try {
+      const { error } = await state.client.rpc("list_moderation_reports", {
+        p_status: "pending",
+        p_page_size: 1,
+        p_after_created_at: null,
+        p_after_id: null
+      });
+      permissionError = error;
+    } catch {
+      permissionError = true;
+    }
     if (requestId !== state.authRequestId || state.session?.user?.id !== nextUserId) return;
-    if (error) {
+    if (permissionError) {
+      resetForAccountChange();
       setStatus("此帳號沒有可用的案件審查權限。請使用已加入審查員名單的帳號，或請管理者檢查設定。");
       return;
     }
@@ -387,10 +413,9 @@
 
   async function signOut() {
     if (!state.client || state.busy) return;
+    resetForAccountChange();
     state.busy = true;
     refreshAuthControls();
-    setSensitiveViewVisible(false);
-    clearQueue();
     setStatus("正在登出審查帳號…");
     const { error } = await state.client.auth.signOut();
     state.busy = false;

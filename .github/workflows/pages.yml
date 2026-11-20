@@ -51,6 +51,9 @@ jobs:
       - name: Test matchmaking recovery in headless Chrome
         run: node scripts/matchmaking-resume.mjs
 
+      - name: Test moderation access lock in headless Chrome
+        run: node scripts/moderation-access-lock.mjs
+
   block_race:
     runs-on: ubuntu-latest
     services:

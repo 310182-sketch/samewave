@@ -261,9 +261,9 @@
 
 ## 審查工作區只在 RPC 驗證後顯示案件
 
-- **經驗：** 管理介面可在前端恢復 Auth session，但不能把「已登入」等同「有審查權限」。先用 allowlist RPC 確認帳號，再顯示佇列；清單只取案件 ID、類別、狀態和時間，開啟單筆時才呼叫詳情 RPC。切換帳號、登出或請求過期時清空案件內容；領取和結案仍交給服務端原子檢查。
+- **經驗：** 管理介面可在前端恢復 Auth session，但不能把「已登入」等同「有審查權限」。先用 allowlist RPC 確認帳號，再顯示佇列；清單只取案件 ID、類別、狀態和時間，開啟單筆時才呼叫詳情 RPC。每次 session 更新若權限重查失敗或拋錯，必須 fail closed：隱藏工作區、清空案件 DOM 與佇列、使舊請求失效並關閉待處理操作；登出和切換帳號也要清掉實際文字節點，不能只用 CSS 隱藏，以免敏感內容留在頁面 DOM。
 - **適用範圍：** 需由少數授權人員查看敏感案件內容、一般登入者不應直接查表的檢舉或申訴工作區。
-- **本專案做法：** `site/moderation.html` 以非匿名 provider 登入，`moderation.js` 先呼叫 `list_moderation_reports` 驗證 reviewer，再按需呼叫清單、詳情、領案與結案 RPC；所有文字用 DOM `textContent` 顯示，結案需二次確認。此頁尚待 CI、瀏覽器流程和真實 Supabase reviewer 帳號驗證，不代表已建立人工值班或玩家回覆流程。
+- **本專案做法：** `site/moderation.html` 以非匿名 provider 登入，`moderation.js` 先呼叫 `list_moderation_reports` 驗證 reviewer，再按需呼叫清單、詳情、領案與結案 RPC；所有文字用 DOM `textContent` 顯示，結案需二次確認。`scripts/moderation-access-lock.mjs` 以 headless Chrome 驗證 allowlist 拒絕、權限請求 reject、登出期間晚到的成功回應，以及案件文字和佇列從 DOM 清除；本機檢查通過並已加入 Pages workflow。Supabase reviewer 帳號及真人案件流程仍待線上驗收，不代表已配置人工值班或玩家回覆流程。
 
 ## 修改預設暱稱時要同步前後端和所有 RPC 版本
 
