@@ -125,6 +125,14 @@
 
 ## 手動部署後的 Supabase migration ledger
 
-- **狀態：** 十份 migration 已透過 SQL Editor 套用；唯讀查核確認 `supabase_migrations.schema_migrations` 不存在。官方 Supabase CLI 的 migration repair 流程會從本機 migration 檔讀取版本並將其登記為已套用；目前尚未取得可在本機執行該流程的 CLI 專案連線。
-- **推薦：** 下一次 schema 變更前，先用官方 CLI 執行 `supabase migration repair --status applied` 並明列這十個已部署版本，再用 `supabase migration list` 核對；完成前不要執行 `supabase db push`，也不要重跑已套用的 SQL。
+- **狀態：** 十份 migration 已透過 SQL Editor 套用；唯讀查核確認 `supabase_migrations.schema_migrations` 不存在。官方 Supabase CLI 的 migration repair 流程會從本機 migration 檔讀取版本並將其登記為已套用；目前這台工作機沒有 Supabase CLI，也沒有 CLI 登入狀態或資料庫密碼環境變數。
+- **待登記版本：** `20261119000100`、`20261120000100`、`20261120000200`、`20261120000300`、`20261120000400`、`20261120000500`、`20261120000600`、`20261120000700`、`20261120000800`、`20261120000900`。
+- **推薦操作：** CLI 安裝並安全連到專案 `bbpfgavabdsdayuprhbp` 後，從 repository 根目錄執行：
+
+  ```sh
+  supabase migration repair --status applied 20261119000100 20261120000100 20261120000200 20261120000300 20261120000400 20261120000500 20261120000600 20261120000700 20261120000800 20261120000900
+  supabase migration list
+  ```
+
+  核對十個版本都標為 remote applied；完成前不要執行 `supabase db push`，也不要重跑已套用的 SQL。
 - **安全界線：** 專案 access token、資料庫密碼及管理 key 不進版控；migration repair 只維護版本紀錄，不代替 schema／權限檢查。

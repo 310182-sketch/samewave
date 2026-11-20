@@ -140,7 +140,7 @@
 - [x] 將重新載入恢復隨機配對票券、延續原等待期限及配對成功後進房加入 headless Chrome mock 和 Pages workflow；本機檢查通過；run 61 的 verify、block_race 及 deploy 全部成功。
 - [x] 建立獨立 Samewave Supabase 專案（Singapore），啟用 Anonymous Auth 和 Manual Linking，並設定 GitHub Pages／localhost redirect allow list。
 - [x] 將十份 SQL migration 依檔名順序透過 Supabase SQL Editor 套用；查核主要資料表、RPC 和題庫。專案沒有 `supabase_migrations.schema_migrations`，CLI migration 歷史待同步。
-- [ ] 使用官方 Supabase CLI 按十份 migration 的既有版本執行 `migration repair --status applied`，再以 `migration list` 核對；完成前不執行 `db push`。此步驟需可安全連線至現有 Supabase 專案。
+- [ ] 安全連到 Samewave Supabase 專案後，用官方 CLI 將 `20261119000100`、`20261120000100` 至 `20261120000900` 十個已手動套用版本執行 `migration repair --status applied`，再以 `migration list` 核對；完成前不執行 `db push`。具體命令和連線前提記在 [knowledge/decision.md](decision.md)。
 - [x] 啟用 `pg_cron` 並建立即時遊戲資料每 15 分鐘、檢舉資料每日 03:17 的清理排程；線上確認兩者皆 active。
 - [x] 為網站設定 Supabase 專案 URL／公開 publishable key；帳號刪除維持關閉、社群 provider 維持未設定。
 - [x] 線上核對檢舉資料 RLS、玩家無法直讀答案表，以及房間表加入 Realtime publication；完整角色權限和真實玩家資料存取仍待端對端測試。
