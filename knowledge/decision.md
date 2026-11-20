@@ -36,7 +36,7 @@
 
 ## 匿名與社群登入
 
-- **狀態：** 已實作可選的 Supabase Auth 前端與匿名登入／社群 OAuth／identity linking 呼叫，並用 mock client 驗證 provider 選擇；尚未建立 Supabase 專案、設定 OAuth 或驗證真人 provider flow。
+- **狀態：** 已實作可選的 Supabase Auth 前端與匿名登入／社群 OAuth／identity linking 呼叫，並用 mock client 驗證 provider 選擇；Supabase 專案已建立且 Anonymous Auth／Manual Linking 已開啟；OAuth providers 與真人登入仍未驗證。
 - **決定：** 提供匿名登入，以及 Instagram、Facebook、Google、X、Threads 社群登入。匿名帳號連結社群身分時需保留玩家 ID 與可延續的歷史紀錄。
 - **設定界線：** provider secret 僅存在後端／Supabase Auth 設定；GitHub Pages 前端只使用公開的 project URL 和 anon key。
 - **待驗證：** 建立各平台 app、callback URL、公開應用資格和測試帳號；實測 provider 組態、重複帳號連結、登出後重新登入及匿名帳號轉正式身分。平台支援限制見下方技術審查。
@@ -63,12 +63,12 @@
 
 ## Supabase Auth 前端接線
 
-- **狀態：** 已實作可選的瀏覽器端 Auth client 和登入介面，並用 mock client 檢查匿名登入、Facebook identity linking 和 X OAuth provider ID；尚未設定 Supabase 專案或驗證真人 provider flow。
+- **狀態：** 已實作可選的瀏覽器端 Auth client 和登入介面，並用 mock client 檢查匿名登入、Facebook identity linking 和 X OAuth provider ID；Supabase 專案已建立且 Anonymous Auth／Manual Linking 已開啟；OAuth providers 與真人登入仍未驗證。
 - **決定：** 靜態網站的 `site/supabase-config.js` 只存 project URL、anon／publishable key 和已啟用 provider 清單。Facebook、Google、X 使用內建 provider；X 對應 provider ID `twitter`。Instagram、Threads 只接受 Supabase `custom:` provider 識別碼。
 - **登入行為：** 玩家可匿名登入；已登入玩家按社群 provider 時使用 Supabase identity linking，保留現有匿名帳號。以 PKCE 保存和恢復 session，不在畫面顯示 email 或 provider token。
 - **安全界線：** URL 和 anon／publishable key 屬公開 client 設定；provider client secret 和 service role key 只存在 Supabase Auth／後端。未提供設定或 SDK 時，登入按鈕停用且本機示範繼續運作。登入成功目前仍不代表真人配對或歷史功能已連線。
-- **尚待外部設定：** Supabase 專案 URL 和公開用戶端 key、啟用 Anonymous Auth 與 Manual Linking、provider app／callback、允許 redirect URL，以及 Instagram／Threads custom OAuth 設定。這些資料目前不在工作區，尚不能執行 live login。
-- **推薦：** 先以開發用 Supabase 專案完成 Anonymous Auth 與 Google／Facebook／X callback 和 linking 實測，再設定正式 GitHub Pages redirect；Meta custom provider 等 app review 和帳號資格確認後再開放。
+- **尚待外部設定：** Supabase 專案 URL 和公開 publishable key 尚未寫入網站設定；Anonymous Auth、Manual Linking 及 GitHub Pages／localhost redirect 已設定。provider app／callback 和 Instagram／Threads custom OAuth 尚未設定，live login 尚不能驗證。
+- **推薦：** 使用已建立的 Samewave Supabase 專案完成 schema 與匿名登入驗證；再設定 Google／Facebook／X callback 和 linking。Meta custom provider 等 app review 和帳號資格確認後再開放。
 
 ## 歷史紀錄與共同點統計
 
@@ -111,6 +111,14 @@
 
 ## 發布
 
-- **現況：** `riddle-match` 的 Pages 網站屬於另一個專案。公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立，Pages source 已設為 GitHub Actions。run #5 的 verify、PostgreSQL 競態測試和 deploy 通過；[https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/) 已公開，首頁、robots.txt 和 sitemap.xml 回傳 HTTP 200。Supabase 專案尚未接入，真人登入和配對仍停用。
+- **現況：** `riddle-match` 的 Pages 網站屬於另一個專案。公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立，Pages source 已設為 GitHub Actions。run #5 的 verify、PostgreSQL 競態測試和 deploy 通過；[https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/) 已公開，首頁、robots.txt 和 sitemap.xml 回傳 HTTP 200。Supabase 專案已建立並設定 Anonymous Auth／Manual Linking，但尚未套用 schema 或接入網站，真人登入和配對仍停用。
 - **決定：** 採公開 repository，因為目標包含 GitHub Pages 免費發布；建立時只納入同頻原始碼和文件，不沿用另一專案歷史。已檢查用戶端設定範本沒有真實 Supabase URL／key，測試中的 JWT 為假資料；provider secret 與 service role key 不得推送。
-- **下一階段：** 建立或取得 Supabase 專案、啟用 Anonymous Auth 和 Manual Linking、套用 migration 並部署 Edge Function；以真實帳號和兩部裝置驗證 Auth、RLS、Realtime、RPC、歷史和配對。公開靜態網站不表示後端功能已在線啟用。
+- **下一階段：** 將十份 migration 套用到既有 Samewave Supabase 專案、設定公開前端 URL／key 並部署 Edge Function；以真實帳號和兩部裝置驗證 Auth、RLS、Realtime、RPC、歷史和配對。公開靜態網站不表示後端功能已在線啟用。
+
+
+## Samewave Supabase 專案設定
+
+- **狀態：** 專用專案已建立；schema 尚未部署，網站尚未連線。
+- **決定：** Samewave 使用獨立 Supabase 專案 bbpfgavabdsdayuprhbp（Singapore），不與 riddle-match 共用資料庫。已啟用 Anonymous Auth 和 Manual Linking，並把 GitHub Pages 與 localhost 回跳網址加入 Auth allow list；此設定不代表 OAuth providers 已啟用。
+- **安全界線：** site/supabase-config.js 只放公開 Project URL 和 publishable key；不得放 service role key、資料庫密碼或 OAuth client secret。社群 provider 維持關閉，直到其 callback 和 credentials 設定完成。
+- **下一步：** 先套用並核對十份 SQL migration，再填入公開前端設定、部署帳號刪除 Edge Function，最後驗證 Supabase Auth、RLS、Realtime、RPC 和跨裝置流程。

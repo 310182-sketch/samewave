@@ -77,7 +77,7 @@
   const state = {
     topicChoice: "隨機",
     topic: "旅行",
-    nickname: "小芯",
+    nickname: "企鵝",
     matchMode: "demo",
     questionIndex: 0,
     answers: [],
@@ -190,7 +190,7 @@
     state.matchMode = mode;
     state.questionIndex = 0;
     state.answers = [];
-    state.nickname = ($("#nickname").value.trim() || "小芯").slice(0, 12);
+    state.nickname = ($("#nickname").value.trim() || "企鵝").slice(0, 12);
     chooseTopic();
     $("[data-match-topic]").textContent = state.topic;
     const demoMode = mode === "demo";
@@ -494,7 +494,7 @@
   }
 
   function getPlayerNickname() {
-    return ($("#nickname").value.trim() || "小芯").slice(0, 12);
+    return ($("#nickname").value.trim() || "企鵝").slice(0, 12);
   }
 
   function formatRoomExpiry(expiresAt) {

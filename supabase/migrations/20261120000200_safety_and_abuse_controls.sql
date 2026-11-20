@@ -174,7 +174,7 @@ begin
     raise exception 'Unsupported topic choice' using errcode = '22023';
   end if;
 
-  v_nickname := coalesce(nullif(btrim(coalesce(p_nickname, '')), ''), '小芯');
+  v_nickname := coalesce(nullif(btrim(coalesce(p_nickname, '')), ''), '企鵝');
   if char_length(v_nickname) > 12 then
     raise exception 'Nickname must be at most 12 characters' using errcode = '22023';
   end if;

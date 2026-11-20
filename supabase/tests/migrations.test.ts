@@ -1070,7 +1070,7 @@ Deno.test("expanded topic catalog supports questions, invite rooms, and live mat
   }
 });
 
-Deno.test("blank nicknames use 小芯 across the UI, invite rooms, and matching", async () => {
+Deno.test("blank nicknames use 企鵝 across the UI, invite rooms, and matching", async () => {
   const html = await Deno.readTextFile(
     new URL("../../site/index.html", import.meta.url),
   );
@@ -1078,16 +1078,16 @@ Deno.test("blank nicknames use 小芯 across the UI, invite rooms, and matching"
     new URL("../../site/app.js", import.meta.url),
   );
   assert(
-    html.includes('placeholder="留空會使用「小芯」"'),
+    html.includes('placeholder="留空會使用「企鵝」"'),
     "nickname placeholder shows the default",
   );
   assert(
-    html.includes("data-player-name>小芯<"),
+    html.includes("data-player-name>企鵝<"),
     "game screen starts with the default nickname",
   );
-  assert(app.includes('nickname: "小芯"'), "client state uses the default");
+  assert(app.includes('nickname: "企鵝"'), "client state uses the default");
   assertEquals(
-    (app.match(/\|\| "小芯"/g) ?? []).length,
+    (app.match(/\|\| "企鵝"/g) ?? []).length,
     2,
     "both client nickname readers use the default",
   );
@@ -1108,7 +1108,7 @@ Deno.test("blank nicknames use 小芯 across the UI, invite rooms, and matching"
     );
     assertEquals(
       host.rows[0]?.nickname,
-      "小芯",
+      "企鵝",
       "blank invite creator nickname uses the default",
     );
 
@@ -1126,7 +1126,7 @@ Deno.test("blank nicknames use 小芯 across the UI, invite rooms, and matching"
     );
     assertEquals(
       guest.rows[0]?.nickname,
-      "小芯",
+      "企鵝",
       "blank invite joiner nickname uses the default",
     );
 
@@ -1145,7 +1145,7 @@ Deno.test("blank nicknames use 小芯 across the UI, invite rooms, and matching"
     );
     assertEquals(
       ticket.rows[0]?.nickname,
-      "小芯",
+      "企鵝",
       "blank matchmaking nickname uses the default",
     );
   } finally {
