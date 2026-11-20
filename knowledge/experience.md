@@ -281,7 +281,7 @@
 
 - **經驗：** 靜態前端從「本機示範」切換為連接真實 Auth 後，登入卡、配對說明和社群登入備註都要反映目前實際設定。避免保留「尚未設定後端」等過期文案，也不要把「已設定／已啟用」誤寫成「真人端對端流程已驗證」。清楚區分 Auth 設定就緒、使用者完成登入、以及房間／配對／歷史已通過實際驗收。
 - **適用範圍：** 分階段上線的 web app，特別是 Auth、OAuth provider、付款或其他外部服務由設定逐步開通的產品。
-- **本專案做法：** Samewave 的 `site/supabase-config.js` 已接上公開 Project URL／publishable key，首頁顯示匿名登入已啟用並列出尚未設定的 Google／Facebook／X／Instagram／Threads；README、路線圖和帳號刪除停用提示需同步記錄真實設定與未完成的端對端驗收。匿名 Auth 設定 API 已確認，但沒有建立正式環境測試 session。更新文件時也要核對相關 Pages workflow；run #13（44770155809）、#14（44771086564）和 #16（44773283489）成功部署。2026-11-21 的 live HTTP 查核確認首頁載入 `app.js?v=15`，新版停用與錯誤說明可從公開 bundle 讀到。
+- **本專案做法：** Samewave 的 `site/supabase-config.js` 已接上公開 Project URL／publishable key，首頁顯示匿名登入已啟用並列出尚未設定的 Google／Facebook／X／Instagram／Threads；README、路線圖和帳號刪除停用提示需同步記錄真實設定與未完成的端對端驗收。以 publishable key 唯讀呼叫 `/auth/v1/settings` 得 HTTP 200 並確認匿名使用者設定，未呼叫 sign-in 或建立測試帳號；同時以 OPTIONS 驗證正式 origin 為 200、未列入的 origin 為 403。這些是設定與 CORS readiness check，不代替真實登入、JWT 或刪除驗收。更新文件時也要核對相關 Pages workflow；run #13（44770155809）、#14（44771086564）和 #16（44773283489）成功部署。2026-11-21 的 live HTTP 查核確認首頁載入 `app.js?v=15`，新版停用與錯誤說明可從公開 bundle 讀到。
 - **補充：** 若破壞性功能已部署但因尚未驗收而關閉，前端應說明「目前未開放」和待完成的驗收條件，不要再寫「尚未部署」。操作失敗時也要使用「無法確認結果」等不會假設伺服器端未成功的訊息，避免因回應中斷造成使用者重複執行破壞性操作。
 
 ## 部署破壞性 Edge Function 前先限制來源並驗證預檢
