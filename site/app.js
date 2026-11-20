@@ -1582,21 +1582,21 @@
       status = "登入服務設定無法使用。請確認 Supabase 專案網址和公開用戶端金鑰。";
     } else if (authState.client && user) {
       status = isAnonymousUser(user)
-        ? "已匿名登入。可建立或加入真人邀請房，完成對局後查詢最近 90 天紀錄；連結社群身分可保留帳號。"
-        : "已登入。可建立或加入真人邀請房，完成對局後查詢最近 90 天紀錄。";
+        ? "已匿名登入。可建立或加入真人邀請房、使用隨機配對並查詢最近 90 天紀錄；連結社群身分可保留帳號。"
+        : "已登入。可建立或加入真人邀請房、使用隨機配對並查詢最近 90 天紀錄。";
     } else if (authState.client) {
-      status = "登入服務已就緒。登入後可建立或加入真人邀請房，完成對局後查詢歷史紀錄。";
+      status = "登入服務已就緒。登入後可建立或加入真人邀請房、使用隨機配對並查詢歷史紀錄。";
     }
     if (authState.client && authState.notice) status = authState.notice;
 
     const entryMessage = !authState.client
       ? "尚未設定真人服務時，只能玩本機示範；房間與紀錄不會跨裝置或保存。"
       : user
-        ? "可建立或加入跨裝置真人邀請房；示範對局不會保存紀錄。"
-        : "登入後可建立或加入跨裝置真人邀請房；示範對局不會保存紀錄。";
+        ? "可建立或加入跨裝置真人邀請房、使用隨機配對並查詢對局歷史；本機示範不會保存紀錄。"
+        : "匿名登入後可建立或加入跨裝置真人邀請房、使用隨機配對並查詢對局歷史；本機示範不會保存紀錄。";
     $("[data-entry-disclaimer]").textContent = entryMessage;
     $("[data-room-disclaimer]").textContent = authState.client
-      ? "登入後可輸入邀請代碼加入真人房間；未設定服務時則只顯示本機預覽。"
+      ? "登入後可輸入房主分享的邀請代碼加入真人房間。"
       : "尚未設定真人服務時，加入代碼只會展示本機預覽。";
 
     message.textContent = status;

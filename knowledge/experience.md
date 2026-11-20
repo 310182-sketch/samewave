@@ -276,3 +276,9 @@
 - **經驗：** 透過 Supabase SQL Editor 手動執行 migration 會更新資料庫結構，但不會自動建立 CLI 使用的 `supabase_migrations.schema_migrations` 紀錄。之後若直接執行 `supabase db push`，CLI 可能把這些 migration 視為尚未套用並重複執行。應先確認遠端 schema 與每個 migration 的實際效果，再用 Supabase CLI 的 migration repair 流程登記已套用版本；不得為了補紀錄而重跑已套用的非冪等 SQL。
 - **適用範圍：** 先以 Supabase Dashboard／SQL Editor 部署、後續打算改用 Supabase CLI 或版本化 migration pipeline 的專案。
 - **本專案做法：** 十份 Samewave migration 依檔名順序已透過 SQL Editor 成功套用；唯讀查核確認主要資料表、函式、檢舉 RLS、答案表直讀限制、房間 Realtime publication 和清理排程。`to_regclass('supabase_migrations.schema_migrations')` 回傳 null，且兩個 `pg_cron` 清理 job 均 active。尚未安裝或登入 Supabase CLI，因此未建立遠端 migration 歷史；下一次 schema 變更前先核對各版本並同步 ledger。
+
+## 後端上線後同步更新登入狀態與操作說明
+
+- **經驗：** 靜態前端從「本機示範」切換為連接真實 Auth 後，登入卡、配對說明和社群登入備註都要反映目前實際設定。避免保留「尚未設定後端」等過期文案，也不要把「已設定／已啟用」誤寫成「真人端對端流程已驗證」。清楚區分 Auth 設定就緒、使用者完成登入、以及房間／配對／歷史已通過實際驗收。
+- **適用範圍：** 分階段上線的 web app，特別是 Auth、OAuth provider、付款或其他外部服務由設定逐步開通的產品。
+- **本專案做法：** Supabase config 部署後，首頁顯示登入服務已就緒、匿名登入已開啟，以及 Google／Facebook／X／Instagram／Threads 仍待設定；更新登入說明涵蓋邀請房、隨機配對和歷史紀錄，並遞增 `app.js` query version。匿名登入 API 狀態已確認，但未建立真實測試 session，因此沒有把登入流程或跨裝置遊戲標成已驗收。
