@@ -1,6 +1,6 @@
 # 決策紀錄
 
-最後整理：2026-11-20
+最後整理：2026-11-21
 
 ## 本分支的產品方向
 
@@ -32,7 +32,7 @@
 - **安全規則：** 答案留在資料庫；只有同一房間兩位玩家都完成作答後才回傳雙方答案。以 RLS 限制玩家資料存取，不開放用戶端直讀答案表；service role key 不放在前端。
 - **同步規則：** 揭曉後兩位玩家都按「下一題」才推進；先按的人等待對方。正式閒置時間、離線及重新連線行為仍需實測及定案。
 - **資料保存：** 房間、配對票券、暱稱及原始答案於結束／逾期後最多保留 24 小時；每位玩家的歷史摘要保存 90 天且可提前刪除；檢舉資料保存 180 天；封鎖清單保留至解除或刪除帳號。
-- **未完成條件：** 部署帳號刪除 Edge Function、完成匿名登入 smoke check，並以兩部裝置驗證登入後的房間、配對、Realtime、歷史及資料權限；社群 OAuth provider 仍待建立與設定。PGlite 預檢不能取代 Supabase Auth、Realtime、pg_cron 和跨裝置的實際服務驗收。
+- **未完成條件：** 完成匿名登入 smoke check，並以兩部裝置驗證登入後的房間、配對、Realtime、歷史及資料權限；真實 JWT／帳號刪除驗收仍待完成，社群 OAuth provider 仍待建立與設定。PGlite 預檢不能取代 Supabase Auth、Realtime、pg_cron 和跨裝置的實際服務驗收。
 
 ## 匿名與社群登入
 
@@ -43,7 +43,7 @@
 
 ## 自助刪除帳號
 
-- **狀態：** 前端確認流程、Supabase Edge Function 草稿、Auth 刪除前關閉進行中房間及解除檢舉雙方 ID 連結的 migration 已完成；本機 request 與 PGlite 回歸測試通過。目前範本以 `accountDeletionEnabled: false` 停用入口，尚未部署或真人驗證。
+- **狀態：** 前端確認流程、Supabase Edge Function 和 Auth 刪除前收尾 migration 已完成。`delete-account` 已部署，使用 Supabase 管理的服務端 key，並以精確 `ALLOWED_ORIGINS` 限制來源；GitHub Pages 的 OPTIONS 預檢回應正確。尚未用真實登入 session 執行 JWT／帳號刪除驗收，因此公開設定仍為 `accountDeletionEnabled: false`，介面停用。
 - **決定：** 只允許目前已驗證的登入者刪除自己的 Auth 帳號。前端呼叫 `delete-account` Edge Function；函式驗證 JWT，從 token 取得使用者 ID，再以僅存於 Supabase 後端的 service role 呼叫 Auth Admin 刪除。使用精確 origin allow list，未設定時拒絕瀏覽器呼叫。
 - **資料處理：** 刪除前把此帳號參與的 waiting／playing 房間標為 abandoned，移除邀請碼並取消等待票券；Auth 刪除後 cascade 清除本人歷史和封鎖。其他玩家仍保存的歷史會匿名化對手暱稱；既有檢舉清空 reporter／reported 帳號連結，但檢舉說明依 180 天保存期限保留。
 - **上線界線：** 只有 Edge Function 已部署、`ALLOWED_ORIGINS` 和後端 service role 設定完成、並驗證帳號清理後，才能在公開 `site/supabase-config.js` 將 `accountDeletionEnabled` 設為 `true`。不得把 service role key 放入靜態網站。
@@ -113,7 +113,7 @@
 
 - **現況：** `riddle-match` 的 Pages 網站屬於另一個專案。公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立，Pages source 已設為 GitHub Actions，網站網址為 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/)。同頻已設定公開 Supabase URL／publishable key，十份 migration 已套用，Realtime publication 和清理排程已核對；尚待公開新版部署與匿名登入 smoke check。
 - **決定：** 採公開 repository，因為目標包含 GitHub Pages 免費發布；建立時只納入同頻原始碼和文件，不沿用另一專案歷史。已檢查用戶端設定範本沒有真實 Supabase URL／key，測試中的 JWT 為假資料；provider secret 與 service role key 不得推送。
-- **下一階段：** 同步 SQL Editor 手動套用的 migration ledger、部署新版前端、驗證匿名登入；部署帳號刪除 Edge Function後，以兩部裝置驗證 Auth、RLS、Realtime、RPC、歷史和配對。公開靜態網站及 schema 部署仍不代表真人遊戲已完成端對端驗收。
+- **下一階段：** 同步 SQL Editor 手動套用的 migration ledger、完成匿名登入驗證；以兩部裝置驗證 Auth、RLS、Realtime、RPC、歷史和配對，並測試帳號刪除 Edge Function。公開靜態網站及 schema 部署仍不代表真人遊戲已完成端對端驗收。
 
 
 ## Samewave Supabase 專案設定
@@ -121,4 +121,4 @@
 - **狀態：** 專用專案已建立並部署 schema；公開網站設定已加入 URL／publishable key。
 - **決定：** Samewave 使用獨立 Supabase 專案 bbpfgavabdsdayuprhbp（Singapore），不與 riddle-match 共用資料庫。已啟用 Anonymous Auth 和 Manual Linking，並把 GitHub Pages 與 localhost 回跳網址加入 Auth allow list；此設定不代表 OAuth providers 已啟用。
 - **安全界線：** site/supabase-config.js 只放公開 Project URL 和 publishable key；不得放 service role key、資料庫密碼或 OAuth client secret。社群 provider 維持關閉，直到其 callback 和 credentials 設定完成。
-- **下一步：** 同步 CLI migration ledger；驗證匿名登入，部署帳號刪除 Edge Function，最後以兩部裝置驗證 Supabase Auth、RLS、Realtime、RPC 和歷史流程。
+- **下一步：** 同步 CLI migration ledger；驗證匿名登入與帳號刪除 Edge Function，最後以兩部裝置驗證 Supabase Auth、RLS、Realtime、RPC 和歷史流程。

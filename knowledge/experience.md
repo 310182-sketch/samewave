@@ -209,7 +209,7 @@
 
 - **經驗：** 使用 Deno URL import 的 Edge Function 若只固定套件主版本，重複部署時可能載入不同的 minor／patch 實作。以精確套件版本固定行為，並和瀏覽器端共用相同版本，可減少 API 差異與除錯變因；版本存在及 URL 可回應只能確認套件可取得，仍需 Deno 編譯和目標平台驗證。
 - **適用範圍：** Deno Edge Functions、透過 esm.sh 載入 npm 套件的服務，以及使用 CDN 的靜態前端。
-- **本專案做法：** `delete-account` 使用 `https://esm.sh/@supabase/supabase-js@2.119.2`，與瀏覽器載入的 Supabase JS 版本一致。確認 npm registry 版本存在且 esm.sh 回應 HTTP 200；將官方 Windows Deno 發布檔下載到暫存資料夾並核對 SHA-256 後，以 Deno 2.9.8 執行 `deno check`、`deno lint` 及 `deno fmt --check` 成功（初次格式檢查後套用 `deno fmt`）。PGlite 帳號刪除檢查亦通過；Edge Function 尚未部署，Supabase Auth Admin、Edge secrets、JWT gateway 與 CORS 仍待線上驗證。
+- **本專案做法：** `delete-account` 使用 `https://esm.sh/@supabase/supabase-js@2.119.2`，與瀏覽器載入的 Supabase JS 版本一致。確認 npm registry 版本存在且 esm.sh 回應 HTTP 200；將官方 Windows Deno 發布檔下載到暫存資料夾並核對 SHA-256 後，以 Deno 2.9.8 執行 `deno check`、`deno lint` 及 `deno fmt --check` 成功（初次格式檢查後套用 `deno fmt`）。PGlite 帳號刪除檢查亦通過；後續已部署 Edge Function、設定最小來源 allowlist，且在真實 Supabase 驗證允許／拒絕來源的 OPTIONS 預檢。Supabase Auth Admin 的真實 JWT 刪除和資料庫收尾仍待登入 session 驗收。
 
 ## 將 Edge Function 請求處理器與伺服器啟動分開
 
@@ -282,3 +282,9 @@
 - **經驗：** 靜態前端從「本機示範」切換為連接真實 Auth 後，登入卡、配對說明和社群登入備註都要反映目前實際設定。避免保留「尚未設定後端」等過期文案，也不要把「已設定／已啟用」誤寫成「真人端對端流程已驗證」。清楚區分 Auth 設定就緒、使用者完成登入、以及房間／配對／歷史已通過實際驗收。
 - **適用範圍：** 分階段上線的 web app，特別是 Auth、OAuth provider、付款或其他外部服務由設定逐步開通的產品。
 - **本專案做法：** Supabase config 部署後，首頁顯示登入服務已就緒、匿名登入已開啟，以及 Google／Facebook／X／Instagram／Threads 仍待設定；更新登入說明涵蓋邀請房、隨機配對和歷史紀錄，並遞增 `app.js` query version。匿名登入 API 狀態已確認，但未建立真實測試 session，因此沒有把登入流程或跨裝置遊戲標成已驗收。
+
+## 部署破壞性 Edge Function 前先限制來源並驗證預檢
+
+- **經驗：** 會刪除帳號或其他使用者資料的 Edge Function，應同時以 Auth JWT 確認呼叫者、由 token 取得操作對象、將服務端管理 key 留在平台 secrets，並限制精確網站 origin。部署後先用不改動資料的 CORS `OPTIONS` 預檢確認只允許正式網站與預期 method，再進行真實登入和刪除驗收；未完成破壞性路徑驗收前，產品介面保持停用。
+- **適用範圍：** Supabase Edge Functions、Deno serverless API，以及需要以後端管理權限替登入者執行刪除或帳號管理操作的應用程式。
+- **本專案做法：** 將 repository 中經 Deno request tests 驗證的 `delete-account` 部署到 Samewave Supabase，啟用 JWT gateway 驗證，將 `ALLOWED_ORIGINS` 設為 `https://310182-sketch.github.io`，並使用 Supabase 內建 server-side `SUPABASE_SERVICE_ROLE_KEY`；未讀取或複製該 key。正式 origin 的 OPTIONS 預檢回 HTTP 200 並回傳精確 `Access-Control-Allow-Origin`；`https://example.org` 預檢回 403 且沒有允許來源標頭。真實 JWT、Auth Admin 刪除和資料庫收尾尚未驗證，因此公開網站仍維持 `accountDeletionEnabled: false`。
