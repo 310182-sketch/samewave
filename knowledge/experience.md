@@ -263,7 +263,7 @@
 
 - **經驗：** 管理介面可在前端恢復 Auth session，但不能把「已登入」等同「有審查權限」。先用 allowlist RPC 確認帳號，再顯示佇列；清單只取案件 ID、類別、狀態和時間，開啟單筆時才呼叫詳情 RPC。每次 session 更新若權限重查失敗或拋錯，必須 fail closed：隱藏工作區、清空案件 DOM 與佇列、使舊請求失效並關閉待處理操作；登出和切換帳號也要清掉實際文字節點，不能只用 CSS 隱藏，以免敏感內容留在頁面 DOM。
 - **適用範圍：** 需由少數授權人員查看敏感案件內容、一般登入者不應直接查表的檢舉或申訴工作區。
-- **本專案做法：** `site/moderation.html` 以非匿名 provider 登入，`moderation.js` 先呼叫 `list_moderation_reports` 驗證 reviewer，再按需呼叫清單、詳情、領案與結案 RPC；所有文字用 DOM `textContent` 顯示，結案需二次確認。`scripts/moderation-access-lock.mjs` 以 headless Chrome 驗證 allowlist 拒絕、權限請求 reject、登出期間晚到的成功回應，以及案件文字和佇列從 DOM 清除；本機檢查通過並已加入 Pages workflow。Supabase reviewer 帳號及真人案件流程仍待線上驗收，不代表已配置人工值班或玩家回覆流程。
+- **本專案做法：** `site/moderation.html` 以非匿名 provider 登入，`moderation.js` 先呼叫 `list_moderation_reports` 驗證 reviewer，再按需呼叫清單、詳情、領案與結案 RPC；所有文字用 DOM `textContent` 顯示，結案需二次確認。`scripts/moderation-access-lock.mjs` 以 headless Chrome 驗證 allowlist 拒絕、權限請求 reject、登出期間晚到的成功回應，以及案件文字和佇列從 DOM 清除；本機檢查和 Actions [run #15](https://github.com/310182-sketch/samewave/actions/runs/44772554124) 均通過。Supabase reviewer 帳號及真人案件流程仍待線上驗收，不代表已配置人工值班或玩家回覆流程。
 
 ## 修改預設暱稱時要同步前後端和所有 RPC 版本
 
@@ -281,7 +281,7 @@
 
 - **經驗：** 靜態前端從「本機示範」切換為連接真實 Auth 後，登入卡、配對說明和社群登入備註都要反映目前實際設定。避免保留「尚未設定後端」等過期文案，也不要把「已設定／已啟用」誤寫成「真人端對端流程已驗證」。清楚區分 Auth 設定就緒、使用者完成登入、以及房間／配對／歷史已通過實際驗收。
 - **適用範圍：** 分階段上線的 web app，特別是 Auth、OAuth provider、付款或其他外部服務由設定逐步開通的產品。
-- **本專案做法：** Samewave 的 `site/supabase-config.js` 已接上公開 Project URL／publishable key，首頁顯示匿名登入已啟用並列出尚未設定的 Google／Facebook／X／Instagram／Threads；README、路線圖和帳號刪除停用提示需同步記錄真實設定與未完成的端對端驗收。匿名 Auth 設定 API 已確認，但沒有建立正式環境測試 session。更新文件時也要核對相關 Pages workflow；run #13（44770155809）和後續 run #14（44771086564）都成功部署。
+- **本專案做法：** Samewave 的 `site/supabase-config.js` 已接上公開 Project URL／publishable key，首頁顯示匿名登入已啟用並列出尚未設定的 Google／Facebook／X／Instagram／Threads；README、路線圖和帳號刪除停用提示需同步記錄真實設定與未完成的端對端驗收。匿名 Auth 設定 API 已確認，但沒有建立正式環境測試 session。更新文件時也要核對相關 Pages workflow；run #13（44770155809）、#14（44771086564）和 #16（44773283489）成功部署。
 - **補充：** 若破壞性功能已部署但因尚未驗收而關閉，前端應說明「目前未開放」和待完成的驗收條件，不要再寫「尚未部署」。操作失敗時也要使用「無法確認結果」等不會假設伺服器端未成功的訊息，避免因回應中斷造成使用者重複執行破壞性操作。
 
 ## 部署破壞性 Edge Function 前先限制來源並驗證預檢
