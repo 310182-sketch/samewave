@@ -1078,7 +1078,7 @@ Deno.test("blank nicknames use 企鵝 across the UI, invite rooms, and matching"
     new URL("../../site/app.js", import.meta.url),
   );
   assert(
-    html.includes('placeholder="留空會使用「企鵝」"'),
+    html.includes('placeholder="企鵝"'),
     "nickname placeholder shows the default",
   );
   assert(
