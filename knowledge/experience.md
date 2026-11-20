@@ -265,18 +265,11 @@
 - **適用範圍：** 需由少數授權人員查看敏感案件內容、一般登入者不應直接查表的檢舉或申訴工作區。
 - **本專案做法：** `site/moderation.html` 以非匿名 provider 登入，`moderation.js` 先呼叫 `list_moderation_reports` 驗證 reviewer，再按需呼叫清單、詳情、領案與結案 RPC；所有文字用 DOM `textContent` 顯示，結案需二次確認。此頁尚待 CI、瀏覽器流程和真實 Supabase reviewer 帳號驗證，不代表已建立人工值班或玩家回覆流程。
 
-## 預設暱稱要在前端提示與服務端 RPC 保持一致
-
-- **經驗：** 可選暱稱的預設值會出現在輸入提示、尚未進入遊戲時的畫面、前端送出前的 fallback，以及房間建立、加入與配對 RPC。只改提示文字可能造成遊戲顯示名稱和後端保存名稱不一致；前後端應使用同一預設，並覆蓋空字串與只有空白的輸入。
-- **適用範圍：** 有訪客模式或可選顯示名稱的多人遊戲、房間邀請、配對佇列及任何同時由瀏覽器與服務端正規化暱稱的產品。
-- **本專案做法：** 將提示、遊戲玩家標籤、前端 state 與讀取器、SQL RPC 的 `trim` 後 fallback 統一為「小芯」，並遞增 `app.js` 查詢版本以避免舊快取。Deno/PGlite 回歸案例檢查前端預設，並驗證邀請房建立者、加入者及隨機配對輸入空白暱稱後都保存「小芯」。
-
-
 ## 修改預設暱稱時要同步前後端和所有 RPC 版本
 
 - **經驗：** 變更空白暱稱的文案，也要同步更新遊戲畫面初始值、前端 state 和讀取 fallback、所有會建立／加入房間或建立配對票券的資料庫 RPC，以及驗證這些流程的回歸案例。靜態網站需遞增前端 script 查詢版本，避免瀏覽器繼續載入舊 bundle。尚未部署的 migration 可直接修正；資料庫一旦套用，之後應使用 forward-only migration 更新函式，不要改寫已部署 migration。
 - **適用範圍：** 同時由客戶端與服務端正規化可選名稱、設定值或預設分類的應用程式，特別是已使用版本化資料庫 migration 的服務。
-- **本專案做法：** 依使用者選擇將預設由「小芯」改為「企鵝」，更新 placeholder、玩家標籤、兩處前端 fallback、七處 SQL fallback 和 Deno/PGlite 測試，並將 app.js 查詢版本由 12 遞增為 13。變更完成後 Actions run #7 的 verify、block_race 與 deploy 全部成功；公開 GitHub Pages 回應 HTTP 200，並載入 `app.js?v=13`。Supabase migration 套用後如需再改 RPC fallback，必須新增 forward-only migration。
+- **本專案做法：** 依使用者選擇將預設由「小芯」改為「企鵝」，更新 placeholder、玩家標籤、兩處前端 fallback、七處 SQL fallback 和 Deno/PGlite 測試，並將 app.js 查詢版本由 12 遞增為 13。變更完成後 Actions run #7 的 verify、block_race 與 deploy 全部成功；後續 Supabase 前端設定變更由 Actions [run #8](https://github.com/310182-sketch/samewave/actions/runs/44766507013) 驗證部署成功。公開 GitHub Pages 回應 HTTP 200，並載入 `app.js?v=13` 及 `supabase-config.js?v=3`；線上畫面顯示「留空會使用『企鵝』」。Supabase migration 套用後如需再改 RPC fallback，必須新增 forward-only migration。
 
 ## 手動套用 Supabase migration 後先同步遠端版本紀錄
 
