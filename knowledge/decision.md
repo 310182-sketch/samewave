@@ -122,3 +122,9 @@
 - **決定：** Samewave 使用獨立 Supabase 專案 bbpfgavabdsdayuprhbp（Singapore），不與 riddle-match 共用資料庫。已啟用 Anonymous Auth 和 Manual Linking，並把 GitHub Pages 與 localhost 回跳網址加入 Auth allow list；此設定不代表 OAuth providers 已啟用。
 - **安全界線：** site/supabase-config.js 只放公開 Project URL 和 publishable key；不得放 service role key、資料庫密碼或 OAuth client secret。社群 provider 維持關閉，直到其 callback 和 credentials 設定完成。
 - **下一步：** 同步 CLI migration ledger；驗證匿名登入與帳號刪除 Edge Function，最後以兩部裝置驗證 Supabase Auth、RLS、Realtime、RPC 和歷史流程。
+
+## 手動部署後的 Supabase migration ledger
+
+- **狀態：** 十份 migration 已透過 SQL Editor 套用；唯讀查核確認 `supabase_migrations.schema_migrations` 不存在。官方 Supabase CLI 的 migration repair 流程會從本機 migration 檔讀取版本並將其登記為已套用；目前尚未取得可在本機執行該流程的 CLI 專案連線。
+- **推薦：** 下一次 schema 變更前，先用官方 CLI 執行 `supabase migration repair --status applied` 並明列這十個已部署版本，再用 `supabase migration list` 核對；完成前不要執行 `supabase db push`，也不要重跑已套用的 SQL。
+- **安全界線：** 專案 access token、資料庫密碼及管理 key 不進版控；migration repair 只維護版本紀錄，不代替 schema／權限檢查。
