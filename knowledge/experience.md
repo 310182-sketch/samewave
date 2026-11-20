@@ -22,7 +22,7 @@
 
 - **經驗：** Pages Actions 需要 pages: write 與 id-token: write 權限，repository 的 Pages source 也必須設為 GitHub Actions。
 - **適用範圍：** 使用 GitHub Actions 發布 GitHub Pages 網站。
-- **本專案做法：** workflow 已由功能分支觸發；`github-pages` environment 曾拒絕未列入允許清單的分支，加入精確分支政策後部署成功。`verify` job 執行 Deno 型別／lint／格式、PGlite migration 測試、Edge Function request 測試和前端語法檢查；另外以隔離的 PostgreSQL 16 service 執行封鎖、配對、邀請加入、限量和取消的多連線競態測試。`deploy` 必須等待所有驗證 job，並獨立取得 `pages: write` 與 `id-token: write`。部署失敗時先看實際失敗步驟與 annotation；run 48 曾回報找不到 `github-pages` artifact，run 53 的 verify、block_race 與 deploy 全部成功。重跑失敗 job 會再次產生 Pages artifact，因此名稱需包含 `github.run_id` 和 `github.run_attempt`，且 upload 與 deploy 必須使用相同名稱，避免同一 run 中出現重名 artifact。runner 棄用警告和真正的部署錯誤要分開處理，也不能只憑 workflow 已觸發或排入佇列就宣稱網站已發布。
+- **本專案做法：** workflow 已由功能分支觸發；`github-pages` environment 曾拒絕未列入允許清單的分支，加入精確分支政策後部署成功。`verify` job 執行 Deno 型別／lint／格式、PGlite migration 測試、Edge Function request 測試和前端語法檢查；另外以隔離的 PostgreSQL 16 service 執行封鎖、配對、邀請加入、限量和取消的多連線競態測試。`deploy` 必須等待所有驗證 job，並獨立取得 `pages: write` 與 `id-token: write`。部署失敗時先看實際失敗步驟與 annotation；run 48 曾回報找不到 `github-pages` artifact，run 53 的 verify、block_race 與 deploy 全部成功。重跑失敗 job 會再次產生 Pages artifact，因此名稱需包含 `github.run_id` 和 `github.run_attempt`，且 upload 與 deploy 必須使用相同名稱，避免同一 run 中出現重名 artifact。run 27 的 deploy annotation 顯示上傳成功後緊接查詢時找不到 artifact，但 workflow 結束後 GitHub API 已列出該 artifact；加入短暫登記緩衝，並以後續完整部署結果確認。runner 棄用警告和真正的部署錯誤要分開處理，也不能只憑 workflow 已觸發或排入佇列就宣稱網站已發布。
 
 ## 靜態前端不可放伺服器祕密
 
