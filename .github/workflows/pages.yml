@@ -59,6 +59,9 @@ jobs:
       - name: Test matchmaking recovery in headless Chrome
         run: node scripts/matchmaking-resume.mjs
 
+      - name: Test invite code input in headless Chrome
+        run: node scripts/invite-room-codes.mjs
+
       - name: Test moderation access lock in headless Chrome
         run: node scripts/moderation-access-lock.mjs
 

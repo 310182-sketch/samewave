@@ -2592,7 +2592,7 @@
   $("#invite-code").addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
       event.preventDefault();
-      joinDemoRoom();
+      joinInviteRoom();
     }
   });
   $("[data-copy-room-code]").addEventListener("click", copyDemoInviteCode);
