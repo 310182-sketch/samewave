@@ -664,6 +664,16 @@ Deno.test("matchmaking, moderation claims, cancellation, block, and quota races 
 
     await admin.query("delete from public.player_blocks");
     await admin.query(
+      `update public.game_rooms
+       set status = 'abandoned',
+           closed_at = clock_timestamp(),
+           delete_after = clock_timestamp() + interval '24 hours',
+           invite_code = null,
+           updated_at = clock_timestamp()
+       where id = $1::uuid and status = 'waiting'`,
+      [inviteRoomId],
+    );
+    await admin.query(
       `update public.matchmaking_queue
        set status = 'cancelled'
        where user_id in ($1, $2) and status = 'waiting'`,
