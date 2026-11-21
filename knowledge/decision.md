@@ -18,7 +18,7 @@
 
 ## 房間與配對
 
-- **狀態：** MVP 預設已採用；邀請房建立／加入／離房、Realtime 答題與揭曉、雙方確認推進、結果讀取及隨機配對 RPC 已接上前端並以 Chrome mock 驗證。十一份 migration 已部署至 Samewave Supabase，房間 Realtime publication 已確認；真正雙裝置遊戲、登入後的 RPC/RLS 和資料同步仍待實測。
+- **狀態：** MVP 預設已採用；邀請房建立／加入／離房、六碼數字代碼、服務端猜測限流、Realtime 答題／揭曉、雙方確認、結果讀取及隨機配對 RPC 已接上前端或 Supabase。十二份 migration 已部署，PR #1 已合併；最新公開版 app.js?v=19 包含六碼輸入。真實雙裝置遊戲、登入後 RPC/RLS 和資料同步仍待實測。
 - **決定：** 玩家可建立雙人邀請房間，分享六位數字代碼讓另一位玩家加入；六碼代碼應有服務端猜測限流。過渡期接受尚未過期的舊 12 碼代碼；新房間使用六碼。房間 10 分鐘沒有第二位玩家加入就失效；房主在遊戲開始前離開時關閉房間。
 - **決定：** 玩家每次只能參加一個進行中的房間。隨機配對等候上限為 30 秒；逾時可以重新排隊。房間開始後閒置 10 分鐘就失效。
 - **重新載入：** Auth session 恢復後先找回本人進行中的房間，再查本人仍有效的等待票券；若等待已逾時，顯示重新配對入口，不自動建立另一張票券。若房間剛在查詢競速期間配對成功，則接入既有房間。
@@ -118,10 +118,10 @@
 
 ## 發布
 
-- **現況：** `riddle-match` 的 Pages 網站屬於另一個專案。公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立，Pages source 已設為 GitHub Actions，網站網址為 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/)。公開 `main` 有十一份 migration；PR #1 的第十二份六碼邀請 migration 已由 SQL Editor 執行、七項遠端功能檢查通過，並以官方 CLI 登記為 applied，PR 分支 `migration list` 確認 12 份 local／remote 版本逐一相符。PR #1 已更新到目前 main，Actions run 44930756543 的 `verify`／`block_race` 通過、`deploy` 按 draft PR 規則略過；PR 仍為 draft，六碼前端尚未發布。Realtime publication 和清理排程已核對；同一玩家續玩及 Google-only 登入前端已部署，run 44927437625 驗證成功。匿名帳號連結、跨裝置 Realtime 和其餘真人服務流程仍待完成。
+- **現況：** `riddle-match` 的 Pages 網站屬於另一個專案。公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立，Pages source 已設為 GitHub Actions，網站網址為 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/)。公開 main 有十二份 migration，官方 CLI ledger 12/12 相符；PR #1 已於 2026-11-22 rebase merge，Pages Actions [run 44931736216](https://github.com/310182-sketch/samewave/actions/runs/44931736216) 的 verify、block_race、deploy 全部成功。公開首頁載入 app.js?v=19，六碼邀請、舊碼過渡相容及服務端猜測限流已發布。同一玩家續玩和 Google-only 登入前端已部署；匿名帳號連結、隔離裝置 Realtime 和其餘真人服務流程仍待完成。
 - **決定：** 採公開 repository，因為目標包含 GitHub Pages 免費發布；建立時只納入同頻原始碼和文件，不沿用另一專案歷史。已檢查用戶端設定範本沒有真實 Supabase URL／key，測試中的 JWT 為假資料；provider secret 與 service role key 不得推送。
 - **PR #3：** Google-only 登入修改已於 2026-11-22 透過 rebase merge 合併；GitHub Pages 部署 run 44927437625 成功。未來公開 repository 合併前，須核對 commit author 和 committer 兩個欄位的 email；rebase 預覽或 noreply author 單獨不足以證明 committer 也隱去個人 email。
-- **下一階段：** 經審查核准後合併並發布 PR #1 的六碼邀請變更，然後以專用測試 session 完成匿名登入驗證，再用兩部裝置測試 Auth、RLS、Realtime、RPC、歷史和配對。帳號刪除 Edge Function 已部署且限制 origin，但要經明確核准才用一次性帳號驗證實際刪除。公開靜態網站及 schema 部署仍不代表真人遊戲已完成端對端驗收。
+- **下一階段：** 以兩個已授權測試 session 完成匿名登入／登出、session 恢復及匿名連結 Google 的真人驗收，再用兩部隔離裝置測試 Auth、RLS、Realtime、RPC、歷史和配對。Google OAuth 仍在外部測試模式，需完成正式發布要求才可向一般帳號開放。帳號刪除 Edge Function 已部署且限制 origin，但要經明確核准才用一次性帳號驗證實際刪除。公開靜態網站及 schema 部署仍不代表真人遊戲已完成端對端驗收。
 
 
 ## Samewave Supabase 專案設定

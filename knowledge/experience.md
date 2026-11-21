@@ -325,7 +325,13 @@
 
 - **經驗：** 在 Supabase SQL Editor 手動執行 migration 不會自動更新 CLI 的 migration history。先用官方 CLI `migration list` 確認現有版本，再從含該版本 SQL 檔的工作分支執行 `migration repair --status applied`，最後再次執行 `migration list`。若本機找不到對應檔案，CLI 會拒絕登記；應換到正確分支，不可重跑 SQL，也不可直接寫 migration history table。
 - **適用範圍：** 因 CLI 暫不可用而先在 Supabase Dashboard 套用 migration，之後要恢復本機 schema 歷史一致性的專案。
-- **本專案做法：** `20261121000200_six_digit_invite_codes.sql` 已由使用者在 SQL Editor 執行，七項遠端功能檢查通過。官方 CLI 先確認既有十一個版本一致；在只有十一份 migration 的 `main` 執行 repair 時，CLI 因本機缺少第十二份檔案而安全拒絕。切換到包含 migration 的 PR #1 隔離工作樹後，才登記該版本並再次查詢，確認十二個 local／remote 版本完全相符。SQL 沒有重跑；PR #1 現已更新至目前 main 並通過 `verify`／`block_race`，六碼前端仍待審查發布。
+- **本專案做法：** `20261121000200_six_digit_invite_codes.sql` 已由使用者在 SQL Editor 執行，七項遠端功能檢查通過。官方 CLI 先確認既有十一個版本一致；在只有十一份 migration 的 `main` 執行 repair 時，CLI 因本機缺少第十二份檔案而安全拒絕。切換到包含 migration 的 PR #1 工作樹後，才登記該版本並再次確認十二個 local／remote 版本一致，沒有重跑 SQL。PR #1 於 2026-11-22 rebase merge；Actions run 44931736216 的 verify、block_race、deploy 全成功，公開 app.js?v=19 已載入六碼功能。部署完成後同時檢查 Actions 三個 job、公開 HTML 版本標記和實際 JavaScript bundle；靜態部署確認不代替真人 Auth／Realtime 驗收。
+
+## 六位數字邀請碼與猜測限流
+
+- **經驗：** 人類手動輸入的短數字代碼應保留前導零、避免取模偏差，並在伺服器端原子地處理唯一性和猜測限流。有限空間的邀請碼需要明確的到期時間、舊格式過渡策略及不可由瀏覽器直接讀取的限流紀錄。
+- **適用範圍：** 有期限、由真人互相分享的短邀請碼；不可將「每個帳號限次」描述成能抵擋大量新帳號或完整機器人濫用的保證。若威脅模型包含匿名帳號農場，還需評估 CAPTCHA、IP／裝置級邊界或更高熵代碼。
+- **本專案做法：** `generate_room_invite_code()` 從密碼學隨機來源取 20 位元區塊，只接受小於 1,000,000 的值以避免取模偏差，再左補零成六碼；唯一索引衝突時重試。`join_invite_room` 將玩家每十分鐘的嘗試限制為五次，限流表留在 private schema 並啟用 RLS；RPC 交易鎖保護計數更新，舊 12 位十六進位代碼在過渡期仍可加入。PGlite 覆蓋前導零、錯誤碼限流、有效玩家隔離及舊碼，headless Chrome 覆蓋前端格式、Enter 提交和錯誤提示。正式 migration 先在 Supabase 手動套用並驗證，再同步 CLI ledger；PR #1 合併後 Pages run 44931736216 的 verify、block_race、deploy 全部成功。
 
 ## Realtime 狀態通知搭配自適應輪詢
 

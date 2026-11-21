@@ -15,11 +15,11 @@
 - 匯出 1080×1920 結果分享卡；可呼叫系統分享面板或下載 PNG。Instagram 交接仍需用實機確認。
 - 可在手機與桌面瀏覽器操作。
 
-網站已接上 Samewave Supabase 專案，Anonymous Auth／Manual Linking 與 Google provider 已設定。Google app 仍在外部測試模式；2026-11-22 以已授權的測試名單帳號驗證 Google 登入及新分頁 session 恢復成功。匿名帳號 linking、Realtime 跨裝置通知和帳號刪除仍待驗收。公開 `main` 有十一份 migration；PR #1 加入的第十二份六碼邀請 migration 已由 SQL Editor 執行、七項遠端功能檢查通過，並由官方 Supabase CLI 登記為 applied，PR 分支 `migration list` 確認 12 份 local／remote migration 一致。PR #1 已更新至目前 main，Actions [run 44930756543](https://github.com/310182-sketch/samewave/actions/runs/44930756543) 的 `verify` 和 `block_race` 通過；PR 仍是 draft，六碼代碼尚未合併或發布到網站。
+網站已接上 Samewave Supabase 專案，Anonymous Auth／Manual Linking 與 Google provider 已設定。Google app 仍在外部測試模式；2026-11-22 以已授權的測試名單帳號驗證 Google 登入及新分頁 session 恢復成功。匿名帳號 linking、Realtime 跨裝置通知和帳號刪除仍待驗收。公開 main 現有十二份 migration；六碼邀請 migration 已在 Supabase 套用，七項遠端檢查通過並由官方 CLI 對帳。PR #1 已於 2026-11-22 rebase merge；Pages Actions [run 44931736216](https://github.com/310182-sketch/samewave/actions/runs/44931736216) 的 verify、block_race、deploy 全部成功，公開網站載入 app.js?v=19，六碼邀請碼與自適應 Realtime 輪詢已發布。
 
 ## Supabase Auth 設定
 
-site/supabase-config.js 配置 Samewave 專案公開 Project URL 與 publishable key。Google 是唯一社群登入；匿名遊客入口也保留。Facebook／X 已關閉，Instagram／Threads 不提供登入。PR #3 已移除首頁和審查工作區的其他 provider 按鈕，並於 2026-11-22 合併；Pages run [44927437625](https://github.com/310182-sketch/samewave/actions/runs/44927437625) 成功，公開網站載入 `app.js?v=18`。Google 仍在測試模式，只有測試名單帳號可登入。
+site/supabase-config.js 配置 Samewave 專案公開 Project URL 與 publishable key。Google 是唯一社群登入；匿名遊客入口也保留。Facebook／X 已關閉，Instagram／Threads 不提供登入。PR #3 已移除首頁和審查工作區的其他 provider 按鈕；最新 Pages run [44931736216](https://github.com/310182-sketch/samewave/actions/runs/44931736216) 成功，公開網站載入 app.js?v=19。Google 仍在測試模式，只有測試名單帳號可登入。
 
 Google OAuth 使用 Supabase Dashboard 顯示的 callback URL。Google app 目前為外部測試模式，只有測試名單帳號可登入。最新 client secret 已存入 Supabase，2026-11-22 已以測試名單帳號確認登入及同來源新分頁 session 恢復；client secret 僅存於 Supabase Auth，不放在網站或 repository。
 
@@ -34,7 +34,7 @@ Google OAuth 使用 Supabase Dashboard 顯示的 callback URL。Google app 目�
 
 ## 真人配對後端
 
-Public `main` still contains eleven PostgreSQL migration files. Draft PR #1 adds a twelfth migration for six-digit invite codes and server-side guess throttling; its SQL was applied in Supabase, all seven remote feature checks passed, and the official Supabase CLI records it as applied. `migration list` on the PR branch confirms all twelve local and remote versions match. The PR branch is now based on current `main`; Actions run 44930756543 passed `verify` and `block_race` while skipping deployment. PR #1 remains a draft, so the public website continues to accept the legacy 12-character format until the change is approved and published. The backend also provides RPCs for ten topic sets, matchmaking, paired answers, private history, moderation, rate limits and data cleanup. PGlite and PostgreSQL 16 results do not replace live Auth, RLS, Realtime or cross-device checks. Never put the service role key in the static site.
+Public `main` contains twelve PostgreSQL migration files. PR #1 added six-digit numeric invite codes, server-side guess throttling and legacy-code transition support; the migration was applied in Supabase, passed seven remote checks, and its CLI ledger entry was reconciled without rerunning SQL. PR #1 was rebase-merged on 2026-11-22. Actions run 44931736216 passed `verify`, `block_race` and `deploy`; the public site now loads `app.js?v=19`. Per-account throttling is not a substitute for broader anti-abuse controls if account farming becomes a concern. The backend also provides RPCs for ten topic sets, matchmaking, paired answers, private history, moderation, rate limits and data cleanup. PGlite and PostgreSQL 16 results do not replace live Auth, RLS, Realtime or cross-device checks. Never put the service role key in the static site.
 
 ### 本機 migration 回歸測試
 
@@ -73,8 +73,7 @@ deno test --allow-env --allow-net --allow-read supabase/tests/block_match_concur
 
 ## 下一步
 
-- 審查並核准 PR #1 後合併發布六碼邀請碼；第十二份 migration 已登記為 applied，勿重跑 SQL 或執行 db push。
-- 使用專用測試 session 驗證匿名登入、登出、重新載入後的 session 恢復和匿名帳號 linking；再以兩部裝置驗證邀請房、隨機配對、完整答題、歷史查詢及統計的 Auth／RLS／Realtime 權限。
+- 使用兩個已授權的 Supabase 測試 session 驗證匿名登入／登出、重載後的 session 恢復及連結 Google 後 player ID／歷史保留；再用兩部隔離裝置端到端驗證邀請房、隨機配對、完局歷史、RLS 與 Realtime。
 - 驗證匿名帳號連結 Google 後 player ID 和歷史紀錄均保留；完成 Google OAuth 從測試模式向一般使用者開放所需設定。
 - 經明確核准後，以一次性測試帳號驗證帳號刪除 Edge Function 的 JWT／origin 拒絕與資料收尾；驗收通過後再決定是否開啟前端刪除入口。
 - 在 Supabase 真人環境檢查封鎖、檢舉、限量與清理排程；建立並實際驗證審查員和玩家聯絡流程。

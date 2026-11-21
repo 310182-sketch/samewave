@@ -10,14 +10,14 @@
 
 ## 目前狀態
 
-- **階段：** 互動原型、第一輪瀏覽器可用性檢查及 GitHub Pages 部署已完成。公開 `main` 有前十一份 migration；PR #1 第十二份六碼邀請 migration 已由 Supabase SQL Editor 執行、七項遠端功能檢查通過，並以官方 CLI 登記為 applied；PR 分支的 `migration list` 確認 12 份 local／remote 版本一致。PR #1 已更新至目前 main，Actions [run 44930756543](https://github.com/310182-sketch/samewave/actions/runs/44930756543) 的 `verify`／`block_race` 通過，`deploy` 略過；PR 仍為 draft，六碼代碼尚未合併或發布到網站。留空暱稱預設統一為「企鵝」；網站已載入 Supabase URL／公開 publishable key，Auth 設定 API 確認匿名使用者功能已啟用。帳號刪除 Edge Function 已部署並限定 GitHub Pages origin，但尚未通過真實 JWT／帳號刪除驗收，前端按鈕維持關閉。**匿名登入與 Google provider 均已啟用。Google OAuth 仍在外部測試模式；2026-11-22 以授權測試帳號確認登入及新分頁 session 恢復成功；Facebook、X、Instagram、Threads 登入已退出產品範圍。**同一玩家續玩 migration 已部署；前端、mock 和兩個正式測試 session 的 Supabase RPC 對局、互相同意、新局及歷史隔離均已驗證。Google-only 登入介面已合併及發布，Actions [run 44927437625](https://github.com/310182-sketch/samewave/actions/runs/44927437625) 的 verify、PostgreSQL 競態及 Pages deploy 均成功；公開網站已載入 `app.js?v=18`。Realtime 已改為事件通知搭配自適應輪詢，前端檢查通過；雙裝置推播仍待實測。
+- **階段：** 互動原型、第一輪瀏覽器可用性檢查及 GitHub Pages 部署已完成。production Supabase 有十二份 migration，`20261121000200` 已由 SQL Editor 套用、七項遠端功能檢查通過，並由官方 CLI 對帳；PR #1 已於 2026-11-22 rebase merge。Actions [run 44931736216](https://github.com/310182-sketch/samewave/actions/runs/44931736216) 的 `verify`、`block_race`、`deploy` 全部成功，公開網站載入 `app.js?v=19`，六碼數字邀請、服務端猜測限流、自適應 Realtime 輪詢及舊碼相容已上線。留空暱稱預設為「企鵝」；網站已載入 Supabase URL／公開 publishable key，匿名登入與 Google provider 均已啟用。Google OAuth 仍在外部測試模式；2026-11-22 已以授權測試帳號驗證登入及新分頁 session 恢復成功；Facebook、X、Instagram、Threads 登入不在範圍。匿名帳號 linking、兩裝置 Realtime、帳號刪除真人驗收仍待完成。
 - **已驗證：** Chrome headless 在 320、360、390、768、1024、1440px 檢查首頁、遊戲及結果頁，皆無水平溢出；以鍵盤在六種寬度完成五題流程。已改善選項字級、觸控尺寸、焦點提示及作答狀態語意。GitHub Actions [run #16](https://github.com/310182-sketch/samewave/actions/runs/44773283489) 的 verify、block_race 和 deploy 通過；隨後以 HTTP 讀取公開首頁與審查頁皆回應 200，確認載入 `app.js?v=15`、`moderation.js?v=2`，新版帳號刪除提示及案件 DOM 清除程式已發布。這些 CI 和靜態頁檢查不代表 Supabase 真實登入或跨裝置遊戲已驗收。
 - **仍待線上驗證：** 匿名登入及 session 恢復、真人房間／配對／歷史資料、完整 RLS 權限和跨裝置流程尚未實測。邀請房答題與隨機配對前端已接上 RPC，Chrome mock 驗證成功揭曉、雙方確認、結果讀取、配對成功、逾時重試及取消；尚未在 Supabase Realtime 或兩部裝置驗證。歷史頁查詢、分頁、默契排名及逐筆刪除也僅以 mock 驗證。結果分享卡尚未在 iOS／Android 實機確認 Instagram 交接。
-- **後端：** production 已有十二個 migration 版本，PR #1 分支以官方 CLI repair 登記 `20261121000200` 後，`migration list` 確認 local／remote 12/12 相符；六碼邀請 SQL 原先由 SQL Editor 執行，七項遠端功能檢查通過。PR #1 仍是 draft，該功能尚未進公開網站。19 項 PGlite migration 回歸、Deno 型別／lint／格式檢查通過；Actions [run 44854423906](https://github.com/310182-sketch/samewave/actions/runs/44854423906) 的 PostgreSQL 多連線競態測試通過。使用兩個已授權的正式測試 session，已透過真實 Supabase RPC 驗證邀請房、雙方五題作答、續玩邀請／接受、新房間初始狀態及雙方各自保留兩筆歷史；此流程未經 Realtime channel。遠端唯讀查核已確認題庫十類共 50 題、核心資料表與 RLS、歷史／檢舉／審查 RPC、帳號刪除觸發器、共用交易鎖、房間 Realtime publication 及清理排程。`samewave-purge-expired-game-data` 每 15 分鐘、`purge-expired-moderation-reports` 每日 03:17 均為 active。Auth settings API 回 HTTP 200 且 `external.anonymous_users` 為 `true`；`delete-account` Edge Function 已部署，正式 origin 的 OPTIONS 回 200、未列入的 origin 回 403。匿名登入、帳號刪除和 Realtime 跨裝置通知仍待驗收。Google OAuth 已設定且最新 client secret 以測試名單帳號成功登入，匿名帳號 linking 仍待真人驗收；其他社群登入不在範圍。
+- **後端：** production 有十二個 migration 版本，CLI local／remote ledger 12/12 相符；十二份 migration 均已部署。六碼邀請 migration 的七項遠端檢查通過，PR #1 合併後的 Pages run 44931736216 之 `verify`、`block_race`、`deploy` 均成功。PGlite migration 回歸、Deno 型別／lint／格式檢查及 PostgreSQL 16 多連線競態檢查通過。兩個已授權正式測試 session 已透過真實 RPC 驗證邀請房、五題對局、續玩與歷史隔離，但尚未覆蓋 Realtime channel 或完整瀏覽器流程。題庫、RLS、RPC、清理排程與帳號刪除 Edge Function 設定已核對；匿名帳號 linking、兩裝置 Realtime、帳號刪除 JWT／資料收尾仍待真人驗收。Google OAuth 已成功完成測試名單登入，但仍在外部測試模式。
 - **資料政策：** 真人房間、配對票券及原始答案最多保留 24 小時；個人歷史摘要保存 90 天且可逐筆刪除；檢舉資料保存 180 天；封鎖關係保留至解除或刪除帳號。相關 migration 與清理排程已部署，但資料保留週期和逾期刪除尚未經過實際時間週期驗證。
 - **登入與社群：** 真人服務保留匿名登入與 Google OAuth，Google 是唯一社群 provider。Supabase 設定已確認 Anonymous Auth／Google 開啟，Facebook、X 關閉，Instagram／Threads 未設定。Google app 仍為外部測試模式；2026-11-22 以授權測試帳號登入成功，並以同來源新分頁確認 session 恢復。匿名帳號連結 Google 後保留 player ID／歷史的流程仍待真人驗收。Google-only 介面通過 5 項 Auth 測試、前端語法檢查、5 組 headless Chrome 流程及 Actions [run 44927437625](https://github.com/310182-sketch/samewave/actions/runs/44927437625) 的 verify／block_race；PR #3 已合併。
 - **前端設計：** 已完成第一輪整體字級、留白、按鈕及主題選項版面整理；登入卡片以獨立視覺層級呈現，同時保留先玩示範的主要流程。房間、真人答題、隨機配對等待及歷史頁已接上 RPC，無設定時仍保留清楚標示的操作預覽。Chrome mock 驗證流程分支；六種寬度與鍵盤流程的前一輪檢查已通過。真人服務環境的實際網路狀態仍待驗證。
-- **發布：** GitHub Pages 已合併並部署 Google-only 登入版本；Actions [run 44927437625](https://github.com/310182-sketch/samewave/actions/runs/44927437625) 的 verify、block_race、deploy 全部成功。公開首頁 HTTP 200 並載入 `app.js?v=18`；瀏覽器確認只顯示匿名登入和 Google 登入，舊版停用的 Facebook／X／Instagram／Threads 按鈕已移除。Google OAuth 實際登入和重新開啟同源分頁後 session 恢復均通過；Google app 仍為外部測試模式。Search Console 仍顯示 sitemap 無法讀取，公開 sitemap 與 robots.txt 回應 HTTP 200，網站已能出現在 Google site: 查詢結果。
+- **發布：** GitHub Pages 已部署 Google-only 登入及六碼邀請版本。PR #1 已 rebase merge；Actions [run 44931736216](https://github.com/310182-sketch/samewave/actions/runs/44931736216) 的 verify、block_race、deploy 全部成功。公開首頁 HTTP 200，載入 `app.js?v=19`；已檢查公開 bundle 的六碼驗證、前導零處理和舊 12 碼相容。首頁只顯示匿名與 Google 登入。Google OAuth 實際登入和同來源新分頁 session 恢復已通過測試名單驗收；Google app 仍在外部測試模式。Search Console 仍顯示 sitemap 無法讀取，公開 sitemap 與 robots.txt 回應 HTTP 200，網站已能出現在 Google `site:` 查詢結果。
 - **安全營運：** 前端已提供同房檢舉、封鎖／解除封鎖及隱私告知，並有獨立的審查員工作區；後端提供 allowlist、遮蔽細節的案件佇列、領案／結案及私有稽核事件，PGlite 和 headless Chrome 權限鎖定情境已由 CI 驗證。尚未建立審查員帳號或指定實際審查人員、玩家聯絡方式與值班安排；現有流程草案不是服務承諾，正式公開前不得宣稱有人即時處理。
 - **工作區：** 原型位於 `site/`，可直接開啟 `site/index.html` 操作，不需安裝套件或建置。
 - **產品方向：** 本專案以獨立的 `samewave` repository 發布二選一共同點遊戲，不沿用另一專案的 repository 歷史，詳見 [knowledge/decision.md](decision.md)。
@@ -123,7 +123,8 @@
 - [x] 新增並部署同一玩家續玩 migration：私有邀請資料、10 分鐘逾期、雙方同意、相同玩家與主題的新房間、封鎖／有效房間檢查；18 項 PGlite migration 測試通過，CLI 確認第十一份 migration 已列入遠端 ledger。
 - [x] 用兩個已授權的 Supabase production 測試 session 驗證邀請房、完整五題對局、雙方同意續玩、新房間狀態及新舊歷史分開保存；沒有刪除帳號或使用隨機配對。
 - [x] 將真人遊戲與同玩家續玩改為 Realtime 通知搭配輪詢備援；健康頻道每 10 秒重新讀取權威 RPC，頻道錯誤／逾時／關閉時縮短為每 3.5 秒。headless Chrome 檢查跨房間 filter、事件觸發重新讀取、fallback 及恢復後間隔。
-- [ ] 以兩部隔離裝置驗證 Realtime 續玩通知和端到端前端切換；程式碼在 PR #1 更新分支，尚未發布至 Pages，也尚未完成隔離裝置真人推播驗收。
+- [x] 發布 Realtime 續玩與六碼邀請前端；PR #1 rebase merge 後 Actions run 44931736216 的 verify、block_race、deploy 全成功，公開頁載入 `app.js?v=19`。
+- [ ] 以兩部隔離裝置驗證 Realtime 續玩通知和端到端前端切換；程式碼已上線，但尚未完成隔離裝置真人推播驗收。
 - [x] 建立第一版 Supabase SQL migration 初稿，含題庫、配對佇列、房間、答案、RLS、Realtime 安全房間狀態、RPC 及清除函式。
 - [x] 擴充 migration 草稿，加入 12 位邀請代碼、建立／加入房間 RPC、單一有效房間檢查及隨機配對互斥。
 - [x] 加入完成對局時的雙方私人歷史摘要、90 天查詢與保留、逐筆刪除、共同點排名及帳號刪除匿名化草稿。
@@ -155,7 +156,7 @@
 - [x] 以官方 Supabase CLI 將已手動套用的 `20261121000200` 登記為 applied，並在含該 migration 的 PR #1 分支確認十二份 local／remote 版本一致；SQL Editor 的七項遠端檢查通過，沒有重跑 SQL。
 - [x] 完成六碼代碼前端、舊碼相容與服務端限流提示；headless Chrome 覆蓋錯誤碼、前導零、舊碼、限流回覆和 Enter 送出。
 - [x] 將 PR #1 更新至目前 main，Actions run 44930756543 的 `verify`／`block_race` 通過，Pages `deploy` 按 draft PR 規則略過。
-- [ ] 審查並核准 PR #1 後合併發布；公開網站目前仍載入 `app.js?v=18`，六碼代碼和自適應輪詢尚未上線。
+- [x] 審查並合併 PR #1，發布六碼邀請碼與自適應 Realtime 輪詢；Actions run 44931736216 的 verify、block_race、deploy 全成功，公開網站載入 `app.js?v=19`。
 - [x] 啟用 `pg_cron` 並建立即時遊戲資料每 15 分鐘、檢舉資料每日 03:17 的清理排程；線上確認兩者皆 active。
 - [x] 為網站設定 Supabase 專案 URL／公開 publishable key；帳號刪除維持關閉，匿名與 Google provider 已啟用。
 - [x] 線上核對檢舉資料 RLS、玩家無法直讀答案表，以及房間表加入 Realtime publication；完整角色權限和真實玩家資料存取仍待端對端測試。
