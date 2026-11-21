@@ -476,12 +476,7 @@
   }
 
   function createDemoInviteCode() {
-    const alphabet = "0123456789ABCDEF";
-    let code = "";
-    for (let index = 0; index < 12; index += 1) {
-      code += alphabet[Math.floor(Math.random() * alphabet.length)];
-    }
-    return code;
+    return String(Math.floor(Math.random() * 1000000)).padStart(6, "0");
   }
 
   function stopRoomStatusWatch() {
@@ -1148,8 +1143,8 @@
     if (state.roomBusy) return;
     const input = $("#invite-code");
     const code = input.value.trim().toUpperCase();
-    if (!/^[0-9A-F]{12}$/.test(code)) {
-      announce("請輸入 12 位數字或 A–F 組成的代碼。");
+    if (!/^\d{6}$/.test(code) && !/^[0-9A-F]{12}$/.test(code)) {
+      announce("請輸入 6 位數字房間代碼。尚未逾期的舊邀請碼仍可使用。");
       input.focus();
       return;
     }
@@ -1187,6 +1182,12 @@
       }
       if (data?.status === "unavailable") {
         announce("這個邀請房已經有人加入或已關閉。");
+        input.focus();
+        return;
+      }
+      if (data?.status === "rate_limited") {
+        const retryAfter = Math.max(1, Number(data.retry_after_seconds) || 600);
+        announce(`輸入次數過多，請在 ${retryAfter} 秒後再試。`);
         input.focus();
         return;
       }
