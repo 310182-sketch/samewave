@@ -73,11 +73,12 @@
               </div>
               <button class="join-toggle" type="button" data-toggle-join aria-expanded="false" aria-controls="join-room-panel">輸入房間代碼加入</button>
               <div class="join-room-panel hidden" id="join-room-panel" data-join-panel>
-                <label class="field-label" for="invite-code">房間代碼 <span>12 位數字或 A–F</span></label>
+                <label class="field-label" for="invite-code">房間代碼 <span>6 位數字</span></label>
                 <div class="join-room-controls">
-                  <input class="text-input invite-code-input" id="invite-code" type="text" maxlength="12" inputmode="text" autocomplete="off" spellcheck="false" placeholder="例如 8F2A19C04B7D">
+                  <input class="text-input invite-code-input" id="invite-code" type="text" maxlength="12" inputmode="text" autocomplete="off" spellcheck="false" placeholder="例如 482917" aria-describedby="invite-code-help">
                   <button class="primary-button" type="button" data-join-room>加入</button>
                 </div>
+                <p class="privacy-note" id="invite-code-help">新房間使用 6 位數字；尚未逾期的舊邀請碼仍可使用。</p>
                 <p class="privacy-note" data-room-disclaimer>尚未設定真人服務時，加入代碼只會展示本機預覽。</p>
               </div>
               <button class="demo-start-button" type="button" data-demo-start>先玩一局示範</button>
@@ -315,6 +316,7 @@
       <ul>
         <li>真人服務會處理帳號識別碼、最多 12 字的暱稱、主題、房間狀態與作答，以完成配對和揭曉。</li>
         <li>房間、配對票券與原始答案在對局結束或逾期後最多保留 24 小時；你自己的歷史摘要保存 90 天，可在歷史頁逐筆刪除。</li>
+        <li>為防止猜測邀請代碼，加入嘗試會按帳號限速，暫存嘗試次數最多 24 小時；不保存你輸入的代碼。</li>
         <li>封鎖清單只有你能查閱，會保留到你解除封鎖或刪除帳號；封鎖會阻止再次隨機配對及互相加入邀請房。</li>
         <li>檢舉只記錄房間、類別及你填寫的說明，不保存答案；案件最多保存 180 天。請勿在說明中填入聯絡方式或他人的敏感資料。</li>
         <li>啟用自助刪除後，刪除帳號會移除你的歷史和封鎖清單；既有檢舉會解除雙方帳號連結，說明最多保留 180 天。</li>

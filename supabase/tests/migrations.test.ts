@@ -1856,6 +1856,114 @@ Deno.test("matchmaking and invite room rate limits enforce their thresholds", as
   }
 });
 
+Deno.test("six-digit invite codes preserve active legacy rooms and throttle join attempts", async () => {
+  const db = await createDatabase();
+  try {
+    await insertUsers(db);
+
+    const created = await rpc(
+      db,
+      users.host,
+      "select public.create_invite_room($1, $2) as response",
+      ["travel", "Host"],
+    );
+    assertEquals(created.status, "waiting", "invite room is created");
+    assert(
+      /^\d{6}$/.test(String(created.invite_code)),
+      "new room code is six numeric digits, including possible leading zeros",
+    );
+
+    const wrongCodes: string[] = [];
+    for (let candidate = 0; wrongCodes.length < 5; candidate += 1) {
+      const code = String(candidate).padStart(6, "0");
+      if (code !== created.invite_code) wrongCodes.push(code);
+    }
+    for (const code of wrongCodes) {
+      const result = await rpc(
+        db,
+        users.outsider,
+        "select public.join_invite_room($1, $2) as response",
+        [code, "Outsider"],
+      );
+      assertEquals(result.status, "not_found", "wrong code is not found");
+    }
+
+    const limited = await rpc(
+      db,
+      users.outsider,
+      "select public.join_invite_room($1, $2) as response",
+      [created.invite_code, "Outsider"],
+    );
+    assertEquals(
+      limited.status,
+      "rate_limited",
+      "the sixth join attempt is throttled",
+    );
+    assert(
+      Number(limited.retry_after_seconds) > 0 &&
+        Number(limited.retry_after_seconds) <= 600,
+      "rate-limit response includes a bounded retry delay",
+    );
+
+    const guestJoin = await rpc(
+      db,
+      users.guest,
+      "select public.join_invite_room($1, $2) as response",
+      [created.invite_code, "Guest"],
+    );
+    assertEquals(
+      guestJoin.status,
+      "joined",
+      "one player's failed guesses do not block a legitimate guest",
+    );
+
+    const legacyCode = "ABCDEF123456";
+    const legacyRoom = await db.query<{ id: string }>(
+      "insert into public.game_rooms (topic_key, status, created_by, invite_code) " +
+        "values ('daily', 'waiting', $1, $2) returning id",
+      [users.blocked, legacyCode],
+    );
+    await db.query(
+      "insert into public.room_members (room_id, user_id, nickname) values ($1, $2, 'Host')",
+      [legacyRoom.rows[0].id, users.blocked],
+    );
+    await db.query(
+      "update private.invite_code_join_attempt_limits " +
+        "set window_started_at = clock_timestamp() - interval '11 minutes' " +
+        "where user_id = $1",
+      [users.outsider],
+    );
+    const legacyJoin = await rpc(
+      db,
+      users.outsider,
+      "select public.join_invite_room($1, $2) as response",
+      [legacyCode.toLowerCase(), "Outsider"],
+    );
+    assertEquals(
+      legacyJoin.status,
+      "joined",
+      "an unexpired room created before deployment can still be joined",
+    );
+
+    await db.query(
+      "update private.invite_code_join_attempt_limits " +
+        "set updated_at = clock_timestamp() - interval '25 hours' " +
+        "where user_id = $1",
+      [users.outsider],
+    );
+    const cleanup = await db.query<{ deleted: number }>(
+      "select private.purge_expired_invite_code_join_attempts() as deleted",
+    );
+    assertEquals(
+      cleanup.rows[0].deleted,
+      1,
+      "old join-attempt counters are removed after 24 hours",
+    );
+  } finally {
+    await db.close();
+  }
+});
+
 Deno.test("account deletion closes rooms and clears private history identities", async () => {
   const db = await createDatabase();
   try {
@@ -1899,8 +2007,8 @@ Deno.test("account deletion closes rooms and clears private history identities",
     assertEquals(room.rows[0].status, "abandoned", "room closed on deletion");
     assertEquals(room.rows[0].invite_code, null, "invite code cleared");
     assert(
-      /^[0-9A-F]{12}$/.test(inviteCode),
-      "the test began with a valid invite code",
+      /^\d{6}$/.test(inviteCode),
+      "the test began with a valid six-digit invite code",
     );
 
     const deletedPlayerHistory = await db.query<{ count: number }>(
