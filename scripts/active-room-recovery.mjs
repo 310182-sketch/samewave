@@ -20,7 +20,28 @@ const mockClient = String.raw`
         accountDeletionEnabled: false,
         providers: { google: false }
       };
-      const roomTest = window.__roomTest = { events: [], authReady: false, roomStateCount: 0, roomId: "restored-room" };
+      const roomTest = window.__roomTest = {
+        events: [],
+        authReady: false,
+        roomStateCount: 0,
+        roomId: "restored-room",
+        timeoutDelays: [],
+        roomState: {
+          room_id: "restored-room",
+          status: "playing",
+          current_question: 1,
+          topic_key: "travel",
+          you: { nickname: "小星", answered: false },
+          partner: { nickname: "朋友", answered: false },
+          question: { prompt: "恢復房間測試題", choice_a: "選項甲", choice_b: "選項乙" },
+          reveal: false
+        }
+      };
+      const nativeSetTimeout = window.setTimeout.bind(window);
+      window.setTimeout = (callback, delay, ...args) => {
+        roomTest.timeoutDelays.push(Number(delay) || 0);
+        return nativeSetTimeout(callback, delay, ...args);
+      };
       const session = { user: { id: "test-user", identities: [], app_metadata: {}, user_metadata: {} } };
       window.supabase = {
         createClient() {
@@ -63,14 +84,7 @@ const mockClient = String.raw`
                 roomTest.roomStateArgs = args;
                 return {
                   data: {
-                    room_id: roomTest.roomId,
-                    status: "playing",
-                    current_question: 1,
-                    topic_key: "travel",
-                    you: { nickname: "小星", answered: false },
-                    partner: { nickname: "朋友", answered: false },
-                    question: { prompt: "恢復房間測試題", choice_a: "選項甲", choice_b: "選項乙" },
-                    reveal: false
+                    ...roomTest.roomState
                   },
                   error: null
                 };
@@ -78,10 +92,17 @@ const mockClient = String.raw`
               if (name === "get_my_blocked_players") return { data: [], error: null };
               return { data: null, error: null };
             },
-            channel() {
+            channel(name) {
+              roomTest.channelName = name;
               return {
-                on() { return this; },
+                on(event, options, callback) {
+                  roomTest.channelEvent = event;
+                  roomTest.channelOptions = options;
+                  roomTest.channelCallback = callback;
+                  return this;
+                },
                 subscribe(callback) {
+                  roomTest.channelStatusCallback = callback;
                   window.setTimeout(() => callback("SUBSCRIBED"), 0);
                   return this;
                 },
@@ -130,9 +151,26 @@ const browserTest = String.raw`
         if (!document.querySelector("[data-question]").textContent.includes("恢復房間測試題")) {
           throw new Error("the restored game question was not rendered");
         }
+        if (test.channelEvent !== "postgres_changes" ||
+            test.channelOptions?.table !== "game_rooms" ||
+            test.channelOptions?.filter !== "id=eq." + test.roomId) {
+          throw new Error("the restored game did not subscribe to its room updates");
+        }
+        await waitFor(() => test.timeoutDelays.includes(10000), "Realtime-backed fallback poll");
+        const roomStateCount = test.roomStateCount;
+        test.roomState = {
+          ...test.roomState,
+          partner: { nickname: "朋友", answered: true }
+        };
+        test.channelCallback({ eventType: "UPDATE" });
+        await waitFor(() => test.roomStateCount > roomStateCount &&
+          document.querySelector("[data-remote-status]").textContent.includes("朋友已完成作答"),
+        "Realtime event refresh");
+        test.channelStatusCallback("TIMED_OUT");
+        await waitFor(() => test.timeoutDelays.includes(3500), "short fallback after channel timeout");
         test.authCallback("SIGNED_OUT", null);
         document.documentElement.setAttribute("data-room-recovery", "passed");
-        output.textContent = "PASS: page reload restored the authenticated player's active room.";
+        output.textContent = "PASS: active room recovery, Realtime updates, and timeout fallback.";
       })().catch((error) => fail(error?.message || String(error)));
     });
   </script>`;

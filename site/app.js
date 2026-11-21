@@ -102,6 +102,7 @@
     gameSyncId: 0,
     gamePollTimer: null,
     gameChannel: null,
+    gameRealtimeAvailable: false,
     gameRefreshBusy: false,
     gameRefreshQueued: false,
     gameRefreshSyncId: null,
@@ -117,6 +118,7 @@
     rematchWatchRoomId: null,
     rematchWatchUserId: null,
     rematchChannel: null,
+    rematchRealtimeAvailable: false,
     rematchPollTimer: null,
     rematchBusy: false,
     rematchStatusBusy: false,
@@ -142,6 +144,9 @@
     providerStatusError: false,
     subscription: null
   };
+
+  const REALTIME_FALLBACK_POLL_MS = 10000;
+  const DISCONNECTED_POLL_MS = 3500;
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -495,6 +500,7 @@
     state.gameBusy = false;
     state.gameResultLoading = false;
     state.gameResultSyncId = null;
+    state.gameRealtimeAvailable = false;
     const channel = state.gameChannel;
     state.gameChannel = null;
     if (channel && authState.client) {
@@ -508,6 +514,7 @@
     state.rematchWatchId += 1;
     state.rematchWatchRoomId = null;
     state.rematchWatchUserId = null;
+    state.rematchRealtimeAvailable = false;
     state.rematchBusy = false;
     state.rematchStatusBusy = false;
     const channel = state.rematchChannel;
@@ -763,11 +770,16 @@
     );
   }
 
-  function scheduleLiveGameRefresh(roomId, syncId, userId, delay = 3500) {
+  function scheduleLiveGameRefresh(roomId, syncId, userId, delay) {
     window.clearTimeout(state.gamePollTimer);
+    const pollDelay = Number.isFinite(delay)
+      ? delay
+      : state.gameRealtimeAvailable
+        ? REALTIME_FALLBACK_POLL_MS
+        : DISCONNECTED_POLL_MS;
     state.gamePollTimer = window.setTimeout(() => {
       refreshLiveGame(roomId, syncId, userId);
-    }, delay);
+    }, pollDelay);
   }
 
   function showRemoteGameStatus(message) {
@@ -1010,9 +1022,12 @@
       .subscribe((status) => {
         if (!remoteGameIsCurrent(room.roomId, syncId, userId)) return;
         if (status === "SUBSCRIBED") {
+          state.gameRealtimeAvailable = true;
           refreshLiveGame(room.roomId, syncId, userId);
-        } else if (["CHANNEL_ERROR", "TIMED_OUT"].includes(status)) {
+        } else if (["CHANNEL_ERROR", "TIMED_OUT", "CLOSED"].includes(status)) {
+          state.gameRealtimeAvailable = false;
           showRemoteGameStatus("即時更新暫時不可用，仍會定時重新同步房間狀態。");
+          scheduleLiveGameRefresh(room.roomId, syncId, userId, 0);
         }
       });
     state.gameChannel = channel;
@@ -1441,12 +1456,17 @@
       !$('[data-view="results"]').classList.contains("hidden");
   }
 
-  function scheduleSamePlayerRematchRefresh(watchId, roomId, userId, delay = 3500) {
+  function scheduleSamePlayerRematchRefresh(watchId, roomId, userId, delay) {
     window.clearTimeout(state.rematchPollTimer);
     if (!samePlayerRematchIsCurrent(watchId, roomId, userId)) return;
+    const pollDelay = Number.isFinite(delay)
+      ? delay
+      : state.rematchRealtimeAvailable
+        ? REALTIME_FALLBACK_POLL_MS
+        : DISCONNECTED_POLL_MS;
     state.rematchPollTimer = window.setTimeout(() => {
       refreshSamePlayerRematchStatus(watchId, roomId, userId);
-    }, delay);
+    }, pollDelay);
   }
 
   function handleSamePlayerRematchStatus(data, watchId, roomId, userId) {
@@ -1511,7 +1531,16 @@
         table: "game_rooms",
         filter: `id=eq.${roomId}`
       }, () => refreshSamePlayerRematchStatus(watchId, roomId, userId))
-      .subscribe();
+      .subscribe((status) => {
+        if (!samePlayerRematchIsCurrent(watchId, roomId, userId)) return;
+        if (status === "SUBSCRIBED") {
+          state.rematchRealtimeAvailable = true;
+          refreshSamePlayerRematchStatus(watchId, roomId, userId);
+        } else if (["CHANNEL_ERROR", "TIMED_OUT", "CLOSED"].includes(status)) {
+          state.rematchRealtimeAvailable = false;
+          scheduleSamePlayerRematchRefresh(watchId, roomId, userId, 0);
+        }
+      });
     state.rematchChannel = channel;
     refreshSamePlayerRematchStatus(watchId, roomId, userId);
   }
