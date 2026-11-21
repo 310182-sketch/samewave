@@ -25,9 +25,15 @@ const mockClient = String.raw`
       authReady: false,
       events: [],
       channels: [],
+      timeoutDelays: [],
       rematchStatus: { status: "none" },
       sourceRoomId: "completed-room",
       newRoomId: "rematch-room"
+    };
+    const nativeSetTimeout = window.setTimeout.bind(window);
+    window.setTimeout = (callback, delay, ...args) => {
+      test.timeoutDelays.push(Number(delay) || 0);
+      return nativeSetTimeout(callback, delay, ...args);
     };
     const channel = (name) => {
       const item = {
@@ -41,6 +47,7 @@ const mockClient = String.raw`
         },
         subscribe(callback) {
           test.channels.push(this);
+          this.statusCallback = callback;
           if (callback) window.setTimeout(() => callback("SUBSCRIBED"), 0);
           return this;
         }
@@ -154,6 +161,23 @@ const browserTest = String.raw`
         invite.click();
         await waitFor(() => test.events.some((event) => event.name === "request_same_player_rematch"), "rematch request RPC");
         await waitFor(() => invite.disabled && invite.textContent.includes("等待"), "pending invite state");
+        const sourceChannel = test.channels.find((item) =>
+          item.name === "same-player-rematch-" + test.sourceRoomId
+        );
+        if (!sourceChannel?.callback || !sourceChannel.statusCallback) {
+          throw new Error("source room change subscription was not created");
+        }
+        const realtimePollCount = () => test.timeoutDelays.filter((delay) => delay === 10000).length;
+        const disconnectedPollCount = () => test.timeoutDelays.filter((delay) => delay === 3500).length;
+        await waitFor(() => realtimePollCount() > 0, "Realtime-backed rematch fallback poll");
+        const disconnectedPollCountBefore = disconnectedPollCount();
+        sourceChannel.statusCallback("TIMED_OUT");
+        await waitFor(() => disconnectedPollCount() > disconnectedPollCountBefore,
+          "short fallback after rematch channel timeout");
+        const realtimePollCountBefore = realtimePollCount();
+        sourceChannel.statusCallback("SUBSCRIBED");
+        await waitFor(() => realtimePollCount() > realtimePollCountBefore,
+          "rematch polling interval restored after reconnect");
         if (test.requestArgs?.p_source_room_id !== test.sourceRoomId) {
           throw new Error("request did not reference the completed source room");
         }
@@ -163,16 +187,16 @@ const browserTest = String.raw`
           topic_key: "travel",
           expires_at: new Date(Date.now() + 300000).toISOString()
         };
-        const sourceChannel = test.channels.find((item) => item.filter === "id=eq." + test.sourceRoomId);
-        if (!sourceChannel?.callback) throw new Error("source room change subscription was not created");
         sourceChannel.callback({});
         await waitFor(() => !document.querySelector('[data-view="game"]').classList.contains("hidden"), "rematch game view");
         await waitFor(() => test.events.some((event) => event.name === "get_room_state" && event.args.p_room_id === test.newRoomId), "new room state RPC");
-        const gameChannel = test.channels.find((item) => item.filter === "id=eq." + test.newRoomId);
+        const gameChannel = test.channels.find((item) =>
+          item.name === "game-room-" + test.newRoomId
+        );
         if (!gameChannel) throw new Error("new game room subscription was not created");
         test.authCallback("SIGNED_OUT", null);
         document.documentElement.setAttribute("data-same-player-rematch", "passed");
-        output.textContent = "PASS: mutual-consent request enters a fresh same-topic room.";
+        output.textContent = "PASS: mutual-consent rematch keeps Realtime updates and adaptive polling.";
       })().catch((error) => fail(error?.message || String(error)));
     });
   </script>`;
