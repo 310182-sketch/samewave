@@ -302,3 +302,9 @@
 - **同步與生命週期：** 來源房間的 Realtime 更新只負責通知另一端重新讀取 RPC 狀態，另保留輪詢以承受 Realtime 事件遺失。邀請到期後可重新發起。前端在切換帳號或離開結果頁時取消舊訂閱和輪詢，避免晚到回應把使用者帶入錯誤房間。
 - **適用範圍：** 雙人遊戲、協作任務或其他須經雙方同意後重新建立工作階段的產品。
 - **本專案做法：** `request_same_player_rematch` 和 `get_same_player_rematch_status` 僅授權 authenticated RPC 執行；全域 advisory transaction lock 串行化邀請接受與配對／開房，阻擋任一方被封鎖或已在別的有效房間時建立新局。PGlite 測試覆蓋互相同意、非成員拒絕、封鎖、有效房間、逾期重邀和新舊歷史隔離；Chrome mock 驗證待同意及接受後進入新房間。正式 migration 已部署，兩個測試 session 的真實 RPC 流程及 GitHub Pages 發布均通過；Actions [run 44854423906](https://github.com/310182-sketch/samewave/actions/runs/44854423906) 驗證多連線競態。首次競態測試因前置案例留下等待房間而正確回報 busy，需在測試 fixture 中先關閉該房間再測邀請同意。Realtime 跨裝置驗收仍待執行。
+
+## 社群登入狀態以 Supabase live 設定為準
+
+- **經驗：** 靜態網站不應把 OAuth provider 是否啟用複製成容易過期的前端常數。可用 Supabase 公開 Auth settings endpoint 讀取內建 provider 的可用狀態；只傳公開 `apikey`，限制請求逾時，錯誤時停用內建 provider 按鈕並說明無法確認。這只反映 Supabase provider 開關，不能取代平台 OAuth app、callback、client credentials 或真實登入驗收。
+- **適用範圍：** OAuth provider 狀態由託管 Auth 服務控制、前端部署與 Auth 設定分開管理的靜態網站或 app。
+- **本專案做法：** `site/auth-provider-status.js` 讀取 `/auth/v1/settings`，把 Supabase `twitter` 映射為 UI 的 `x`，不讀取或傳輸 client secret；5 秒逾時及錯誤會 fail closed。`site/app.js` 以狀態更新按鈕與說明，並在 Supabase SDK 缺失時顯示錯誤而非永久「確認中」。`scripts/auth-provider-status.test.mjs` 覆蓋 provider 映射、非成功回應、缺少公開設定和不完整回應，4 項通過；Pages workflow 同時檢查 helper 語法並執行測試。Supabase 目前仍關閉 Google／Facebook／X、未設定 Instagram／Threads，因此此改動不會自行開啟社群登入；發布後才可自動反映管理員新增的 provider 設定。

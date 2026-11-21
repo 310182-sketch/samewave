@@ -138,6 +138,8 @@
     busy: false,
     notice: "",
     initError: false,
+    providerStatusReady: false,
+    providerStatusError: false,
     subscription: null
   };
 
@@ -1830,6 +1832,33 @@
       ? "刪除會移除帳號、個人歷史及封鎖清單；已送出的檢舉會去除帳號連結，說明最多保留 180 天。"
       : "自助刪除目前尚未開放；完成真實登入、刪除權限與資料收尾驗收後再啟用。";
 
+    const providerNote = $("[data-auth-note]");
+    if (providerNote) {
+      if (!hasPublicConfig) {
+        providerNote.textContent = "社群登入需要先設定 Supabase Auth。";
+      } else if (!hasSdk || authState.initError || authState.providerStatusError) {
+        providerNote.textContent = "目前無法確認 Google、Facebook、X 的登入設定；匿名登入仍可使用。";
+      } else if (!authState.providerStatusReady) {
+        providerNote.textContent = "正在確認可用的社群登入方式…";
+      } else {
+        const providers = authState.config.providers || {};
+        const unavailable = ["google", "facebook", "x"]
+          .filter((name) => providers[name] !== true)
+          .map((name) => authProviderLabels[name]);
+        const notes = [];
+        if (unavailable.length) notes.push(`${unavailable.join("、")} 尚未在 Supabase 啟用。`);
+        if (typeof providers.instagram !== "string" || !providers.instagram.trim()) {
+          notes.push("Instagram 登入僅適用符合資格的專業帳號，且需要 Meta custom OAuth。");
+        }
+        if (typeof providers.threads !== "string" || !providers.threads.trim()) {
+          notes.push("Threads 需要 Meta custom OAuth 及應用程式審核。");
+        }
+        providerNote.textContent = notes.length
+          ? notes.join(" ")
+          : "已依 Supabase 設定顯示可用的登入方式；連結社群帳號可保留目前玩家身分。";
+      }
+    }
+
     $$("[data-auth-provider]").forEach((button) => {
       const name = button.dataset.authProvider;
       const provider = configuredAuthProvider(name);
@@ -1851,6 +1880,30 @@
       throw new Error("Auth redirects require HTTPS or localhost.");
     }
     return `${window.location.origin}${window.location.pathname}`;
+  }
+
+  async function loadAuthProviderStatus() {
+    authState.providerStatusReady = false;
+    authState.providerStatusError = false;
+    refreshAuthPanel();
+    try {
+      const loader = window.SAMEWAVE_AUTH_PROVIDER_STATUS?.load;
+      if (typeof loader !== "function") throw new Error("Provider status helper is unavailable.");
+      const providers = await loader();
+      authState.config.providers = { ...(authState.config.providers || {}), ...providers };
+    } catch (error) {
+      console.warn("Could not load live Supabase OAuth providers", error);
+      authState.config.providers = {
+        ...(authState.config.providers || {}),
+        google: false,
+        facebook: false,
+        x: false
+      };
+      authState.providerStatusError = true;
+    } finally {
+      authState.providerStatusReady = true;
+      refreshAuthPanel();
+    }
   }
 
   async function initializeSupabaseAuth() {
@@ -1875,6 +1928,7 @@
           persistSession: true
         }
       });
+      void loadAuthProviderStatus();
       const { data: listener } = authState.client.auth.onAuthStateChange((_event, session) => {
         const previousUserId = authState.session?.user?.id || null;
         const nextUserId = session?.user?.id || null;

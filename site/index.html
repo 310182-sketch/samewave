@@ -18,8 +18,9 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css?v=13">
     <script src="supabase-config.js?v=3" defer></script>
+    <script src="auth-provider-status.js?v=1" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.2/dist/umd/supabase.js" integrity="sha384-A97u3Qnt9GZHURO9YJZRe7VQgGUeFzcv6I1oIGnUTxQrCxnpQMwR0/G8F2zt9abZ" crossorigin="anonymous" defer></script>
-    <script src="app.js?v=16" defer></script>
+    <script src="app.js?v=17" defer></script>
   </head>
   <body>
     <div class="app-shell">
@@ -125,7 +126,7 @@
                   <span data-auth-provider-label>Threads</span>
                 </button>
               </div>
-              <p class="auth-note">匿名登入已開啟。Facebook、Google、X 尚待 Supabase callback；Instagram 僅支援符合資格的專業帳號，Threads 與 Instagram 尚待 Meta 審核及 custom OAuth。</p>
+              <p class="auth-note" data-auth-note>正在確認社群登入設定…</p>
               <button class="auth-delete-account hidden" type="button" data-auth-delete-account>永久刪除帳號</button>
               <p class="auth-delete-note hidden" data-auth-delete-note></p>
             </section>
