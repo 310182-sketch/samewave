@@ -326,3 +326,15 @@
 - **經驗：** 在 Supabase SQL Editor 手動執行 migration 不會自動更新 CLI 的 migration history。先用官方 CLI `migration list` 確認現有版本，再從含該版本 SQL 檔的工作分支執行 `migration repair --status applied`，最後再次執行 `migration list`。若本機找不到對應檔案，CLI 會拒絕登記；應換到正確分支，不可重跑 SQL，也不可直接寫 migration history table。
 - **適用範圍：** 因 CLI 暫不可用而先在 Supabase Dashboard 套用 migration，之後要恢復本機 schema 歷史一致性的專案。
 - **本專案做法：** `20261121000200_six_digit_invite_codes.sql` 已由使用者在 SQL Editor 執行，七項遠端功能檢查通過。官方 CLI 先確認既有十一個版本一致；在只有十一份 migration 的 `main` 執行 repair 時，CLI 因本機缺少第十二份檔案而安全拒絕。切換到包含 migration 的 PR #1 隔離工作樹後，才登記該版本並再次查詢，確認十二個 local／remote 版本完全相符。SQL 沒有重跑；PR #1 仍待更新及發布。
+
+## Realtime 狀態通知搭配自適應輪詢
+
+- **經驗：** Realtime 事件應只代表「狀態可能更新」；前端收到事件後仍透過有權限檢查的 RPC 讀取權威狀態，不直接信任事件 payload。保留輪詢可處理事件漏失與頻道中斷；健康訂閱時可降低備援頻率，偵測到 `CHANNEL_ERROR`、`TIMED_OUT` 或 `CLOSED` 時，立即縮短輪詢間隔。重新進入房間或切換使用者時，重設訂閱可用旗標並清除舊頻道和計時器，避免錯用上一局的連線狀態。
+- **適用範圍：** Supabase Realtime／WebSocket 作為低延遲提示，另有權威 API 或 RPC 可讀取狀態的房間、工作階段及協作狀態頁；不適用於只能靠輪詢保證交付的關鍵通知。
+- **本專案做法：** 真人對局和同玩家續玩在 `game_rooms` 更新上訂閱 Realtime，事件觸發既有狀態 RPC。健康訂閱時每 10 秒輪詢備援，頻道錯誤／逾時／關閉時恢復每 3.5 秒；headless Chrome 檢查跨房間 filter、事件觸發重新讀取、逾時 fallback 及恢復後的輪詢頻率。這些 mock 檢查不替代兩部隔離裝置的 Supabase 推播驗收。
+
+## 鍵盤 Enter 應觸發目前輸入流程
+
+- **經驗：** 表單輸入欄的 Enter 鍵應呼叫與主要按鈕相同的驗證及提交函式；沿用已改名或屬於示範流程的 handler 會讓鍵盤使用者觸發錯誤操作，甚至產生未定義函式錯誤。以瀏覽器事件測試同時驗證按鈕和 Enter 路徑，並確認兩者向後端傳入相同正規化資料。
+- **適用範圍：** 對話框、房間代碼、搜尋欄、表單及任何提供按鈕提交的鍵盤可操作輸入。
+- **本專案做法：** 房間代碼輸入欄原先按 Enter 呼叫不存在的 `joinDemoRoom`。改為呼叫 `joinInviteRoom`，headless Chrome 檢查 Enter 會提交六碼邀請代碼、保留前導零、正規化舊碼，並呈現伺服器限流訊息。
