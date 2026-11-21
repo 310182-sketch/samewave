@@ -301,4 +301,4 @@
 - **經驗：** 續玩邀請應指向已完成的來源對局，狀態只透過驗證玩家身分的 RPC 讀取；第一位玩家發出邀請，另一位玩家以明確操作接受。建立新房間前，在同一資料庫交易鎖內檢查封鎖關係和雙方是否已在其他有效房間，避免接受與封鎖／新配對同時發生。新局沿用兩位玩家和主題，但不複製答案，也不修改上一局的歷史。
 - **同步與生命週期：** 來源房間的 Realtime 更新只負責通知另一端重新讀取 RPC 狀態，另保留輪詢以承受 Realtime 事件遺失。邀請到期後可重新發起。前端在切換帳號或離開結果頁時取消舊訂閱和輪詢，避免晚到回應把使用者帶入錯誤房間。
 - **適用範圍：** 雙人遊戲、協作任務或其他須經雙方同意後重新建立工作階段的產品。
-- **本專案做法：** `request_same_player_rematch` 和 `get_same_player_rematch_status` 僅授權 authenticated RPC 執行；全域 advisory transaction lock 串行化邀請接受與配對／開房，阻擋任一方被封鎖或已在別的有效房間時建立新局。PGlite 測試覆蓋互相同意、非成員拒絕、封鎖、有效房間、逾期重邀和新舊歷史隔離；Chrome mock 驗證待同意及接受後進入新房間。正式 migration 和跨裝置驗收仍待部署。
+- **本專案做法：** `request_same_player_rematch` 和 `get_same_player_rematch_status` 僅授權 authenticated RPC 執行；全域 advisory transaction lock 串行化邀請接受與配對／開房，阻擋任一方被封鎖或已在別的有效房間時建立新局。PGlite 測試覆蓋互相同意、非成員拒絕、封鎖、有效房間、逾期重邀和新舊歷史隔離；Chrome mock 驗證待同意及接受後進入新房間。正式 migration 已部署，兩個測試 session 的真實 RPC 流程及 GitHub Pages 發布均通過；Actions [run 44854423906](https://github.com/310182-sketch/samewave/actions/runs/44854423906) 驗證多連線競態。首次競態測試因前置案例留下等待房間而正確回報 busy，需在測試 fixture 中先關閉該房間再測邀請同意。Realtime 跨裝置驗收仍待執行。

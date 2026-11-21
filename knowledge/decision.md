@@ -27,15 +27,15 @@
 
 ## 同一玩家續玩
 
-- **狀態：** 前端邀請區和 Supabase migration 已完成，migration 已部署並同步 CLI ledger。18 項 PGlite migration 測試、headless Chrome mock 續玩及兩個正式測試 session 的真實 RPC 流程通過；兩位玩家各有兩筆分開的歷史。PostgreSQL 多連線競態案例已加入 CI，待 workflow 執行；GitHub Pages 前端尚待部署，Realtime 跨裝置通知仍未驗證。
+- **狀態：** 前端邀請區和 Supabase migration 已完成，migration 已部署並同步 CLI ledger。18 項 PGlite migration 測試、headless Chrome mock 續玩及兩個正式測試 session 的真實 RPC 流程通過；兩位玩家各有兩筆分開的歷史。Actions [run 44854423906](https://github.com/310182-sketch/samewave/actions/runs/44854423906) 的 PostgreSQL 多連線競態和 Pages deploy 成功，公開頁載入 `app.js?v=16`；Realtime 跨裝置通知仍未驗證。
 - **決定：** 真人對局結果頁可邀請上一局的同一位玩家再玩；只有雙方同意後才建立新局。新局沿用主題及兩個玩家身分，但使用全新的房間、答案與對局歷史；上一局的歷史不修改。
 - **限制：** 邀請 10 分鐘後逾期，可重新邀請。任一方向封鎖對方，或任何一方仍在其他有效房間時，拒絕新局。這個入口不加入公開隨機配對佇列；示範模式沿用本機「再玩一局」。
 - **同步：** 以私人 RPC 作為狀態和同意的權威來源；來源房間的 Realtime UPDATE 只用來通知另一端重新讀取狀態，並保留輪詢備援。切換帳號或離開結果頁時，停止舊訂閱與輪詢。
-- **待完成：** 部署 GitHub Pages 前端；再以隔離裝置驗證 Realtime 通知、房間切換和新舊歷史隔離。
+- **待完成：** 以隔離裝置驗證 Realtime 通知、房間切換和新舊歷史隔離。
 
 ## 真人配對與後端
 
-- **狀態：** Supabase 為目前真人 MVP 的實作預設；11 份 migration 已部署，CLI ledger 確認 local／remote 版本相符。18 項 PGlite 回歸測試通過；新增的續玩多連線競態案例待 CI 執行。使用已授權的兩個測試 session 驗證真實邀請、五題對局、同意續玩及分開保存歷史；Realtime 跨裝置通知和完整瀏覽器前端流程仍待驗證。
+- **狀態：** Supabase 為目前真人 MVP 的實作預設；11 份 migration 已部署，CLI ledger 確認 local／remote 版本相符。18 項 PGlite 回歸和 Actions [run 44854423906](https://github.com/310182-sketch/samewave/actions/runs/44854423906) 的 PostgreSQL 多連線競態測試通過。使用已授權的兩個測試 session 驗證真實邀請、五題對局、同意續玩及分開保存歷史；Realtime 跨裝置通知和完整瀏覽器前端流程仍待驗證。
 - **決定：** 以 Supabase Anonymous Auth 驗證玩家、PostgreSQL RPC 執行建立房間／加入房間／原子配對與答案提交，Realtime 傳遞房間狀態。
 - **安全規則：** 答案留在資料庫；只有同一房間兩位玩家都完成作答後才回傳雙方答案。以 RLS 限制玩家資料存取，不開放用戶端直讀答案表；service role key 不放在前端。
 - **同步規則：** 揭曉後兩位玩家都按「下一題」才推進；先按的人等待對方。正式閒置時間、離線及重新連線行為仍需實測及定案。
@@ -119,7 +119,7 @@
 
 ## 發布
 
-- **現況：** `riddle-match` 的 Pages 網站屬於另一個專案。公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立，Pages source 已設為 GitHub Actions，網站網址為 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/)。同頻已設定公開 Supabase URL／publishable key，十一份 migration 已套用，Realtime publication 和清理排程已核對；Actions [run #28](https://github.com/310182-sketch/samewave/actions/runs/44785037673) 確認 Pages artifact 重試修正，後續 [run #29](https://github.com/310182-sketch/samewave/actions/runs/44785419073) 的驗證和部署也成功。續玩前端尚待部署；匿名登入 session 恢復、跨裝置 Realtime 和其餘真人服務流程仍待完成。
+- **現況：** `riddle-match` 的 Pages 網站屬於另一個專案。公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立，Pages source 已設為 GitHub Actions，網站網址為 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/)。同頻已設定公開 Supabase URL／publishable key，十一份 migration 已套用，Realtime publication 和清理排程已核對；Actions [run #28](https://github.com/310182-sketch/samewave/actions/runs/44785037673) 確認 Pages artifact 重試修正，後續 [run #29](https://github.com/310182-sketch/samewave/actions/runs/44785419073) 的驗證和部署也成功。續玩前端已由 Actions [run 44854423906](https://github.com/310182-sketch/samewave/actions/runs/44854423906) 部署，公開頁載入 app.js?v=16 和 styles.css?v=13；匿名登入 session 恢復、跨裝置 Realtime 和其餘真人服務流程仍待完成。
 - **決定：** 採公開 repository，因為目標包含 GitHub Pages 免費發布；建立時只納入同頻原始碼和文件，不沿用另一專案歷史。已檢查用戶端設定範本沒有真實 Supabase URL／key，測試中的 JWT 為假資料；provider secret 與 service role key 不得推送。
 - **下一階段：** 以專用測試 session 完成匿名登入驗證，再用兩部裝置測試 Auth、RLS、Realtime、RPC、歷史和配對。帳號刪除 Edge Function 已部署且限制 origin，但要經明確核准才用一次性帳號驗證實際刪除。公開靜態網站及 schema 部署仍不代表真人遊戲已完成端對端驗收。
 
