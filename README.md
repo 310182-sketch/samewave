@@ -19,7 +19,7 @@
 
 ## Supabase Auth 設定
 
-site/supabase-config.js 配置 Samewave 專案公開 Project URL 與 publishable key。Supabase Anonymous Auth、Manual Linking 和 Google provider 已設定；Google 是唯一社群登入方式，Facebook／X 關閉，Instagram／Threads 不在登入範圍。PR #3 已移除首頁和審查工作區的其他 provider 按鈕；Actions 的 verify／block_race 通過，deploy 跳過。此 PR 尚未合併，因此公開頁仍載入舊版停用按鈕。
+site/supabase-config.js 配置 Samewave 專案公開 Project URL 與 publishable key。Supabase Anonymous Auth、Manual Linking 和 Google provider 已設定；Google 是唯一社群登入方式，Facebook／X 關閉，Instagram／Threads 不在登入範圍。PR #3 已移除首頁和審查工作區的其他 provider 按鈕；目前已可審查，verify／block_race 通過，deploy 跳過。此 PR 尚未合併，因此公開頁仍載入舊版停用按鈕。
 
 Google OAuth 使用 Supabase Dashboard 顯示的 callback URL。Google app 目前為外部測試模式，只有測試名單帳號可登入。使用者已於 2026-11-21 將新 client secret 存入 Supabase，但更新後尚未確認建立登入 session；client secret 僅存於 Supabase Auth，不放在網站或 repository。
 

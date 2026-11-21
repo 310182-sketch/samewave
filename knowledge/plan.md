@@ -15,9 +15,9 @@
 - **仍待線上驗證：** 匿名登入及 session 恢復、真人房間／配對／歷史資料、完整 RLS 權限和跨裝置流程尚未實測。邀請房答題與隨機配對前端已接上 RPC，Chrome mock 驗證成功揭曉、雙方確認、結果讀取、配對成功、逾時重試及取消；尚未在 Supabase Realtime 或兩部裝置驗證。歷史頁查詢、分頁、默契排名及逐筆刪除也僅以 mock 驗證。結果分享卡尚未在 iOS／Android 實機確認 Instagram 交接。
 - **後端：** 前十一份 migration 已部署且 CLI ledger 一致；第十二份六碼邀請 migration 已由 SQL Editor 執行，七項遠端功能檢查通過，CLI ledger repair／list 待同步。19 項 PGlite migration 回歸、Deno 型別／lint／格式檢查通過；Actions [run 44854423906](https://github.com/310182-sketch/samewave/actions/runs/44854423906) 的 PostgreSQL 多連線競態測試通過。使用兩個已授權的正式測試 session，已透過真實 Supabase RPC 驗證邀請房、雙方五題作答、續玩邀請／接受、新房間初始狀態及雙方各自保留兩筆歷史；此流程未經 Realtime channel。遠端唯讀查核已確認題庫十類共 50 題、核心資料表與 RLS、歷史／檢舉／審查 RPC、帳號刪除觸發器、共用交易鎖、房間 Realtime publication 及清理排程。`samewave-purge-expired-game-data` 每 15 分鐘、`purge-expired-moderation-reports` 每日 03:17 均為 active。Auth settings API 回 HTTP 200 且 `external.anonymous_users` 為 `true`；`delete-account` Edge Function 已部署，正式 origin 的 OPTIONS 回 200、未列入的 origin 回 403。真實登入、帳號刪除和 Realtime 跨裝置通知仍待驗收。Google OAuth 已設定且線上 provider 開啟；最新 client secret 重試待完成，其他社群登入不在範圍。
 - **資料政策：** 真人房間、配對票券及原始答案最多保留 24 小時；個人歷史摘要保存 90 天且可逐筆刪除；檢舉資料保存 180 天；封鎖關係保留至解除或刪除帳號。相關 migration 與清理排程已部署，但資料保留週期和逾期刪除尚未經過實際時間週期驗證。
-- **登入與社群：** 真人服務保留匿名登入與 Google OAuth，Google 是唯一社群 provider。Supabase 設定已確認 Anonymous Auth／Google 開啟，Facebook、X 關閉，Instagram／Threads 未設定。Google app 仍為外部測試模式；最新 client secret 更新後的登入重試待完成。Google-only 介面分支通過 5 項 Auth 測試、前端語法檢查、5 組 headless Chrome 流程，以及 GitHub Actions [run 44926152909](https://github.com/310182-sketch/samewave/actions/runs/44926152909) 的 verify／block_race；PR #3 仍是草稿，deploy 跳過。公開頁仍含停用的其他 provider 按鈕。
+- **登入與社群：** 真人服務保留匿名登入與 Google OAuth，Google 是唯一社群 provider。Supabase 設定已確認 Anonymous Auth／Google 開啟，Facebook、X 關閉，Instagram／Threads 未設定。Google app 仍為外部測試模式；最新 client secret 更新後的登入重試待完成。Google-only 介面分支通過 5 項 Auth 測試、前端語法檢查、5 組 headless Chrome 流程，以及 GitHub Actions [run 44926152909](https://github.com/310182-sketch/samewave/actions/runs/44926152909) 的 verify／block_race；PR #3 已可審查，verify／block_race 通過，deploy 跳過。公開頁仍含停用的其他 provider 按鈕。
 - **前端設計：** 已完成第一輪整體字級、留白、按鈕及主題選項版面整理；登入卡片以獨立視覺層級呈現，同時保留先玩示範的主要流程。房間、真人答題、隨機配對等待及歷史頁已接上 RPC，無設定時仍保留清楚標示的操作預覽。Chrome mock 驗證流程分支；六種寬度與鍵盤流程的前一輪檢查已通過。真人服務環境的實際網路狀態仍待驗證。
-- **發布：** GitHub Pages 目前載入 app.js?v=17 與 auth-provider-status.js?v=1；Supabase Auth settings 確認 Google／匿名登入開啟、Facebook／X 關閉、Meta provider 未設定。公開頁目前仍渲染停用的 Facebook、X、Instagram、Threads 登入按鈕；這些選項已從 codex/google-only-social-login 移除，PR #3 的 verify／block_race 通過，但尚未合併或發布。Search Console 仍顯示 sitemap 無法讀取，公開 sitemap 與 robots.txt 回應 HTTP 200，網站已能出現在 Google site: 查詢結果。
+- **發布：** GitHub Pages 目前載入 app.js?v=17 與 auth-provider-status.js?v=1；Supabase Auth settings 確認 Google／匿名登入開啟、Facebook／X 關閉、Meta provider 未設定。公開頁目前仍渲染停用的 Facebook、X、Instagram、Threads 登入按鈕；這些選項已從 codex/google-only-social-login 移除，PR #3 已可審查且 verify／block_race 通過，deploy 跳過，尚未合併。合併確認畫面顯示公開 commit 會使用帳號 email 作為作者，故先取消最終確認並等待使用者選擇是否改用 GitHub noreply；網站仍未發布此版。Search Console 仍顯示 sitemap 無法讀取，公開 sitemap 與 robots.txt 回應 HTTP 200，網站已能出現在 Google site: 查詢結果。
 - **安全營運：** 前端已提供同房檢舉、封鎖／解除封鎖及隱私告知，並有獨立的審查員工作區；後端提供 allowlist、遮蔽細節的案件佇列、領案／結案及私有稽核事件，PGlite 和 headless Chrome 權限鎖定情境已由 CI 驗證。尚未建立審查員帳號或指定實際審查人員、玩家聯絡方式與值班安排；現有流程草案不是服務承諾，正式公開前不得宣稱有人即時處理。
 - **工作區：** 原型位於 `site/`，可直接開啟 `site/index.html` 操作，不需安裝套件或建置。
 - **產品方向：** 本專案以獨立的 `samewave` repository 發布二選一共同點遊戲，不沿用另一專案的 repository 歷史，詳見 [knowledge/decision.md](decision.md)。
@@ -98,7 +98,7 @@
 - [x] Supabase 上線後更新登入卡狀態與新手說明，清楚標出匿名登入和 Google provider 已啟用，並說明登入後可使用邀請房、隨機配對及歷史紀錄；更新 `app.js` 快取版本。
 - [x] 加入公開 Supabase Auth settings 的唯讀狀態查詢，只讀取 Google provider；逾時或錯誤時停用 Google 登入並顯示說明；helper 納入 Pages workflow 語法及 Node 測試。
 - [x] 將登入選項收斂到 Google：移除首頁及審查頁的 Facebook／X／Instagram／Threads 按鈕、呼叫及設定；Auth helper 和測試只保留 Google.
-- [ ] 合併並發布 PR #3；目前線上頁仍顯示停用的其他 provider 按鈕。
+- [ ] 合併並發布 PR #3；PR 已可審查且驗證通過。合併前須避免公開個人 email，使用 GitHub noreply 或依使用者選擇處理；目前線上頁仍顯示停用的其他 provider 按鈕。
 - [x] 將暱稱欄提示設為「企鵝」，並將遊戲畫面預設、前端 fallback 與資料庫 RPC 的空值／空白 fallback 統一為「企鵝」；Deno/PGlite 回歸測試覆蓋建立房間、加入房間和隨機配對；Actions run #7 的 verify、block_race 和 deploy 成功。部署後更改既有 RPC 預設時應新增 forward-only migration。
 - [ ] 完成後端後，再以不同裝置驗證房間邀請、隨機配對及 90 天歷史查詢權限。
 - [x] 加入建立邀請房、複製示範代碼及輸入房間代碼的前端預覽；畫面清楚說明尚未建立跨裝置房間。
