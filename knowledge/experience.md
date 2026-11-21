@@ -356,3 +356,9 @@
 - **經驗：** 靜態網站部署完成後，已開啟的分頁仍保留當時載入的 HTML、JavaScript 和 DOM；直接看那個分頁可能會誤以為新版本沒有上線。驗收時應對照 Actions 部署結果、重新讀取公開 HTML／bundle，並在新分頁確認實際登入選項。若只有舊分頁顯示過時內容，重新載入該分頁後再判斷快取問題。
 - **適用範圍：** GitHub Pages、CDN 或其他靜態網站在部署後變更登入入口、導覽、文案或其他可見 UI 的驗收。
 - **本專案做法：** 2026-11-22 Actions run 44932784745 的 verify、block_race、deploy 全部成功。公開首頁 HTTP 200 並載入 `app.js?v=19`；先前開啟的同頻分頁仍顯示部署前的 Facebook、X、Instagram 和 Threads 按鈕，而同網址新分頁只顯示匿名與 Google 入口，且已恢復 Google 測試 session。此證據確認公開版本是 Google-only；舊分頁尚未重新載入，因此只記錄為舊頁面狀態，不推論為 CDN 快取故障。
+
+## 以隔離 mock 驗證匿名帳號的 Google 連結分支
+
+- **經驗：** 社群登入前端應分別驗證「沒有 session 時呼叫 OAuth sign-in」與「已匿名登入時呼叫 identity linking」；後者需把既有 session 的 user ID 傳進 linking 流程，避免連結按鈕意外改走全新登入。headless browser 可驗證 UI 狀態、provider ID、redirect URL 與呼叫分支，但模擬 session 保持 ID 不代表 Supabase 已完成 OAuth callback 或雲端帳號／歷史真的合併。
+- **適用範圍：** 在正式 OAuth provider 已設定、但需要無副作用地回歸單頁應用登入與匿名帳號升級分支時使用。真人 Manual Linking、PKCE callback、session 重載與伺服器資料保留仍須另外驗收。
+- **本專案做法：** 新增 `scripts/auth-login-flows.mjs`，以 loopback HTTP 和隔離 Chrome profile 載入首頁，使用不連外的 Supabase Auth mock。測試先確認未登入時只有 Google `signInWithOAuth`，再建立匿名 mock session，確認 Google 會改呼叫 `linkIdentity` 並沿用原 player ID；另外確認 redirect 指向目前子路徑。headless Chrome 與五項 Auth provider status 測試在本機通過，Pages workflow 會在部署前執行此流程。測試只建立 mock 資料，不會建立或刪除 Supabase 使用者。
