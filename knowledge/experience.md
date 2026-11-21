@@ -325,7 +325,7 @@
 
 - **經驗：** 在 Supabase SQL Editor 手動執行 migration 不會自動更新 CLI 的 migration history。先用官方 CLI `migration list` 確認現有版本，再從含該版本 SQL 檔的工作分支執行 `migration repair --status applied`，最後再次執行 `migration list`。若本機找不到對應檔案，CLI 會拒絕登記；應換到正確分支，不可重跑 SQL，也不可直接寫 migration history table。
 - **適用範圍：** 因 CLI 暫不可用而先在 Supabase Dashboard 套用 migration，之後要恢復本機 schema 歷史一致性的專案。
-- **本專案做法：** `20261121000200_six_digit_invite_codes.sql` 已由使用者在 SQL Editor 執行，七項遠端功能檢查通過。官方 CLI 先確認既有十一個版本一致；在只有十一份 migration 的 `main` 執行 repair 時，CLI 因本機缺少第十二份檔案而安全拒絕。切換到包含 migration 的 PR #1 隔離工作樹後，才登記該版本並再次查詢，確認十二個 local／remote 版本完全相符。SQL 沒有重跑；PR #1 仍待更新及發布。
+- **本專案做法：** `20261121000200_six_digit_invite_codes.sql` 已由使用者在 SQL Editor 執行，七項遠端功能檢查通過。官方 CLI 先確認既有十一個版本一致；在只有十一份 migration 的 `main` 執行 repair 時，CLI 因本機缺少第十二份檔案而安全拒絕。切換到包含 migration 的 PR #1 隔離工作樹後，才登記該版本並再次查詢，確認十二個 local／remote 版本完全相符。SQL 沒有重跑；PR #1 現已更新至目前 main 並通過 `verify`／`block_race`，六碼前端仍待審查發布。
 
 ## Realtime 狀態通知搭配自適應輪詢
 
