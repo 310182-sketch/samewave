@@ -313,4 +313,10 @@
 
 - 經驗：動態停用不支援的登入按鈕，仍會讓使用者看見無法使用的選項。縮減登入範圍時，應同步移除首頁與管理頁的按鈕和 provider 呼叫，將 Auth settings helper、設定欄位、無障礙標籤、說明文字和測試斷言限制到支援清單。匿名入口可另外保留，不要把它與社群 provider 混為一談。
 - 適用範圍：從多種 OAuth 登入收斂到少數 provider 的靜態網站或 App，尤其是遠端設定會停用按鈕但產品已不打算提供該登入方式時。
-- 本專案做法：Samewave 保留匿名登入並只提供 Google OAuth；Auth settings 確認 Google 與 Anonymous Auth 開啟，Facebook／X 關閉，Instagram／Threads 未設定。Google-only 介面移除其他 provider 標記和審查工作區按鈕；最新 secret 更新後的 Google 真人登入仍待重試。在 codex/google-only-social-login 分支實作獨立 UI 更新，避免與六碼邀請 migration ledger 待同步的 PR 綁在一起；5 項 Auth 測試與 5 組 headless Chrome 流程通過，Actions run 44926152909 的 verify／block_race 成功、deploy 跳過，PR #3 維持草稿。
+- 本專案做法：Samewave 保留匿名登入並只提供 Google OAuth；Auth settings 確認 Google 與 Anonymous Auth 開啟，Facebook／X 關閉，Instagram／Threads 未設定。Google-only 介面移除其他 provider 標記和審查工作區按鈕；最新 secret 更新後的 Google 真人登入仍待重試。在 codex/google-only-social-login 分支實作獨立 UI 更新，避免與六碼邀請 migration ledger 待同步的 PR 綁在一起；5 項 Auth 測試與 5 組 headless Chrome 流程通過，Actions run 44926152909 的 verify／block_race 成功、deploy 跳過。PR #3 已改為可審查，但正式合併尚未執行。
+
+## 合併公開 repository 前檢查 commit email
+
+- 經驗：GitHub 的合併確認畫面可能指出 merge commit 將使用操作者帳號的 email。公開 repository 的 commit metadata 會公開顯示作者／提交者資訊；合併前必須先檢查最後確認畫面。
+- 適用範圍：GitHub 公開 repository，尤其使用帳號 email 建立 merge commit 或 squash commit 時。
+- 本專案做法：PR #3 可審查且 CI 通過；合併確認畫面顯示帳號 email 將作為作者，因此取消最終合併。優先使用 GitHub noreply email，並確認預覽不會公開個人 email；未解決前保留 PR，不在文件中記錄完整地址。

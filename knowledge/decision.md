@@ -120,6 +120,7 @@
 
 - **現況：** `riddle-match` 的 Pages 網站屬於另一個專案。公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立，Pages source 已設為 GitHub Actions，網站網址為 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/)。同頻已設定公開 Supabase URL／publishable key，十一份 migration 已套用，Realtime publication 和清理排程已核對；Actions [run #28](https://github.com/310182-sketch/samewave/actions/runs/44785037673) 確認 Pages artifact 重試修正，後續 [run #29](https://github.com/310182-sketch/samewave/actions/runs/44785419073) 的驗證和部署也成功。續玩前端已由 Actions [run 44854423906](https://github.com/310182-sketch/samewave/actions/runs/44854423906) 部署，公開頁載入 app.js?v=16 和 styles.css?v=13；匿名登入 session 恢復、跨裝置 Realtime 和其餘真人服務流程仍待完成。
 - **決定：** 採公開 repository，因為目標包含 GitHub Pages 免費發布；建立時只納入同頻原始碼和文件，不沿用另一專案歷史。已檢查用戶端設定範本沒有真實 Supabase URL／key，測試中的 JWT 為假資料；provider secret 與 service role key 不得推送。
+- **PR #3 合併署名待決：** GitHub 的最終合併確認會把帳號 email 用作公開 merge commit 作者。推薦先確保使用 GitHub noreply email，再合併 Google-only 登入修改；在確認署名不公開個人 email 前，不完成最終合併。使用者已被詢問此選擇，其他文件與測試工作可繼續。
 - **下一階段：** 以專用測試 session 完成匿名登入驗證，再用兩部裝置測試 Auth、RLS、Realtime、RPC、歷史和配對。帳號刪除 Edge Function 已部署且限制 origin，但要經明確核准才用一次性帳號驗證實際刪除。公開靜態網站及 schema 部署仍不代表真人遊戲已完成端對端驗收。
 
 
