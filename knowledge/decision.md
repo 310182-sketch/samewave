@@ -18,16 +18,24 @@
 
 ## 房間與配對
 
-- **狀態：** MVP 預設已採用；邀請房建立／加入／離房、Realtime 答題與揭曉、雙方確認推進、結果讀取及隨機配對 RPC 已接上前端並以 Chrome mock 驗證。十份 migration 已部署至 Samewave Supabase，房間 Realtime publication 已確認；真正雙裝置遊戲、登入後的 RPC/RLS 和資料同步仍待實測。
+- **狀態：** MVP 預設已採用；邀請房建立／加入／離房、Realtime 答題與揭曉、雙方確認推進、結果讀取及隨機配對 RPC 已接上前端並以 Chrome mock 驗證。十一份 migration 已部署至 Samewave Supabase，房間 Realtime publication 已確認；真正雙裝置遊戲、登入後的 RPC/RLS 和資料同步仍待實測。
 - **決定：** 玩家可建立雙人邀請房間，分享 12 位隨機代碼讓另一位玩家加入；房間 10 分鐘沒有第二位玩家加入就失效。房主在遊戲開始前離開時關閉房間。
 - **決定：** 玩家每次只能參加一個進行中的房間。隨機配對等候上限為 30 秒；逾時可以重新排隊。房間開始後閒置 10 分鐘就失效。
 - **重新載入：** Auth session 恢復後先找回本人進行中的房間，再查本人仍有效的等待票券；若等待已逾時，顯示重新配對入口，不自動建立另一張票券。若房間剛在查詢競速期間配對成功，則接入既有房間。
 - **決定：** 玩家指定不同主題時不互相配對；任一方選隨機即可配對並沿用另一方主題；雙方都選隨機時由系統抽一個主題。
 - **適用範圍：** 二人 MVP；房間密碼、多玩家房間及自訂逾時不納入首版。
 
+## 同一玩家續玩
+
+- **狀態：** 前端邀請區和 Supabase migration 已完成，migration 已部署並同步 CLI ledger。18 項 PGlite migration 測試、headless Chrome mock 續玩及兩個正式測試 session 的真實 RPC 流程通過；兩位玩家各有兩筆分開的歷史。PostgreSQL 多連線競態案例已加入 CI，待 workflow 執行；GitHub Pages 前端尚待部署，Realtime 跨裝置通知仍未驗證。
+- **決定：** 真人對局結果頁可邀請上一局的同一位玩家再玩；只有雙方同意後才建立新局。新局沿用主題及兩個玩家身分，但使用全新的房間、答案與對局歷史；上一局的歷史不修改。
+- **限制：** 邀請 10 分鐘後逾期，可重新邀請。任一方向封鎖對方，或任何一方仍在其他有效房間時，拒絕新局。這個入口不加入公開隨機配對佇列；示範模式沿用本機「再玩一局」。
+- **同步：** 以私人 RPC 作為狀態和同意的權威來源；來源房間的 Realtime UPDATE 只用來通知另一端重新讀取狀態，並保留輪詢備援。切換帳號或離開結果頁時，停止舊訂閱與輪詢。
+- **待完成：** 部署 GitHub Pages 前端；再以隔離裝置驗證 Realtime 通知、房間切換和新舊歷史隔離。
+
 ## 真人配對與後端
 
-- **狀態：** Supabase 為目前真人 MVP 的實作預設；十份 migration 已手動部署，且官方 CLI migration ledger 已修復並逐一確認 local／remote 版本相符。14 項 PGlite 回歸測試和 PostgreSQL 16 多連線競態測試已納入 CI。線上已確認主要資料表、RLS、Realtime publication 和兩個清理排程；登入後端到端 RPC 權限、真實配對與跨裝置遊戲仍未驗證。後續 schema 變更可透過 CLI 管理，但每次部署前仍須檢視差異並驗證正式資料庫。
+- **狀態：** Supabase 為目前真人 MVP 的實作預設；11 份 migration 已部署，CLI ledger 確認 local／remote 版本相符。18 項 PGlite 回歸測試通過；新增的續玩多連線競態案例待 CI 執行。使用已授權的兩個測試 session 驗證真實邀請、五題對局、同意續玩及分開保存歷史；Realtime 跨裝置通知和完整瀏覽器前端流程仍待驗證。
 - **決定：** 以 Supabase Anonymous Auth 驗證玩家、PostgreSQL RPC 執行建立房間／加入房間／原子配對與答案提交，Realtime 傳遞房間狀態。
 - **安全規則：** 答案留在資料庫；只有同一房間兩位玩家都完成作答後才回傳雙方答案。以 RLS 限制玩家資料存取，不開放用戶端直讀答案表；service role key 不放在前端。
 - **同步規則：** 揭曉後兩位玩家都按「下一題」才推進；先按的人等待對方。正式閒置時間、離線及重新連線行為仍需實測及定案。
@@ -36,10 +44,10 @@
 
 ## 匿名與社群登入
 
-- **狀態：** 已實作可選的 Supabase Auth 前端與匿名登入／社群 OAuth／identity linking 呼叫，並用 mock client 驗證 provider 選擇；公開網站已設定 Samewave Project URL 和 publishable key，Supabase Anonymous Auth／Manual Linking 已開啟。OAuth providers 與真實匿名登入尚未驗證。
+- **狀態：** 已實作可選的 Supabase Auth 前端與匿名登入／社群 OAuth／identity linking 呼叫，並用 mock client 驗證 provider 選擇；公開網站已設定 Samewave Project URL 和 publishable key，Supabase Anonymous Auth／Manual Linking 已開啟。**目前只有匿名登入可用；Google、Facebook、X provider 設為關閉，Instagram、Threads custom provider ID 未設定，因此所有社群登入按鈕停用。**真實匿名登入與 OAuth callback 尚未驗證。
 - **決定：** 提供匿名登入，以及 Instagram、Facebook、Google、X、Threads 社群登入。匿名帳號連結社群身分時需保留玩家 ID 與可延續的歷史紀錄。
 - **設定界線：** provider secret 僅存在後端／Supabase Auth 設定；GitHub Pages 前端只使用公開的 project URL 和 anon key。
-- **待驗證：** 建立各平台 app、callback URL、公開應用資格和測試帳號；實測 provider 組態、重複帳號連結、登出後重新登入及匿名帳號轉正式身分。平台支援限制見下方技術審查。
+- **待驗證：** 建立各平台 app、callback URL，將 provider client ID／secret 安全設定於 Supabase Auth，完成 Meta 公開應用資格和測試帳號；再測 provider 組態、重複帳號連結、登出後重新登入及匿名帳號轉正式身分。平台支援限制見下方技術審查。
 
 ## 自助刪除帳號
 
@@ -111,7 +119,7 @@
 
 ## 發布
 
-- **現況：** `riddle-match` 的 Pages 網站屬於另一個專案。公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立，Pages source 已設為 GitHub Actions，網站網址為 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/)。同頻已設定公開 Supabase URL／publishable key，十份 migration 已套用，Realtime publication 和清理排程已核對；Actions [run #28](https://github.com/310182-sketch/samewave/actions/runs/44785037673) 確認 Pages artifact 重試修正，後續 [run #29](https://github.com/310182-sketch/samewave/actions/runs/44785419073) 的驗證和部署也成功。匿名登入和真人服務的真實 session／跨裝置驗收仍待完成。
+- **現況：** `riddle-match` 的 Pages 網站屬於另一個專案。公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立，Pages source 已設為 GitHub Actions，網站網址為 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/)。同頻已設定公開 Supabase URL／publishable key，十一份 migration 已套用，Realtime publication 和清理排程已核對；Actions [run #28](https://github.com/310182-sketch/samewave/actions/runs/44785037673) 確認 Pages artifact 重試修正，後續 [run #29](https://github.com/310182-sketch/samewave/actions/runs/44785419073) 的驗證和部署也成功。續玩前端尚待部署；匿名登入 session 恢復、跨裝置 Realtime 和其餘真人服務流程仍待完成。
 - **決定：** 採公開 repository，因為目標包含 GitHub Pages 免費發布；建立時只納入同頻原始碼和文件，不沿用另一專案歷史。已檢查用戶端設定範本沒有真實 Supabase URL／key，測試中的 JWT 為假資料；provider secret 與 service role key 不得推送。
 - **下一階段：** 以專用測試 session 完成匿名登入驗證，再用兩部裝置測試 Auth、RLS、Realtime、RPC、歷史和配對。帳號刪除 Edge Function 已部署且限制 origin，但要經明確核准才用一次性帳號驗證實際刪除。公開靜態網站及 schema 部署仍不代表真人遊戲已完成端對端驗收。
 
@@ -125,14 +133,14 @@
 
 ## 正式 Supabase 真人驗收帳號
 
-- **狀態：** Samewave Supabase 是 production 環境。匿名登入會建立持久的 Auth 使用者記錄；本專案尚未取得建立正式測試使用者或刪除使用者的明確授權。不得用正式匿名登入按鈕建立測試使用者，也不得為清理測試資料呼叫帳號刪除功能。
-- **推薦：** 由使用者明確授權後，建立兩個一次性匿名測試帳號，分別在兩部裝置或獨立瀏覽器 profile 完成房間、配對、RLS、歷史與 session 恢復驗收；驗收後先列出預計清理的測試 ID 與資料，再取得刪除授權。若不希望在 production 建立測試使用者，先建立獨立 staging 專案並將同一組 migrations 部署至該環境。
-- **刪除驗收：** `delete-account` 涉及不可逆資料刪除，除建立測試帳號外還需另外明確授權；驗收前維持 `accountDeletionEnabled: false`。
+- **狀態：** Samewave Supabase 是 production 環境。使用者已明確授權建立兩個匿名測試帳號，兩個帳號已建立並用於續玩 RPC 驗收。每個帳號目前各有兩筆測試對局歷史，依既定 90 天期限清除；session token 留在本機測試環境，不寫入 repository、文件或回覆。不得將測試帳號加入公開隨機配對佇列。
+- **真人驗收：** 後續使用這兩個帳號在隔離瀏覽器／裝置完成 RLS、session 恢復和 Realtime 通知驗收；保留帳號以便後續流程回歸，不需建立更多測試帳號。
+- **刪除驗收：** `delete-account` 涉及不可逆資料刪除，刪除兩個測試帳號仍須另外明確授權；驗收前維持 `accountDeletionEnabled: false`。
 
 ## 手動部署後的 Supabase migration ledger
 
-- **狀態：** 十份 migration 已透過 SQL Editor 套用。2026-11-21 以官方 Supabase CLI 3.2.0 的瀏覽器驗證流程登入 Samewave 專案；CLI access token 保存在本機 CLI 設定，沒有貼入聊天或版控。唯讀查核先確認 `supabase_migrations.schema_migrations` 不存在，再核對十份 migration 對應的資料表、RPC、RLS、觸發器、Realtime、題庫和清理排程。
-- **完成記錄：** 專案 `bbpfgavabdsdayuprhbp` 的十個已手動部署版本均已用官方 CLI 登記為 applied，並由 `migration list --remote=bbpfgavabdsdayuprhbp` 確認 local／remote 逐一一致。
+- **狀態：** 十一份 migration 已部署至 Samewave Supabase。2026-11-21 以官方 Supabase CLI 3.2.0 的瀏覽器驗證流程登入 Samewave 專案；CLI access token 保存在本機 CLI 設定，沒有貼入聊天或版控。唯讀查核已確認既有資料表、RPC、RLS、觸發器、Realtime、題庫和清理排程；新增續玩 migration 使用 CLI 部署。
+- **完成記錄：** 專案 `bbpfgavabdsdayuprhbp` 的十一個 migration 版本均由 `migration list --remote=bbpfgavabdsdayuprhbp` 確認 local／remote 逐一一致。
 - **操作命令：**
 
   ```sh

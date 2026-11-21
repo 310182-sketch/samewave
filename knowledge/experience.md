@@ -295,3 +295,10 @@
 - **經驗：** 會刪除帳號或其他使用者資料的 Edge Function，應同時以 Auth JWT 確認呼叫者、由 token 取得操作對象、將服務端管理 key 留在平台 secrets，並限制精確網站 origin。部署後先用不改動資料的 CORS `OPTIONS` 預檢確認只允許正式網站與預期 method，再進行真實登入和刪除驗收；未完成破壞性路徑驗收前，產品介面保持停用。
 - **適用範圍：** Supabase Edge Functions、Deno serverless API，以及需要以後端管理權限替登入者執行刪除或帳號管理操作的應用程式。
 - **本專案做法：** 將 repository 中經 Deno request tests 驗證的 `delete-account` 部署到 Samewave Supabase，啟用 JWT gateway 驗證，將 `ALLOWED_ORIGINS` 設為 `https://310182-sketch.github.io`，並使用 Supabase 內建 server-side `SUPABASE_SERVICE_ROLE_KEY`；未讀取或複製該 key。正式 origin 的 OPTIONS 預檢回 HTTP 200 並回傳精確 `Access-Control-Allow-Origin`；`https://example.org` 預檢回 403 且沒有允許來源標頭。真實 JWT、Auth Admin 刪除和資料庫收尾尚未驗證，因此公開網站仍維持 `accountDeletionEnabled: false`。
+
+## 雙方同意續玩時建立新房間並保留原始歷史
+
+- **經驗：** 續玩邀請應指向已完成的來源對局，狀態只透過驗證玩家身分的 RPC 讀取；第一位玩家發出邀請，另一位玩家以明確操作接受。建立新房間前，在同一資料庫交易鎖內檢查封鎖關係和雙方是否已在其他有效房間，避免接受與封鎖／新配對同時發生。新局沿用兩位玩家和主題，但不複製答案，也不修改上一局的歷史。
+- **同步與生命週期：** 來源房間的 Realtime 更新只負責通知另一端重新讀取 RPC 狀態，另保留輪詢以承受 Realtime 事件遺失。邀請到期後可重新發起。前端在切換帳號或離開結果頁時取消舊訂閱和輪詢，避免晚到回應把使用者帶入錯誤房間。
+- **適用範圍：** 雙人遊戲、協作任務或其他須經雙方同意後重新建立工作階段的產品。
+- **本專案做法：** `request_same_player_rematch` 和 `get_same_player_rematch_status` 僅授權 authenticated RPC 執行；全域 advisory transaction lock 串行化邀請接受與配對／開房，阻擋任一方被封鎖或已在別的有效房間時建立新局。PGlite 測試覆蓋互相同意、非成員拒絕、封鎖、有效房間、逾期重邀和新舊歷史隔離；Chrome mock 驗證待同意及接受後進入新房間。正式 migration 和跨裝置驗收仍待部署。

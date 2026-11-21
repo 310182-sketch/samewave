@@ -132,6 +132,8 @@ Deno.test("matchmaking, moderation claims, cancellation, block, and quota races 
   let ticketQuotaWaiter: PgClient | null = null;
   let canceler: PgClient | null = null;
   let cancelMatchmaker: PgClient | null = null;
+  let rematchRequester: PgClient | null = null;
+  let rematchAcceptor: PgClient | null = null;
   let blockerTransactionOpen = false;
   let matcherTransactionOpen = false;
   let quotaCreatorTransactionOpen = false;
@@ -140,10 +142,13 @@ Deno.test("matchmaking, moderation claims, cancellation, block, and quota races 
   let ticketQuotaWaiterTransactionOpen = false;
   let cancelerTransactionOpen = false;
   let cancelMatchmakerTransactionOpen = false;
+  let rematchRequesterTransactionOpen = false;
+  let rematchAcceptorTransactionOpen = false;
   let requestPromise: ReturnType<PgClient["query"]> | null = null;
   let quotaRequestPromise: ReturnType<PgClient["query"]> | null = null;
   let ticketQuotaRequestPromise: ReturnType<PgClient["query"]> | null = null;
   let matchingRaceCancelPromise: ReturnType<PgClient["query"]> | null = null;
+  let rematchAcceptPromise: ReturnType<PgClient["query"]> | null = null;
 
   try {
     await applyMigrations(admin);
@@ -656,6 +661,90 @@ Deno.test("matchmaking, moderation claims, cancellation, block, and quota races 
       }
       await Promise.all([firstReviewer.end(), secondReviewer.end()]);
     }
+
+    await admin.query("delete from public.player_blocks");
+    await admin.query(
+      `update public.matchmaking_queue
+       set status = 'cancelled'
+       where user_id in ($1, $2) and status = 'waiting'`,
+      [users.host, users.guest],
+    );
+    await admin.query(
+      `update public.game_rooms
+       set closed_at = clock_timestamp(), delete_after = clock_timestamp() + interval '24 hours'
+       where id = $1::uuid`,
+      [roomId],
+    );
+    rematchRequester = await connect("rematch-consent-requester");
+    rematchAcceptor = await connect("rematch-consent-acceptor");
+    await setAuthenticatedUser(rematchRequester, users.host);
+    rematchRequesterTransactionOpen = true;
+    const rematchRequest = await rematchRequester.query<{
+      response: { status: string };
+    }>("select public.request_same_player_rematch($1::uuid) as response", [
+      roomId,
+    ]);
+    assertEquals(
+      rematchRequest.rows[0].response.status,
+      "pending",
+      "first simultaneous rematch request waits for the partner",
+    );
+
+    await setAuthenticatedUser(rematchAcceptor, users.guest);
+    rematchAcceptorTransactionOpen = true;
+    let rematchAcceptFinished = false;
+    rematchAcceptPromise = rematchAcceptor.query<{
+      response: { status: string; room_id: string };
+    }>("select public.request_same_player_rematch($1::uuid) as response", [
+      roomId,
+    ]).finally(() => {
+      rematchAcceptFinished = true;
+    });
+    let rematchAcceptError: unknown = null;
+    const rematchAcceptSettled = rematchAcceptPromise.catch(
+      (error: unknown) => {
+        rematchAcceptError = error;
+      },
+    );
+    await waitForLock(
+      admin,
+      "rematch-consent-acceptor",
+      "advisory",
+      () => rematchAcceptFinished,
+    );
+    await rematchRequester.query("commit");
+    rematchRequesterTransactionOpen = false;
+    const rematchAcceptResult = await rematchAcceptSettled;
+    assertEquals(
+      rematchAcceptError,
+      null,
+      "partner acceptance succeeds after the request commits",
+    );
+    await rematchAcceptor.query("commit");
+    rematchAcceptorTransactionOpen = false;
+    assertEquals(
+      rematchAcceptResult.rows[0].response.status,
+      "matched",
+      "partner accepts the pending invite after acquiring the shared lock",
+    );
+    const rematchRowCount = await admin.query<{ count: string }>(
+      "select count(*)::text as count from public.game_rematch_requests where source_room_id = $1::uuid",
+      [roomId],
+    );
+    assertEquals(
+      rematchRowCount.rows[0].count,
+      "1",
+      "the concurrent requests create one rematch",
+    );
+    const rematchRoomCount = await admin.query<{ count: string }>(
+      "select count(*)::text as count from public.game_rooms where id = $1::uuid or id = $2::uuid",
+      [roomId, rematchAcceptResult.rows[0].response.room_id],
+    );
+    assertEquals(
+      rematchRoomCount.rows[0].count,
+      "2",
+      "the concurrent requests create one fresh room",
+    );
   } finally {
     if (quotaCreatorTransactionOpen && quotaCreator) {
       await quotaCreator.query("rollback").catch(() => undefined);
@@ -674,6 +763,15 @@ Deno.test("matchmaking, moderation claims, cancellation, block, and quota races 
     }
     if (cancelMatchmakerTransactionOpen && cancelMatchmaker) {
       await cancelMatchmaker.query("rollback").catch(() => undefined);
+    }
+    if (rematchRequesterTransactionOpen && rematchRequester) {
+      await rematchRequester.query("rollback").catch(() => undefined);
+    }
+    if (rematchAcceptPromise) {
+      await rematchAcceptPromise.catch(() => undefined);
+    }
+    if (rematchAcceptorTransactionOpen && rematchAcceptor) {
+      await rematchAcceptor.query("rollback").catch(() => undefined);
     }
     if (blockerTransactionOpen && blocker) {
       await blocker.query("rollback").catch(() => undefined);
@@ -700,6 +798,8 @@ Deno.test("matchmaking, moderation claims, cancellation, block, and quota races 
       ticketQuotaWaiter?.end(),
       canceler?.end(),
       cancelMatchmaker?.end(),
+      rematchRequester?.end(),
+      rematchAcceptor?.end(),
       blocker?.end(),
       matcher?.end(),
       admin.end(),

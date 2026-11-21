@@ -111,6 +111,15 @@
     gameBusy: false,
     gameResultLoading: false,
     gameResultSyncId: null,
+    completedRoomId: null,
+    completedRoomUserId: null,
+    rematchWatchId: 0,
+    rematchWatchRoomId: null,
+    rematchWatchUserId: null,
+    rematchChannel: null,
+    rematchPollTimer: null,
+    rematchBusy: false,
+    rematchStatusBusy: false,
     moderationRoomId: null,
     moderationUserId: null,
     moderationBusy: false,
@@ -141,6 +150,7 @@
   const toast = $("[data-toast]");
 
   function showView(name, moveFocus = false) {
+    if (name !== "results") stopSamePlayerRematchWatch();
     let activeView = null;
     views.forEach((view) => {
       const visible = view.dataset.view === name;
@@ -180,6 +190,8 @@
     state.moderationRequestId += 1;
     if (reportModal.open) reportModal.close();
     state.liveRoom = null;
+    state.completedRoomId = null;
+    state.completedRoomUserId = null;
     state.moderationRoomId = null;
     state.moderationUserId = null;
     state.moderationBusy = false;
@@ -488,6 +500,21 @@
     state.gameResultSyncId = null;
     const channel = state.gameChannel;
     state.gameChannel = null;
+    if (channel && authState.client) {
+      authState.client.removeChannel(channel).catch(() => {});
+    }
+  }
+
+  function stopSamePlayerRematchWatch() {
+    window.clearTimeout(state.rematchPollTimer);
+    state.rematchPollTimer = null;
+    state.rematchWatchId += 1;
+    state.rematchWatchRoomId = null;
+    state.rematchWatchUserId = null;
+    state.rematchBusy = false;
+    state.rematchStatusBusy = false;
+    const channel = state.rematchChannel;
+    state.rematchChannel = null;
     if (channel && authState.client) {
       authState.client.removeChannel(channel).catch(() => {});
     }
@@ -858,6 +885,8 @@
       state.answers = answers;
       state.topic = topicLabels[data.topic_key] || state.topic;
       state.matchMode = "live_completed";
+      state.completedRoomId = roomId;
+      state.completedRoomUserId = userId;
       state.moderationRoomId = roomId;
       state.moderationUserId = userId;
       stopLiveGameSync();
@@ -1328,6 +1357,193 @@
     showView("results", true);
     refreshSafetyActions();
     prepareShareCard(questions, matchedIndexes);
+    renderSamePlayerRematchPanel();
+  }
+
+  function currentResultRematchUserId() {
+    return state.completedRoomUserId &&
+      authState.session?.user?.id === state.completedRoomUserId
+      ? state.completedRoomUserId
+      : null;
+  }
+
+  function renderSamePlayerRematchPanel(data = null) {
+    const panel = $(`[data-rematch-panel]`);
+    const button = $(`[data-request-rematch]`);
+    const status = $(`[data-rematch-status]`);
+    const shouldShow = state.matchMode === "live_completed" && Boolean(state.completedRoomId);
+    panel.classList.toggle("hidden", !shouldShow);
+    if (!shouldShow) {
+      stopSamePlayerRematchWatch();
+      return;
+    }
+
+    if (!currentResultRematchUserId() || !authState.client) {
+      button.disabled = true;
+      status.textContent = "請使用完成這場對局的帳號登入，才能邀請對方再玩。";
+      stopSamePlayerRematchWatch();
+      return;
+    }
+
+    button.classList.remove("hidden");
+    button.disabled = state.rematchBusy;
+    button.textContent = state.rematchBusy ? "正在送出邀請…" : "邀請對方再玩一局";
+    status.textContent = "如果雙方都同意，會使用相同主題開啟一場新對局。邀請 10 分鐘後失效。";
+
+    if (data?.status === "pending") {
+      if (data.requested_by_you) {
+        status.textContent = "已送出邀請，正在等對方同意；對方接受後會自動進入新對局。";
+        button.textContent = "等待對方同意";
+        button.disabled = true;
+      } else {
+        status.textContent = "對方邀請你再玩一局。按下同意後，會立即開始相同主題的新對局。";
+        button.textContent = "同意並開始新一局";
+        button.disabled = state.rematchBusy;
+      }
+    } else if (data?.status === "expired") {
+      status.textContent = "上一個邀請已逾期；你可以重新邀請對方。";
+      button.textContent = "重新邀請再玩一局";
+      button.disabled = state.rematchBusy;
+    } else if (data?.status === "blocked") {
+      status.textContent = "目前無法和這位玩家再開新局。";
+      button.classList.add("hidden");
+    } else if (data?.status === "busy") {
+      status.textContent = "你或對方目前正在另一場遊戲；結束後可以再試。";
+      button.textContent = "再試一次";
+      button.disabled = state.rematchBusy;
+    } else if (["matched", "finished"].includes(data?.status)) {
+      status.textContent = data.status === "finished"
+        ? "這場續玩對局已結束。"
+        : "對方已同意，正在進入新對局…";
+      button.disabled = true;
+    } else if (["ended", "none"].includes(data?.status)) {
+      status.textContent = data.status === "ended"
+        ? "上一場續玩已結束；可以重新邀請對方。"
+        : "如果雙方都同意，會使用相同主題開啟一場新對局。邀請 10 分鐘後失效。";
+      button.textContent = data.status === "ended" ? "重新邀請再玩一局" : "邀請對方再玩一局";
+      button.disabled = state.rematchBusy;
+    } else if (data?.status === "error") {
+      status.textContent = "暫時無法確認邀請狀態，正在重新連線…";
+      button.disabled = true;
+    }
+    startSamePlayerRematchWatch();
+  }
+
+  function samePlayerRematchIsCurrent(watchId, roomId, userId) {
+    return state.rematchWatchId === watchId &&
+      state.rematchWatchRoomId === roomId &&
+      state.rematchWatchUserId === userId &&
+      state.completedRoomId === roomId &&
+      authState.session?.user?.id === userId &&
+      !$('[data-view="results"]').classList.contains("hidden");
+  }
+
+  function scheduleSamePlayerRematchRefresh(watchId, roomId, userId, delay = 3500) {
+    window.clearTimeout(state.rematchPollTimer);
+    if (!samePlayerRematchIsCurrent(watchId, roomId, userId)) return;
+    state.rematchPollTimer = window.setTimeout(() => {
+      refreshSamePlayerRematchStatus(watchId, roomId, userId);
+    }, delay);
+  }
+
+  function handleSamePlayerRematchStatus(data, watchId, roomId, userId) {
+    if (!samePlayerRematchIsCurrent(watchId, roomId, userId)) return;
+    if (data?.status === "matched" && data.room_id) {
+      state.rematchBusy = false;
+      stopSamePlayerRematchWatch();
+      enterLiveRoomGame({
+        roomId: data.room_id,
+        topicKey: data.topic_key,
+        status: "playing",
+        expiresAt: data.expires_at,
+        opponentNickname: "朋友",
+        createdBy: false,
+        userId
+      });
+      return;
+    }
+    renderSamePlayerRematchPanel(data);
+    scheduleSamePlayerRematchRefresh(watchId, roomId, userId);
+  }
+
+  async function refreshSamePlayerRematchStatus(watchId, roomId, userId) {
+    if (!samePlayerRematchIsCurrent(watchId, roomId, userId)) return;
+    if (state.rematchStatusBusy || state.rematchBusy) {
+      scheduleSamePlayerRematchRefresh(watchId, roomId, userId);
+      return;
+    }
+    state.rematchStatusBusy = true;
+    try {
+      const { data, error } = await authState.client.rpc("get_same_player_rematch_status", {
+        p_source_room_id: roomId
+      });
+      if (!samePlayerRematchIsCurrent(watchId, roomId, userId)) return;
+      if (error) throw error;
+      handleSamePlayerRematchStatus(data, watchId, roomId, userId);
+    } catch (error) {
+      if (samePlayerRematchIsCurrent(watchId, roomId, userId)) {
+        console.warn("Could not load same-player rematch status", error);
+        renderSamePlayerRematchPanel({ status: "error" });
+        scheduleSamePlayerRematchRefresh(watchId, roomId, userId, 5000);
+      }
+    } finally {
+      if (state.rematchWatchId === watchId) state.rematchStatusBusy = false;
+    }
+  }
+
+  function startSamePlayerRematchWatch() {
+    const roomId = state.completedRoomId;
+    const userId = currentResultRematchUserId();
+    if (!roomId || !userId || !authState.client) return;
+    if (state.rematchWatchRoomId === roomId && state.rematchWatchUserId === userId) return;
+    stopSamePlayerRematchWatch();
+    const watchId = state.rematchWatchId;
+    state.rematchWatchRoomId = roomId;
+    state.rematchWatchUserId = userId;
+    const channel = authState.client
+      .channel(`same-player-rematch-${roomId}`)
+      .on("postgres_changes", {
+        event: "UPDATE",
+        schema: "public",
+        table: "game_rooms",
+        filter: `id=eq.${roomId}`
+      }, () => refreshSamePlayerRematchStatus(watchId, roomId, userId))
+      .subscribe();
+    state.rematchChannel = channel;
+    refreshSamePlayerRematchStatus(watchId, roomId, userId);
+  }
+
+  async function requestSamePlayerRematch() {
+    const roomId = state.completedRoomId;
+    const userId = currentResultRematchUserId();
+    if (!roomId || !userId || !authState.client || state.rematchBusy) return;
+    state.rematchBusy = true;
+    renderSamePlayerRematchPanel();
+    const button = $(`[data-request-rematch]`);
+    button.disabled = true;
+    button.textContent = "正在送出邀請…";
+    const watchId = state.rematchWatchId;
+    try {
+      const { data, error } = await authState.client.rpc("request_same_player_rematch", {
+        p_source_room_id: roomId
+      });
+      if (state.completedRoomId !== roomId || authState.session?.user?.id !== userId) return;
+      if (error) throw error;
+      state.rematchBusy = false;
+      if (data?.status === "matched" && data.room_id) {
+        handleSamePlayerRematchStatus(data, watchId, roomId, userId);
+      } else {
+        renderSamePlayerRematchPanel(data);
+        scheduleSamePlayerRematchRefresh(watchId, roomId, userId, 1000);
+      }
+    } catch (error) {
+      if (state.completedRoomId === roomId && authState.session?.user?.id === userId) {
+        console.warn("Could not request same-player rematch", error);
+        state.rematchBusy = false;
+        renderSamePlayerRematchPanel({ status: "error" });
+        scheduleSamePlayerRematchRefresh(watchId, roomId, userId, 1000);
+      }
+    }
   }
 
   function roundedRect(context, x, y, width, height, radius) {
@@ -1666,6 +1882,8 @@
         authState.notice = "";
         if (previousUserId !== nextUserId) {
           state.roomOperationId += 1;
+          stopSamePlayerRematchWatch();
+          state.rematchBusy = false;
           state.moderationRequestId += 1;
           state.moderationRoomId = null;
           state.moderationUserId = null;
@@ -1699,6 +1917,9 @@
             announce("登入帳號已變更；原房間會在閒置期限後自動關閉。");
           }
           clearHistoryContent();
+          if (!$('[data-view="results"]').classList.contains("hidden") && state.completedRoomId) {
+            renderSamePlayerRematchPanel();
+          }
           if (historyViewIsVisible()) {
             const status = $("[data-history-status]");
             if (nextUserId) {
@@ -2371,7 +2592,8 @@
     });
   });
 
-  $("[data-play-again]").addEventListener("click", () => startMatching("demo"));
+  $(`[data-play-again]`).addEventListener("click", () => startMatching("demo"));
+  $(`[data-request-rematch]`).addEventListener("click", requestSamePlayerRematch);
   $("[data-share-result]").addEventListener("click", shareResult);
   $("[data-download-result]").addEventListener("click", downloadShareCard);
 

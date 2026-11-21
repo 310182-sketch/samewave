@@ -134,6 +134,47 @@ async function createPlayingRoom(db: PGlite) {
   };
 }
 
+async function completeRoom(
+  db: PGlite,
+  roomId: string,
+  hostId = users.host,
+  guestId = users.guest,
+) {
+  for (let question = 1; question <= 5; question += 1) {
+    const hostChoice = question % 2;
+    const guestChoice = question === 3 ? 1 - hostChoice : hostChoice;
+    await rpc(
+      db,
+      hostId,
+      "select public.submit_answer($1::uuid, $2::smallint) as response",
+      [roomId, hostChoice],
+    );
+    await rpc(
+      db,
+      guestId,
+      "select public.submit_answer($1::uuid, $2::smallint) as response",
+      [roomId, guestChoice],
+    );
+    await rpc(
+      db,
+      hostId,
+      "select public.continue_room($1::uuid) as response",
+      [roomId],
+    );
+    const result = await rpc(
+      db,
+      guestId,
+      "select public.continue_room($1::uuid) as response",
+      [roomId],
+    );
+    assertEquals(
+      result.status,
+      question === 5 ? "completed" : "advanced",
+      `room completion after question ${question}`,
+    );
+  }
+}
+
 async function insertHistoryMatch(
   db: PGlite,
   userId: string,
@@ -745,6 +786,302 @@ Deno.test("two players reveal answers together and receive private history", asy
           [roomId],
         ),
       "Room not found",
+    );
+  } finally {
+    await db.close();
+  }
+});
+
+Deno.test("same-player rematches require consent and preserve each game's history", async () => {
+  const db = await createDatabase();
+  try {
+    await insertUsers(db);
+    const { roomId: sourceRoomId } = await createPlayingRoom(db);
+    await completeRoom(db, sourceRoomId);
+
+    const firstRequest = await rpc(
+      db,
+      users.host,
+      "select public.request_same_player_rematch($1::uuid) as response",
+      [sourceRoomId],
+    );
+    assertEquals(
+      firstRequest.status,
+      "pending",
+      "first player creates an invite",
+    );
+    assertEquals(
+      firstRequest.requested_by_you,
+      true,
+      "requester is identified",
+    );
+
+    const hostPending = await rpc(
+      db,
+      users.host,
+      "select public.get_same_player_rematch_status($1::uuid) as response",
+      [sourceRoomId],
+    );
+    assertEquals(
+      hostPending.requested_by_you,
+      true,
+      "requester sees own pending invite",
+    );
+    const guestPending = await rpc(
+      db,
+      users.guest,
+      "select public.get_same_player_rematch_status($1::uuid) as response",
+      [sourceRoomId],
+    );
+    assertEquals(
+      guestPending.status,
+      "pending",
+      "partner sees a pending invite",
+    );
+    assertEquals(
+      guestPending.requested_by_you,
+      false,
+      "partner is prompted to accept",
+    );
+
+    await assertRejects(
+      () =>
+        rpc(
+          db,
+          users.outsider,
+          "select public.request_same_player_rematch($1::uuid) as response",
+          [sourceRoomId],
+        ),
+      "Room not found",
+    );
+    await assertRejects(
+      () =>
+        rpc(
+          db,
+          users.outsider,
+          "select public.get_same_player_rematch_status($1::uuid) as response",
+          [sourceRoomId],
+        ),
+      "Room not found",
+    );
+
+    const guestAccepted = await rpc(
+      db,
+      users.guest,
+      "select public.request_same_player_rematch($1::uuid) as response",
+      [sourceRoomId],
+    );
+    assertEquals(
+      guestAccepted.status,
+      "matched",
+      "second player accepts the invite",
+    );
+    const newRoomId = String(guestAccepted.room_id);
+    assert(newRoomId !== sourceRoomId, "rematch uses a fresh room");
+
+    const newRoom = await db.query<{ topic_key: string; status: string }>(
+      "select topic_key, status from public.game_rooms where id = $1::uuid",
+      [newRoomId],
+    );
+    assertEquals(
+      newRoom.rows[0].topic_key,
+      "travel",
+      "new room keeps the old topic",
+    );
+    assertEquals(
+      newRoom.rows[0].status,
+      "playing",
+      "new room starts a live game",
+    );
+    const newRoomAnswers = await db.query<{ count: number }>(
+      "select count(*)::integer as count from public.game_answers where room_id = $1::uuid",
+      [newRoomId],
+    );
+    assertEquals(
+      newRoomAnswers.rows[0].count,
+      0,
+      "new room starts with no old answers",
+    );
+    const copiedMembers = await db.query<{ nickname: string }>(
+      "select nickname from public.room_members where room_id = $1::uuid order by nickname",
+      [newRoomId],
+    );
+    assertEquals(
+      copiedMembers.rows.map((row) => row.nickname).join(","),
+      "Guest,Host",
+      "same two players keep their nicknames",
+    );
+
+    const hostHistory = await rpc(
+      db,
+      users.host,
+      "select public.get_my_match_history() as response",
+    );
+    assertEquals(
+      (hostHistory.items as unknown[]).length,
+      1,
+      "old history remains separate before the new game ends",
+    );
+    const hostActiveRoom = await rpc(
+      db,
+      users.host,
+      "select public.get_my_active_room() as response",
+    );
+    assertEquals(
+      hostActiveRoom.room_id,
+      newRoomId,
+      "both players can recover the rematch room",
+    );
+
+    await completeRoom(db, newRoomId);
+    const historyAfterRematch = await rpc(
+      db,
+      users.host,
+      "select public.get_my_match_history() as response",
+    );
+    assertEquals(
+      (historyAfterRematch.items as unknown[]).length,
+      2,
+      "new completed game receives its own history record",
+    );
+    const completedRequest = await rpc(
+      db,
+      users.host,
+      "select public.get_same_player_rematch_status($1::uuid) as response",
+      [sourceRoomId],
+    );
+    assertEquals(
+      completedRequest.status,
+      "finished",
+      "status reports when the rematch ends",
+    );
+  } finally {
+    await db.close();
+  }
+});
+
+Deno.test("same-player rematches reject blocked partners and players in active rooms", async () => {
+  const blockedDb = await createDatabase();
+  try {
+    await insertUsers(blockedDb);
+    const { roomId } = await createPlayingRoom(blockedDb);
+    await completeRoom(blockedDb, roomId);
+    await rpc(
+      blockedDb,
+      users.host,
+      "select public.request_same_player_rematch($1::uuid) as response",
+      [roomId],
+    );
+    await rpc(
+      blockedDb,
+      users.guest,
+      "select public.block_room_opponent($1::uuid) as response",
+      [roomId],
+    );
+    const blockedStatus = await rpc(
+      blockedDb,
+      users.host,
+      "select public.get_same_player_rematch_status($1::uuid) as response",
+      [roomId],
+    );
+    assertEquals(
+      blockedStatus.status,
+      "blocked",
+      "blocked relationship hides the invite state",
+    );
+    const blockedRequest = await rpc(
+      blockedDb,
+      users.guest,
+      "select public.request_same_player_rematch($1::uuid) as response",
+      [roomId],
+    );
+    assertEquals(
+      blockedRequest.status,
+      "blocked",
+      "blocked partner cannot start a rematch",
+    );
+  } finally {
+    await blockedDb.close();
+  }
+
+  const busyDb = await createDatabase();
+  try {
+    await insertUsers(busyDb);
+    const { roomId } = await createPlayingRoom(busyDb);
+    await completeRoom(busyDb, roomId);
+    await rpc(
+      busyDb,
+      users.host,
+      "select public.request_same_player_rematch($1::uuid) as response",
+      [roomId],
+    );
+    const activeInvite = await rpc(
+      busyDb,
+      users.guest,
+      "select public.create_invite_room($1, $2) as response",
+      ["travel", "Guest"],
+    );
+    assertEquals(
+      activeInvite.status,
+      "waiting",
+      "partner can occupy another room first",
+    );
+    const busyAcceptance = await rpc(
+      busyDb,
+      users.guest,
+      "select public.request_same_player_rematch($1::uuid) as response",
+      [roomId],
+    );
+    assertEquals(
+      busyAcceptance.status,
+      "busy",
+      "active room prevents creating a rematch",
+    );
+  } finally {
+    await busyDb.close();
+  }
+});
+
+Deno.test("expired same-player rematch invitations can be requested again", async () => {
+  const db = await createDatabase();
+  try {
+    await insertUsers(db);
+    const { roomId } = await createPlayingRoom(db);
+    await completeRoom(db, roomId);
+    await rpc(
+      db,
+      users.host,
+      "select public.request_same_player_rematch($1::uuid) as response",
+      [roomId],
+    );
+    await db.query(
+      `update public.game_rematch_requests
+       set expires_at = clock_timestamp() - interval '1 minute'
+       where source_room_id = $1::uuid`,
+      [roomId],
+    );
+    const expired = await rpc(
+      db,
+      users.guest,
+      "select public.get_same_player_rematch_status($1::uuid) as response",
+      [roomId],
+    );
+    assertEquals(expired.status, "expired", "expired invite is detected");
+    const restarted = await rpc(
+      db,
+      users.guest,
+      "select public.request_same_player_rematch($1::uuid) as response",
+      [roomId],
+    );
+    assertEquals(
+      restarted.status,
+      "pending",
+      "expired invite can be restarted",
+    );
+    assertEquals(
+      restarted.requested_by_you,
+      true,
+      "retrying player becomes the new requester",
     );
   } finally {
     await db.close();

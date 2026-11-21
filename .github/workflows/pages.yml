@@ -48,6 +48,9 @@ jobs:
       - name: Test active room recovery in headless Chrome
         run: node scripts/active-room-recovery.mjs
 
+      - name: Test same-player rematch in headless Chrome
+        run: node scripts/same-player-rematch.mjs
+
       - name: Test matchmaking recovery in headless Chrome
         run: node scripts/matchmaking-resume.mjs
 

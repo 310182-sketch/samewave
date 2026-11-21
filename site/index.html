@@ -16,10 +16,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=12">
+    <link rel="stylesheet" href="styles.css?v=13">
     <script src="supabase-config.js?v=3" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.2/dist/umd/supabase.js" integrity="sha384-A97u3Qnt9GZHURO9YJZRe7VQgGUeFzcv6I1oIGnUTxQrCxnpQMwR0/G8F2zt9abZ" crossorigin="anonymous" defer></script>
-    <script src="app.js?v=15" defer></script>
+    <script src="app.js?v=16" defer></script>
   </head>
   <body>
     <div class="app-shell">
@@ -295,6 +295,14 @@
             <button type="button" data-open-report>檢舉玩家</button>
             <button type="button" data-block-opponent>封鎖玩家</button>
           </div>
+          <section class="rematch-panel hidden" data-rematch-panel aria-labelledby="rematch-title">
+            <div class="rematch-mark" aria-hidden="true">↻</div>
+            <div class="rematch-content">
+              <h2 id="rematch-title">和同一位玩家再玩一局</h2>
+              <p data-rematch-status role="status" aria-live="polite">正在確認對局狀態…</p>
+              <button class="secondary-button" type="button" data-request-rematch disabled>邀請對方再玩一局</button>
+            </div>
+          </section>
           <div class="result-actions result-navigation-actions">
             <button class="primary-button" type="button" data-play-again><span>再玩一局</span><span class="button-arrow" aria-hidden="true">↗</span></button>
             <button class="secondary-button" type="button" data-home>回到首頁</button>
