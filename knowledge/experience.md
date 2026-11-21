@@ -100,7 +100,7 @@
 
 - **經驗：** 已部署的 migration 是環境變更紀錄；直接改寫舊檔不會同步修正已套用資料庫，反而會造成新舊環境的 migration 歷史不一致。
 - **適用範圍：** 使用版本化 SQL migration 管理 PostgreSQL、Supabase 或其他資料庫結構的專案。
-- **本專案做法：** 保留初版即時配對 migration，另建後續檔案加入邀請房間與歷史摘要。十份檔案已按版本順序部署到 Supabase；因透過 SQL Editor 手動套用，CLI ledger 尚未同步。後續部署需先修復 migration 歷史，再以乾淨資料庫和正式 Supabase 分別檢查權限及保留行為。
+- **本專案做法：** 保留初版即時配對 migration，另建 forward-only 檔案加入邀請房間、歷史摘要及後續功能。第十二份六碼邀請 migration 曾由 SQL Editor 手動套用；在包含該檔的分支用官方 CLI repair 登記後，十二個 local／remote 版本一致。部署後先確認 migration SQL 已套用並驗證遠端功能，再只修復 ledger 記錄；不要重跑 SQL 或直接修改 history table。
 
 ## 沒有 Supabase 專案時可用 PGlite 預檢 SQL migration
 
@@ -313,10 +313,16 @@
 
 - 經驗：動態停用不支援的登入按鈕，仍會讓使用者看見無法使用的選項。縮減登入範圍時，應同步移除首頁與管理頁的按鈕和 provider 呼叫，將 Auth settings helper、設定欄位、無障礙標籤、說明文字和測試斷言限制到支援清單。匿名入口可另外保留，不要把它與社群 provider 混為一談。
 - 適用範圍：從多種 OAuth 登入收斂到少數 provider 的靜態網站或 App，尤其是遠端設定會停用按鈕但產品已不打算提供該登入方式時。
-- 本專案做法：Samewave 保留匿名登入並只提供 Google OAuth；Auth settings 確認 Google 與 Anonymous Auth 開啟，Facebook／X 關閉，Instagram／Threads 未設定。Google-only 介面移除其他 provider 標記和審查工作區按鈕；最新 secret 更新後的 Google 真人登入仍待重試。在 codex/google-only-social-login 分支實作獨立 UI 更新，避免與六碼邀請 migration ledger 待同步的 PR 綁在一起；5 項 Auth 測試與 5 組 headless Chrome 流程通過，Actions run 44926152909 的 verify／block_race 成功、deploy 跳過。PR #3 已改為可審查，但正式合併尚未執行。
+- 本專案做法：Samewave 保留匿名登入並只提供 Google OAuth；Auth settings 確認 Google 與 Anonymous Auth 開啟，Facebook／X 關閉，Instagram／Threads 未設定。Google-only 介面移除其他 provider 標記和審查工作區按鈕；PR #3 已 rebase 合併，Actions run 44927437625 的 verify／block_race／deploy 全部成功。公開首頁載入 app.js?v=18；瀏覽器確認匿名和 Google 是僅有的登入入口，並以已授權測試帳號驗證 Google 登入與新分頁 session 恢復。Google OAuth 仍在外部測試模式，匿名帳號 linking 尚待驗收。
 
 ## 合併公開 repository 前檢查 commit email
 
-- 經驗：GitHub 的合併確認畫面可能指出 merge commit 將使用操作者帳號的 email。公開 repository 的 commit metadata 會公開顯示作者／提交者資訊；合併前必須先檢查最後確認畫面。
+- 經驗：公開 repository 會顯示 commit 的作者與提交者資訊。GitHub rebase merge 可能保留原始作者，卻以合併者更新 committer；「作者是 noreply」或預覽畫面未列 email，都不能證明提交者欄位也隱去個人 email。
 - 適用範圍：GitHub 公開 repository，尤其使用帳號 email 建立 merge commit 或 squash commit 時。
-- 本專案做法：PR #3 可審查且 CI 通過；合併確認畫面顯示帳號 email 將作為作者，因此取消最終合併。優先使用 GitHub noreply email，並確認預覽不會公開個人 email；未解決前保留 PR，不在文件中記錄完整地址。
+- 本專案做法：PR #3 以 rebase merge 發布。合併前分支 commits 的作者與提交者都使用 noreply，但合併後產生的 commit 更新了 committer 身分；未來公開合併應在發布前後分別檢查 commit author 與 committer 的 email，並優先使用 GitHub noreply。若已公開個人 email，不要自行改寫 main history；先詢問 repository owner，因為 GitHub 仍可能透過 PR refs 保留舊 commit。
+
+## 手動執行 SQL 後同步 Supabase CLI migration ledger
+
+- **經驗：** 在 Supabase SQL Editor 手動執行 migration 不會自動更新 CLI 的 migration history。先用官方 CLI `migration list` 確認現有版本，再從含該版本 SQL 檔的工作分支執行 `migration repair --status applied`，最後再次執行 `migration list`。若本機找不到對應檔案，CLI 會拒絕登記；應換到正確分支，不可重跑 SQL，也不可直接寫 migration history table。
+- **適用範圍：** 因 CLI 暫不可用而先在 Supabase Dashboard 套用 migration，之後要恢復本機 schema 歷史一致性的專案。
+- **本專案做法：** `20261121000200_six_digit_invite_codes.sql` 已由使用者在 SQL Editor 執行，七項遠端功能檢查通過。官方 CLI 先確認既有十一個版本一致；在只有十一份 migration 的 `main` 執行 repair 時，CLI 因本機缺少第十二份檔案而安全拒絕。切換到包含 migration 的 PR #1 隔離工作樹後，才登記該版本並再次查詢，確認十二個 local／remote 版本完全相符。SQL 沒有重跑；PR #1 仍待更新及發布。
