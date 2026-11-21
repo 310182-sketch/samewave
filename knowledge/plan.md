@@ -160,6 +160,7 @@
 - [x] 啟用 `pg_cron` 並建立即時遊戲資料每 15 分鐘、檢舉資料每日 03:17 的清理排程；線上確認兩者皆 active。
 - [x] 為網站設定 Supabase 專案 URL／公開 publishable key；帳號刪除維持關閉，匿名與 Google provider 已啟用。
 - [x] 線上核對檢舉資料 RLS、玩家無法直讀答案表，以及房間表加入 Realtime publication；完整角色權限和真實玩家資料存取仍待端對端測試。
+- [x] 以正式網站公開 publishable key、不帶使用者 session，對 `game_answers`、`player_match_history`、`player_safety_reports` 發出 `HEAD`／`limit=0` 匿名存取探測；三者均回 HTTP 401，沒有回傳資料列。此結果只驗證未登入存取拒絕，不替代登入玩家本人／他人資料隔離測試。
 - [x] 前端接上匿名登入、Google OAuth、session 恢復及匿名帳號手動 linking；Supabase Anonymous Auth／Manual Linking／Google provider 已啟用。最新 Google secret 的登入重試和 linking 測試仍待完成。
 - [x] 以最新 Google client secret 重試真實登入並確認測試模式只允許測試名單帳號；登入成功且新分頁 session 恢復。Google app 仍在 Testing，尚未向一般帳號開放。
 - [x] 排除 Facebook／X／Instagram／Threads 登入；Instagram 結果分享保留。

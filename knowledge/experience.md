@@ -327,6 +327,12 @@
 - **適用範圍：** 因 CLI 暫不可用而先在 Supabase Dashboard 套用 migration，之後要恢復本機 schema 歷史一致性的專案。
 - **本專案做法：** `20261121000200_six_digit_invite_codes.sql` 已由使用者在 SQL Editor 執行，七項遠端功能檢查通過。官方 CLI 先確認既有十一個版本一致；在只有十一份 migration 的 `main` 執行 repair 時，CLI 因本機缺少第十二份檔案而安全拒絕。切換到包含 migration 的 PR #1 工作樹後，才登記該版本並再次確認十二個 local／remote 版本一致，沒有重跑 SQL。PR #1 於 2026-11-22 rebase merge；Actions run 44931736216 的 verify、block_race、deploy 全成功，公開 app.js?v=19 已載入六碼功能。部署完成後同時檢查 Actions 三個 job、公開 HTML 版本標記和實際 JavaScript bundle；靜態部署確認不代替真人 Auth／Realtime 驗收。
 
+## 未登入角色的資料存取預檢
+
+- **經驗：** 靜態網站的 publishable key 是公開設定。可用它但不帶使用者 bearer session，對已知的受保護 PostgREST 資料表發 `HEAD`／`limit=0`，只觀察狀態碼或零列計數，避免把私有資料列讀回測試環境。HTTP 401／403 可證明匿名角色遭拒；若回 200 且零列，只代表該角色目前看不到列，不能證明登入後的 row-level ownership。
+- **適用範圍：** Supabase 等 PostgREST 靜態前端在首次登入前的權限預檢；不取代以兩個真實使用者 session 驗證本人可讀、他人不可讀的 RLS 測試。
+- **本專案做法：** 2026-11-22 從公開網站讀取 client 設定但不輸出 key，以無 session 的 HEAD／`limit=0` 探測 `game_answers`、`player_match_history` 和 `player_safety_reports`；三者皆回 HTTP 401，未讀取資料列。驗收報告只宣稱匿名角色拒絕，不把它擴大成完整 RLS 驗收。
+
 ## 六位數字邀請碼與猜測限流
 
 - **經驗：** 人類手動輸入的短數字代碼應保留前導零、避免取模偏差，並在伺服器端原子地處理唯一性和猜測限流。有限空間的邀請碼需要明確的到期時間、舊格式過渡策略及不可由瀏覽器直接讀取的限流紀錄。

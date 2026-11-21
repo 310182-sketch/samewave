@@ -35,7 +35,7 @@
 
 ## 真人配對與後端
 
-- **狀態：** Supabase 為目前真人 MVP 的實作預設；11 份 migration 已部署，CLI ledger 確認 local／remote 版本相符。18 項 PGlite 回歸和 Actions [run 44854423906](https://github.com/310182-sketch/samewave/actions/runs/44854423906) 的 PostgreSQL 多連線競態測試通過。使用已授權的兩個測試 session 驗證真實邀請、五題對局、同意續玩及分開保存歷史；Realtime 跨裝置通知和完整瀏覽器前端流程仍待驗證。
+- **狀態：** Supabase 為目前真人 MVP 的實作預設；十二份 migration 已部署，CLI ledger 確認 local／remote 版本相符。18 項 PGlite 回歸與 Actions [run 44854423906](https://github.com/310182-sketch/samewave/actions/runs/44854423906) 的 PostgreSQL 多連線競態測試通過。使用兩個已授權的測試 session 驗證真實邀請、五題對局、同意續玩及分開保存歷史；匿名角色以公開 publishable key 對 game_answers、player_match_history、player_safety_reports 執行無 session 的 HEAD 探測均回 HTTP 401，沒有讀取資料列。這只驗證未登入存取遭拒；Realtime 跨裝置通知、登入玩家間的資料隔離及完整瀏覽器流程仍待實測。
 - **決定：** 以 Supabase Anonymous Auth 驗證玩家、PostgreSQL RPC 執行建立房間／加入房間／原子配對與答案提交，Realtime 傳遞房間狀態。
 - **安全規則：** 答案留在資料庫；只有同一房間兩位玩家都完成作答後才回傳雙方答案。以 RLS 限制玩家資料存取，不開放用戶端直讀答案表；service role key 不放在前端。
 - **同步規則：** 揭曉後兩位玩家都按「下一題」才推進；先按的人等待對方。正式閒置時間、離線及重新連線行為仍需實測及定案。
