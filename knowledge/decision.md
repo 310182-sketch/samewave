@@ -118,10 +118,10 @@
 
 ## 發布
 
-- **現況：** `riddle-match` 的 Pages 網站屬於另一個專案。公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立，Pages source 已設為 GitHub Actions，網站網址為 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/)。公開 `main` 有十一份 migration；PR #1 的第十二份六碼邀請 migration 已由 SQL Editor 執行、七項遠端功能檢查通過，並以官方 CLI 登記為 applied，PR 分支 `migration list` 確認 12 份 local／remote 版本逐一相符。PR #1 仍為 draft，六碼前端尚未發布。Realtime publication 和清理排程已核對；同一玩家續玩及 Google-only 登入前端已部署，run 44927437625 驗證成功。匿名帳號連結、跨裝置 Realtime 和其餘真人服務流程仍待完成。
+- **現況：** `riddle-match` 的 Pages 網站屬於另一個專案。公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立，Pages source 已設為 GitHub Actions，網站網址為 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/)。公開 `main` 有十一份 migration；PR #1 的第十二份六碼邀請 migration 已由 SQL Editor 執行、七項遠端功能檢查通過，並以官方 CLI 登記為 applied，PR 分支 `migration list` 確認 12 份 local／remote 版本逐一相符。PR #1 已更新到目前 main，Actions run 44930756543 的 `verify`／`block_race` 通過、`deploy` 按 draft PR 規則略過；PR 仍為 draft，六碼前端尚未發布。Realtime publication 和清理排程已核對；同一玩家續玩及 Google-only 登入前端已部署，run 44927437625 驗證成功。匿名帳號連結、跨裝置 Realtime 和其餘真人服務流程仍待完成。
 - **決定：** 採公開 repository，因為目標包含 GitHub Pages 免費發布；建立時只納入同頻原始碼和文件，不沿用另一專案歷史。已檢查用戶端設定範本沒有真實 Supabase URL／key，測試中的 JWT 為假資料；provider secret 與 service role key 不得推送。
 - **PR #3：** Google-only 登入修改已於 2026-11-22 透過 rebase merge 合併；GitHub Pages 部署 run 44927437625 成功。未來公開 repository 合併前，須核對 commit author 和 committer 兩個欄位的 email；rebase 預覽或 noreply author 單獨不足以證明 committer 也隱去個人 email。
-- **下一階段：** 將 PR #1 的六碼邀請變更更新至目前 main，完成審查及網站發布，然後以專用測試 session 完成匿名登入驗證，再用兩部裝置測試 Auth、RLS、Realtime、RPC、歷史和配對。帳號刪除 Edge Function 已部署且限制 origin，但要經明確核准才用一次性帳號驗證實際刪除。公開靜態網站及 schema 部署仍不代表真人遊戲已完成端對端驗收。
+- **下一階段：** 經審查核准後合併並發布 PR #1 的六碼邀請變更，然後以專用測試 session 完成匿名登入驗證，再用兩部裝置測試 Auth、RLS、Realtime、RPC、歷史和配對。帳號刪除 Edge Function 已部署且限制 origin，但要經明確核准才用一次性帳號驗證實際刪除。公開靜態網站及 schema 部署仍不代表真人遊戲已完成端對端驗收。
 
 
 ## Samewave Supabase 專案設定
