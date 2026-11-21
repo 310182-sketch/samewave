@@ -46,6 +46,7 @@
 
 - 狀態：Supabase Anonymous Auth、Manual Linking 與 Google provider 已啟用；線上 Auth settings 唯讀查核確認 anonymous_users=true、google=true、facebook=false、twitter=false，Instagram／Threads 未設定。以授權測試名單帳號透過公開網站完成 Google OAuth，確認新 client secret 可建立 session，且同來源新分頁能恢復登入狀態。
 - 決定：保留匿名玩家入口，Google 是唯一社群登入方式。Facebook、X、Instagram、Threads 登入不在產品範圍；Instagram 結果分享維持獨立功能。Google OAuth 仍在外部測試模式，只有測試名單使用者可登入。
+- **待核准的雲端變更：** Google OAuth app 仍是 Testing，只有測試名單可登入。建議在核對 Google Cloud 發布要求後改為 Production，讓一般 Google 帳號登入；這會擴大可登入對象。已於 2026-11-22 詢問使用者是否授權發布，在得到明確回覆前不變更該設定。
 - 帳號連結：匿名玩家可連結 Google，完成後必須保留原 player ID 和歷史紀錄；真人 linking 驗收仍待完成。
 - 安全界線：provider secret 僅存於 Supabase Auth；GitHub Pages 只使用公開 Project URL／publishable key。不要把 OAuth secret 傳入聊天或 repository。
 - 下一步：驗證匿名玩家連結 Google 後是否保留原 player ID 與歷史；Google app 仍在外部測試模式，需完成 Google 的正式發布要求後才能向一般帳號開放。

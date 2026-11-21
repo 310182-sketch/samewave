@@ -73,8 +73,9 @@ deno test --allow-env --allow-net --allow-read supabase/tests/block_match_concur
 
 ## 下一步
 
-- 使用兩個已授權的 Supabase 測試 session 驗證匿名登入／登出、重載後的 session 恢復及連結 Google 後 player ID／歷史保留；再用兩部隔離裝置端到端驗證邀請房、隨機配對、完局歷史、RLS 與 Realtime。
-- 驗證匿名帳號連結 Google 後 player ID 和歷史紀錄均保留；完成 Google OAuth 從測試模式向一般使用者開放所需設定。
+- 使用兩個已授權的 Supabase 測試 session 驗證匿名登入／登出、重新載入後 session 恢復，以及連結 Google 後 player ID／歷史保留。
+- 使用兩部隔離裝置端到端驗證邀請房、隨機配對、完整對局、歷史查詢、RLS 與 Realtime 權限。
+- 經使用者明確核准後，將 Google OAuth 從 Testing 發布至 Production，並用非測試名單帳號驗證一般帳號登入；目前僅測試名單能登入。
 - 經明確核准後，以一次性測試帳號驗證帳號刪除 Edge Function 的 JWT／origin 拒絕與資料收尾；驗收通過後再決定是否開啟前端刪除入口。
 - 在 Supabase 真人環境檢查封鎖、檢舉、限量與清理排程；建立並實際驗證審查員和玩家聯絡流程。
 - 在 iOS／Android 實機與 VoiceOver／TalkBack 檢查無障礙操作、分享交接和文字放大，收集玩家回饋。

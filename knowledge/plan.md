@@ -161,8 +161,9 @@
 - [x] 為網站設定 Supabase 專案 URL／公開 publishable key；帳號刪除維持關閉，匿名與 Google provider 已啟用。
 - [x] 線上核對檢舉資料 RLS、玩家無法直讀答案表，以及房間表加入 Realtime publication；完整角色權限和真實玩家資料存取仍待端對端測試。
 - [x] 前端接上匿名登入、Google OAuth、session 恢復及匿名帳號手動 linking；Supabase Anonymous Auth／Manual Linking／Google provider 已啟用。最新 Google secret 的登入重試和 linking 測試仍待完成。
-- [x] 以最新 Google client secret 重試真實登入並確認測試模式只允許測試名單帳號；登入成功且新分頁 session 恢復。Google app 公開測試／正式發布前的驗收仍未完成。
+- [x] 以最新 Google client secret 重試真實登入並確認測試模式只允許測試名單帳號；登入成功且新分頁 session 恢復。Google app 仍在 Testing，尚未向一般帳號開放。
 - [x] 排除 Facebook／X／Instagram／Threads 登入；Instagram 結果分享保留。
+- [ ] 經使用者明確核准後，將 Google OAuth consent screen 從 Testing 發布到 Production，並以非測試名單帳號驗證一般登入；執行前先確認 Google Cloud 所列發布要求。
 - [ ] 使用已授權建立的兩個 Supabase production 測試帳號驗證匿名登入／登出、頁面重載後的 session 恢復及匿名帳號 linking；保留帳號，不呼叫刪除功能。
 - [x] 將邀請房建立、代碼加入、房主狀態查詢及離房接上 authenticated RPC；Chrome mock 流程已驗證，Supabase 真人環境仍待驗收。
 - [x] 加入遊戲房間後以 `get_room_state` 還原題目，訂閱 `game_rooms` Realtime 更新並保留輪詢備援；Realtime 事件只觸發重新查詢，不傳送答案。
