@@ -40,14 +40,15 @@
 - **安全規則：** 答案留在資料庫；只有同一房間兩位玩家都完成作答後才回傳雙方答案。以 RLS 限制玩家資料存取，不開放用戶端直讀答案表；service role key 不放在前端。
 - **同步規則：** 揭曉後兩位玩家都按「下一題」才推進；先按的人等待對方。正式閒置時間、離線及重新連線行為仍需實測及定案。
 - **資料保存：** 房間、配對票券、暱稱及原始答案於結束／逾期後最多保留 24 小時；每位玩家的歷史摘要保存 90 天且可提前刪除；檢舉資料保存 180 天；封鎖清單保留至解除或刪除帳號。
-- **未完成條件：** 完成匿名登入 smoke check，並以兩部裝置驗證登入後的房間、配對、Realtime、歷史及資料權限；真實 JWT／帳號刪除驗收仍待完成，社群 OAuth provider 仍待建立與設定。PGlite 預檢不能取代 Supabase Auth、Realtime、pg_cron 和跨裝置的實際服務驗收。
+- **未完成條件：** 完成匿名登入 smoke check，並以兩部裝置驗證登入後的房間、配對、Realtime、歷史及資料權限；真實 JWT／帳號刪除驗收仍待完成，Google OAuth provider 已設定；最新 client secret 的登入重試仍待完成。PGlite 預檢不能取代 Supabase Auth、Realtime、pg_cron 和跨裝置的實際服務驗收。
 
-## 匿名與社群登入
+## 匿名與 Google 登入
 
-- **狀態：** 已實作可選的 Supabase Auth 前端與匿名登入／社群 OAuth／identity linking 呼叫，並用 mock client 驗證 provider 選擇；公開網站已設定 Samewave Project URL 和 publishable key，Supabase Anonymous Auth／Manual Linking 已開啟。**目前只有匿名登入可用；Google、Facebook、X provider 設為關閉，Instagram、Threads custom provider ID 未設定，因此所有社群登入按鈕停用。**真實匿名登入與 OAuth callback 尚未驗證。
-- **決定：** 提供匿名登入，以及 Instagram、Facebook、Google、X、Threads 社群登入。匿名帳號連結社群身分時需保留玩家 ID 與可延續的歷史紀錄。
-- **設定界線：** provider secret 僅存在後端／Supabase Auth 設定；GitHub Pages 前端只使用公開的 project URL 和 anon key。
-- **待驗證：** 建立各平台 app、callback URL，將 provider client ID／secret 安全設定於 Supabase Auth，完成 Meta 公開應用資格和測試帳號；再測 provider 組態、重複帳號連結、登出後重新登入及匿名帳號轉正式身分。平台支援限制見下方技術審查。
+- 狀態：Supabase Anonymous Auth、Manual Linking 與 Google provider 已啟用；線上 Auth settings 唯讀查核確認 anonymous_users=true、google=true、facebook=false、twitter=false，Instagram／Threads 未設定。Google 曾在公開網站完成登入流程；使用者最近更新 client secret 後，尚未確認新憑證能建立 session。
+- 決定：保留匿名玩家入口，Google 是唯一社群登入方式。Facebook、X、Instagram、Threads 登入不在產品範圍；Instagram 結果分享維持獨立功能。Google OAuth 仍在外部測試模式，只有測試名單使用者可登入。
+- 帳號連結：匿名玩家可連結 Google，完成後必須保留原 player ID 和歷史紀錄；真人 linking 驗收仍待完成。
+- 安全界線：provider secret 僅存於 Supabase Auth；GitHub Pages 只使用公開 Project URL／publishable key。不要把 OAuth secret 傳入聊天或 repository。
+- 下一步：以已授權的測試帳號重試 Google 登入和 session 恢復，再驗證匿名帳號連結 Google 後 player ID／歷史保存。新憑證驗收前不宣稱 Google OAuth 已完成重新驗證。
 
 ## 自助刪除帳號
 
@@ -57,9 +58,9 @@
 - **上線界線：** 只有 Edge Function 已部署、`ALLOWED_ORIGINS` 和後端 service role 設定完成、並驗證帳號清理後，才能在公開 `site/supabase-config.js` 將 `accountDeletionEnabled` 設為 `true`。不得把 service role key 放入靜態網站。
 - **適用範圍：** 二人 MVP 的匿名或已連結社群登入帳號；不刪除對手為維持歷史匿名化所需的摘要，也不立即刪除按政策限期保存的檢舉說明。
 
-## 社群登入技術審查
+## 其他社群 provider 評估（歷史背景）
 
-- **狀態：** 已查閱 Supabase、Meta 和 X 官方文件（2026-11-20）；尚未建立 provider app、設定 callback 或執行登入測試。
+- 狀態：以下內容是縮小登入範圍前的技術背景，不是待開發項目；產品只保留 Google 社群登入。
 - **Facebook／Google：** Supabase Auth 內建 provider，可直接採用官方設定流程。
 - **X：** Supabase 現行建議使用內建的 X／Twitter OAuth 2.0 provider；官方文件指出舊 Twitter OAuth 1.0a provider 將在未來版本淘汰。
 - **Instagram：** 不在 Supabase 內建清單。Meta 的 Instagram Login 可用 OAuth 2.0 接入 Supabase custom OAuth provider，但官方產品目前面向 Instagram 專業帳號（商家與創作者），不能當作所有個人帳號通用登入。推薦只把它提供給符合 Meta 條件的專業帳號，並保留匿名登入作為一般玩家入口。
@@ -71,13 +72,11 @@
 
 ## Supabase Auth 前端接線
 
-- **狀態：** 已實作可選的瀏覽器端 Auth client 和登入介面，並用 mock client 檢查匿名登入、Facebook identity linking 和 X OAuth provider ID；Supabase 專案已建立且 Anonymous Auth／Manual Linking 已開啟；OAuth providers 與真人登入仍未驗證。
-- **決定：** 靜態網站的 `site/supabase-config.js` 只存 project URL、anon／publishable key 和已啟用 provider 清單。Facebook、Google、X 使用內建 provider；X 對應 provider ID `twitter`。Instagram、Threads 只接受 Supabase `custom:` provider 識別碼。
-- **登入行為：** 玩家可匿名登入；已登入玩家按社群 provider 時使用 Supabase identity linking，保留現有匿名帳號。以 PKCE 保存和恢復 session，不在畫面顯示 email 或 provider token。
-- **安全界線：** URL 和 anon／publishable key 屬公開 client 設定；provider client secret 和 service role key 只存在 Supabase Auth／後端。未提供設定或 SDK 時，登入按鈕停用且本機示範繼續運作。登入成功目前仍不代表真人配對或歷史功能已連線。
-- **尚待外部設定：** Google／Facebook／X provider app 和 callback、Instagram／Threads custom OAuth 尚未設定；公開網站已接上專案 URL／publishable key，但 live login 尚待 smoke check。
-- **推薦：** 使用已部署的 Samewave Supabase 專案驗證匿名登入、session 恢復和真人 RPC；再設定 Google／Facebook／X callback 和 linking。Meta custom provider 等 app review 和帳號資格確認後再開放。
-
+- 狀態：靜態前端支援匿名登入、Google OAuth、PKCE session 恢復和匿名帳號 identity linking。匿名與 Google provider 已啟用；Google 使用者曾完成公開網站登入，最近一次 client secret 更新後尚未建立 session。
+- 產品範圍：Google 是唯一社群登入 provider；Facebook、X、Instagram、Threads 登入按鈕與 custom-provider 呼叫已移除。匿名入口仍保留。結果卡分享到 Instagram 是另一項功能。
+- 設定方式：site/supabase-config.js 只存公開 Project URL、publishable key 和非秘密前端設定。Google 可用狀態從 Supabase Auth settings 的 external.google 唯讀取得；client secret 和 service role key 僅留在後端。
+- 登入行為：匿名玩家可直接開始；已登入匿名玩家連結 Google 時應保留原 player ID 和歷史紀錄。Manual Linking 已開啟，真人 linking 驗收仍待完成。
+- 驗收限制：Google app 仍在外部測試模式；無法確認 provider 狀態時停用 Google 按鈕，同時保留匿名入口和本機示範。登入成功不代表配對、Realtime 或歷史流程已完整驗收。
 ## 歷史紀錄與共同點統計
 
 - **狀態：** 產品規格已採用；歷史資料表、完局摘要 trigger 與查詢 RPC 已部署至 Samewave Supabase。歷史頁前端已接上 RPC 契約並以 mock 驗證清單、分頁、排名、刪除和帳號切換；真實使用者資料、跨帳號隔離及歷史權限仍待驗證。
@@ -128,7 +127,7 @@
 
 - **狀態：** 專用專案已建立並部署 schema；公開網站設定已加入 URL／publishable key。
 - **決定：** Samewave 使用獨立 Supabase 專案 bbpfgavabdsdayuprhbp（Singapore），不與 riddle-match 共用資料庫。已啟用 Anonymous Auth 和 Manual Linking，並把 GitHub Pages 與 localhost 回跳網址加入 Auth allow list；此設定不代表 OAuth providers 已啟用。
-- **安全界線：** site/supabase-config.js 只放公開 Project URL 和 publishable key；不得放 service role key、資料庫密碼或 OAuth client secret。社群 provider 維持關閉，直到其 callback 和 credentials 設定完成。
+- **安全界線：** site/supabase-config.js 只放公開 Project URL 和 publishable key；不得放 service role key、資料庫密碼或 OAuth client secret。Google provider 設定在 Supabase Auth；其他社群 provider 不在目前產品登入範圍。
 - **下一步：** 驗證匿名登入與帳號刪除 Edge Function，最後以兩部裝置驗證 Supabase Auth、RLS、Realtime、RPC 和歷史流程。
 
 ## 正式 Supabase 真人驗收帳號

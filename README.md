@@ -15,32 +15,17 @@
 - 匯出 1080×1920 結果分享卡；可呼叫系統分享面板或下載 PNG。Instagram 交接仍需用實機確認。
 - 可在手機與桌面瀏覽器操作。
 
-網站已接上 Samewave Supabase 專案，Anonymous Auth 與 Manual Linking 已啟用；匿名登入按鈕已開放，但真實登入 session 和跨裝置流程尚未驗收。Google、Facebook、X、Instagram、Threads 社群登入仍未設定。十份資料庫 migration 已透過 Supabase SQL Editor 套用，官方 CLI migration ledger 已修復，並確認十個本機版本皆與遠端已套用版本一致；主要資料表、RPC、RLS、Realtime publication 和兩個清理排程也已核對。`delete-account` Edge Function 已部署並限制正式網站 origin，但尚未用真實登入者驗收，前端刪除入口維持關閉。GitHub Actions [run #29](https://github.com/310182-sketch/samewave/actions/runs/44785419073) 的驗證、PostgreSQL 16 `block_race` 與 Pages 部署均成功；run #28 也確認 Pages artifact 重試修正。CI 通過不代表 Auth、Realtime、RLS 或跨裝置流程已完成端對端驗收。
+網站已接上 Samewave Supabase 專案，Anonymous Auth／Manual Linking 與 Google provider 已設定；匿名登入和 Google 真人登入曾完成基本驗收。Google app 仍在外部測試模式；使用者 2026-11-21 更新 client secret 後，立即重試尚未建立 session，需待傳播後再驗證；匿名帳號 linking、Realtime 跨裝置通知和帳號刪除仍待驗收。第十二份六碼邀請 migration 已由 Supabase SQL Editor 執行，七項遠端功能檢查通過；CLI migration ledger 尚待官方 repair／list 同步。PR #1 仍為 draft，CI 通過不代表 Auth、Realtime、RLS 或跨裝置流程已完成端對端驗收。
 
 ## Supabase Auth 設定
 
-`site/supabase-config.js` 已配置 Samewave 專案的公開 Project URL 與 publishable key。Supabase Dashboard 已啟用 Anonymous Auth 和 Manual Linking；社群 providers 目前維持關閉，待各平台 credentials、callback 與審核完成後才啟用：
+site/supabase-config.js 配置 Samewave 專案公開 Project URL 與 publishable key。Supabase Anonymous Auth、Manual Linking 和 Google provider 已設定；Google 是唯一社群登入方式，Facebook／X 關閉，Instagram／Threads 不在登入範圍。分支 codex/google-only-social-login 已移除首頁和審查工作區的其他 provider 按鈕，避免與待同步 ledger 的六碼邀請 migration 綁在同一發布中；主線尚未合併，因此公開頁仍載入舊版停用按鈕。
 
-- `google`、`facebook`、`x` 設為 `true` 後，分別使用 Supabase 內建 provider；程式將 X 對應至 Supabase 的 `twitter` provider ID。
-- `instagram`、`threads` 填入 Supabase custom provider 的完整識別碼，例如 `custom:instagram`、`custom:threads`。只有在 Meta app 資格、審核與 Supabase custom OAuth 設定完成後才啟用。
-- 在 Supabase Auth URL Configuration 加入本機 HTTP 預覽網址和正式 GitHub Pages 網址，provider callback 則使用 Supabase Dashboard 顯示的 callback URL。OAuth 不支援直接從 `file://` 開啟。
+Google OAuth 使用 Supabase Dashboard 顯示的 callback URL。Google app 目前為外部測試模式，只有測試名單帳號可登入。使用者已於 2026-11-21 將新 client secret 存入 Supabase，但更新後尚未確認建立登入 session；client secret 僅存於 Supabase Auth，不放在網站或 repository。
 
-設定完成後的 `providers` 形式如下；只將已在 Supabase Auth 設定完成的 provider 打開：
+瀏覽器使用 Supabase JS v2.119.2 處理匿名登入、Google OAuth、PKCE session 恢復與匿名帳號 identity linking；CDN 檔案以 SRI 固定完整性。匿名帳號 linking 和真人遊戲跨裝置流程仍待驗收。未設定 URL／key 或 SDK 無法載入時，保留不會保存資料的本機示範。publishable key 是公開 client 設定；service role key 和 Google client secret 僅能留在 Supabase 後端。
 
-```js
-providers: {
-  google: true,
-  facebook: true,
-  x: true,
-  instagram: "custom:instagram",
-  threads: "custom:threads"
-}
-```
-
-瀏覽器以 Supabase JS v2.119.2 初始化匿名登入、OAuth、session 恢復及匿名帳號的 identity linking；CDN 檔案使用 SRI 固定完整性。正式網站已載入專案設定，匿名登入服務已開啟；真實登入 session、重新載入後的恢復及 linking 尚未驗收。未設定 URL／key 或 SDK 無法載入時，登入入口會停用，示範流程仍可使用。配對、歷史及統計 RPC 已接入前端，但真人遊戲尚未在 Supabase 完成端對端驗證。anon／publishable key 是公開用戶端設定；service role key 和各 provider client secret 僅能留在 Supabase 後端設定。
-
-匿名帳號連結前，需在 Supabase Auth 設定中啟用 **Manual Linking**。OAuth redirect allow list 必須包含實際網站子路徑；本機應透過 HTTP localhost 預覽，而不是直接開啟 HTML 檔。
-
+匿名帳號連結前，需在 Supabase Auth 設定中啟用 Manual Linking。OAuth redirect allow list 必須包含實際網站子路徑；本機應透過 HTTP localhost 預覽，而不是直接開啟 HTML 檔。
 ### 自助刪除帳號
 
 刪除帳號由 `supabase/functions/delete-account/` 的 Edge Function 執行：函式先驗證目前登入者，再以 Supabase 後端的 service role 刪除該使用者。資料庫會先關閉該玩家的進行中房間；玩家自己的歷史和封鎖關係會移除，其他玩家的歷史會匿名化，既有檢舉則解除帳號連結並保留至 180 天期限。靜態前端不會取得 service role key。
@@ -49,7 +34,7 @@ providers: {
 
 ## 真人配對後端
 
-`supabase/migrations/` 收錄十份 PostgreSQL schema 與 RPC，涵蓋十類題庫、隨機配對、12 位邀請代碼、雙人作答同步、各玩家保存 90 天的對局摘要、共同點排名、封鎖／檢舉、服務端限量、審查工作流程及帳號刪除清理；房間、配對票券和原始作答最多保留 24 小時，檢舉保存 180 天。十份 migration 已在 Samewave Supabase 專案透過 SQL Editor 套用，並以官方 CLI 登記為已套用；`migration list` 已確認十個本機版本與遠端版本一致。唯讀查核確認主要 schema、RLS、Realtime publication 和兩個 `pg_cron` 清理排程皆 active。PGlite 和 PostgreSQL 16 測試通過 CI，但不取代真實 Auth、完整 RLS、Realtime 和跨裝置驗收。不要將 service role key 放進靜態網站。
+The migration folder contains twelve PostgreSQL migrations and RPCs for ten topic sets, matchmaking, six-digit invite codes (while accepting unexpired legacy codes), paired answers, private history, moderation, rate limits and data cleanup. The first eleven migrations are deployed and match the Supabase CLI ledger. Migration twelve was executed in the SQL Editor; all seven remote feature checks passed, but the CLI ledger still needs official migration repair and list verification. PGlite and PostgreSQL 16 results do not replace live Auth, RLS, Realtime or cross-device checks. Never put the service role key in the static site.
 
 ### 本機 migration 回歸測試
 
@@ -88,9 +73,9 @@ deno test --allow-env --allow-net --allow-read supabase/tests/block_match_concur
 
 ## 下一步
 
-- 先透過官方 Supabase CLI 將 SQL Editor 已套用的十份 migration 安全登記為 applied，再以 `supabase migration list` 核對；完成前不要執行 `supabase db push`。
+- 透過官方 Supabase CLI 將已在 SQL Editor 執行的第十二份 migration 登記為 applied，再以 migration list 核對；完成前不要執行 supabase db push。
 - 使用專用測試 session 驗證匿名登入、登出、重新載入後的 session 恢復和匿名帳號 linking；再以兩部裝置驗證邀請房、隨機配對、完整答題、歷史查詢及統計的 Auth／RLS／Realtime 權限。
-- 建立並設定 Facebook、Google、X provider app，驗證登入、callback、session 恢復和匿名帳號 linking；依 Meta 資格與 app review 結果評估 Instagram、Threads custom OAuth。
+- 完成 Google OAuth 新 client secret 傳播後的登入重試，並驗證匿名帳號連結 Google 後 player ID 和歷史紀錄均保留。
 - 經明確核准後，以一次性測試帳號驗證帳號刪除 Edge Function 的 JWT／origin 拒絕與資料收尾；驗收通過後再決定是否開啟前端刪除入口。
 - 在 Supabase 真人環境檢查封鎖、檢舉、限量與清理排程；建立並實際驗證審查員和玩家聯絡流程。
 - 在 iOS／Android 實機與 VoiceOver／TalkBack 檢查無障礙操作、分享交接和文字放大，收集玩家回饋。

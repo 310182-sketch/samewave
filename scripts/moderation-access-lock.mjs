@@ -17,8 +17,9 @@ const mockClient = String.raw`
       window.SAMEWAVE_SUPABASE_CONFIG = {
         url: "http://localhost:54321",
         anonKey: "public-test-key",
-        providers: { google: true, facebook: false, x: false, instagram: "", threads: "" }
+        providers: { google: true }
       };
+      window.SAMEWAVE_AUTH_PROVIDER_STATUS = { async load() { return { google: true }; } };
       const moderationTest = window.__moderationTest = {
         permissionModes: [], pendingPermission: null, authCallback: null, signOutCount: 0
       };
@@ -177,6 +178,7 @@ const browserTest = String.raw`
 function createTestPage() {
   let html = readFileSync(path.join(siteDirectory, "moderation.html"), "utf8");
   html = html.replace(/<script src="supabase-config\.js[^"]*" defer><\/script>\s*/, "");
+  html = html.replace(/<script src="auth-provider-status\.js[^"]*" defer><\/script>\s*/, "");
   html = html.replace(
     /<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js[^"]*"[^>]*><\/script>\s*/,
     "",

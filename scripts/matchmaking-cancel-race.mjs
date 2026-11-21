@@ -20,7 +20,7 @@ const mockClient = String.raw`
         url: "http://localhost:54321",
         anonKey: "public-test-key",
         accountDeletionEnabled: false,
-        providers: { google: false, facebook: false, x: false, instagram: "", threads: "" }
+        providers: { google: false }
       };
       const matchTest = window.__matchTest = {
         events: [], pollCount: 0, cancelCount: 0, roomStateCount: 0, authReady: false, resolveFirstPoll: null

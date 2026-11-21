@@ -28,9 +28,7 @@
           throw new Error("Supabase Auth provider settings are missing.");
         }
         return {
-          google: external.google === true,
-          facebook: external.facebook === true,
-          x: external.twitter === true
+          google: external.google === true
         };
       } finally {
         window.clearTimeout(timeout);
