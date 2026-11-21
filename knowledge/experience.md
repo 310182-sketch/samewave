@@ -307,4 +307,10 @@
 
 - **經驗：** 靜態網站不應把 OAuth provider 是否啟用複製成容易過期的前端常數。可用 Supabase 公開 Auth settings endpoint 讀取內建 provider 的可用狀態；只傳公開 `apikey`，限制請求逾時，錯誤時停用內建 provider 按鈕並說明無法確認。這只反映 Supabase provider 開關，不能取代平台 OAuth app、callback、client credentials 或真實登入驗收。
 - **適用範圍：** OAuth provider 狀態由託管 Auth 服務控制、前端部署與 Auth 設定分開管理的靜態網站或 app。
-- **本專案做法：** `site/auth-provider-status.js` 讀取 `/auth/v1/settings`，把 Supabase `twitter` 映射為 UI 的 `x`，不讀取或傳輸 client secret；5 秒逾時及錯誤會 fail closed。`site/app.js` 以狀態更新按鈕與說明，並在 Supabase SDK 缺失時顯示錯誤而非永久「確認中」。`scripts/auth-provider-status.test.mjs` 覆蓋 provider 映射、非成功回應、缺少公開設定和不完整回應，4 項通過；Pages workflow 同時檢查 helper 語法並執行測試。Supabase 目前仍關閉 Google／Facebook／X、未設定 Instagram／Threads，因此此改動不會自行開啟社群登入；發布後才可自動反映管理員新增的 provider 設定。
+- **本專案做法：** `site/auth-provider-status.js` 讀取 `/auth/v1/settings`，把 Supabase `twitter` 映射為 UI 的 `x`，不讀取或傳輸 client secret；5 秒逾時及錯誤會 fail closed。`site/app.js` 以狀態更新按鈕與說明，並在 Supabase SDK 缺失時顯示錯誤而非永久「確認中」。`scripts/auth-provider-status.test.mjs` 覆蓋 provider 映射、非成功回應、缺少公開設定和不完整回應，4 項通過；Pages workflow 同時檢查 helper 語法並執行測試。Supabase 線上設定目前確認 Google 開啟、Facebook／X 關閉、Instagram／Threads 未設定，匿名登入也開啟。Auth settings 只代表 provider 開關，不能取代真實 OAuth callback 驗收。
+
+## 縮減登入 provider 時移除停用按鈕
+
+- 經驗：動態停用不支援的登入按鈕，仍會讓使用者看見無法使用的選項。縮減登入範圍時，應同步移除首頁與管理頁的按鈕和 provider 呼叫，將 Auth settings helper、設定欄位、無障礙標籤、說明文字和測試斷言限制到支援清單。匿名入口可另外保留，不要把它與社群 provider 混為一談。
+- 適用範圍：從多種 OAuth 登入收斂到少數 provider 的靜態網站或 App，尤其是遠端設定會停用按鈕但產品已不打算提供該登入方式時。
+- 本專案做法：Samewave 保留匿名登入並只提供 Google OAuth；Auth settings 確認 Google 與 Anonymous Auth 開啟，Facebook／X 關閉，Instagram／Threads 未設定。Google-only 介面移除其他 provider 標記和審查工作區按鈕；最新 secret 更新後的 Google 真人登入仍待重試。在 codex/google-only-social-login 分支實作獨立 UI 更新，避免與六碼邀請 migration ledger 待同步的 PR 綁在一起；尚待該分支 CI。

@@ -1733,11 +1733,7 @@
   }
 
   const authProviderLabels = {
-    google: "Google",
-    facebook: "Facebook",
-    x: "X",
-    instagram: "Instagram",
-    threads: "Threads"
+    google: "Google"
   };
   const topicLabels = {
     travel: "旅行",
@@ -1767,13 +1763,8 @@
 
   function configuredAuthProvider(name) {
     const providers = authState.config && authState.config.providers;
-    if (!providers) return null;
-    if (name === "x") return providers.x === true ? "twitter" : null;
-    if (name === "instagram" || name === "threads") {
-      const identifier = typeof providers[name] === "string" ? providers[name].trim() : "";
-      return /^custom:[a-z0-9](?:[a-z0-9:-]{0,42})$/.test(identifier) ? identifier : null;
-    }
-    return providers[name] === true ? name : null;
+    if (name !== "google" || !providers) return null;
+    return providers.google === true ? "google" : null;
   }
 
   function isAnonymousUser(user) {
@@ -1835,27 +1826,16 @@
     const providerNote = $("[data-auth-note]");
     if (providerNote) {
       if (!hasPublicConfig) {
-        providerNote.textContent = "社群登入需要先設定 Supabase Auth。";
+        providerNote.textContent = "Google 登入需要先設定 Supabase Auth。";
       } else if (!hasSdk || authState.initError || authState.providerStatusError) {
-        providerNote.textContent = "目前無法確認 Google、Facebook、X 的登入設定；匿名登入仍可使用。";
+        providerNote.textContent = "目前無法確認 Google 登入設定；匿名登入仍可使用。";
       } else if (!authState.providerStatusReady) {
-        providerNote.textContent = "正在確認可用的社群登入方式…";
+        providerNote.textContent = "正在確認 Google 登入設定…";
       } else {
         const providers = authState.config.providers || {};
-        const unavailable = ["google", "facebook", "x"]
-          .filter((name) => providers[name] !== true)
-          .map((name) => authProviderLabels[name]);
-        const notes = [];
-        if (unavailable.length) notes.push(`${unavailable.join("、")} 尚未在 Supabase 啟用。`);
-        if (typeof providers.instagram !== "string" || !providers.instagram.trim()) {
-          notes.push("Instagram 登入僅適用符合資格的專業帳號，且需要 Meta custom OAuth。");
-        }
-        if (typeof providers.threads !== "string" || !providers.threads.trim()) {
-          notes.push("Threads 需要 Meta custom OAuth 及應用程式審核。");
-        }
-        providerNote.textContent = notes.length
-          ? notes.join(" ")
-          : "已依 Supabase 設定顯示可用的登入方式；連結社群帳號可保留目前玩家身分。";
+        providerNote.textContent = providers.google === true
+          ? "Google 登入目前在測試模式，只有測試名單帳號可用；匿名玩家也可連結 Google，保留玩家身分。"
+          : "Google 尚未在 Supabase 啟用；匿名登入仍可使用。";
       }
     }
 
@@ -1895,9 +1875,7 @@
       console.warn("Could not load live Supabase OAuth providers", error);
       authState.config.providers = {
         ...(authState.config.providers || {}),
-        google: false,
-        facebook: false,
-        x: false
+        google: false
       };
       authState.providerStatusError = true;
     } finally {

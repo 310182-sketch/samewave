@@ -4,7 +4,7 @@
   const $ = (selector) => document.querySelector(selector);
   const $$ = (selector) => Array.from(document.querySelectorAll(selector));
   const config = window.SAMEWAVE_SUPABASE_CONFIG || {};
-  const providerLabels = { google: "Google", facebook: "Facebook", x: "X", instagram: "Instagram", threads: "Threads" };
+  const providerLabels = { google: "Google" };
   const categories = {
     harassment: "騷擾或不當聯絡",
     hate: "仇恨或歧視內容",
@@ -23,6 +23,8 @@
   const state = {
     client: null,
     session: null,
+    providers: { ...(config.providers || {}) },
+    providerStatusError: false,
     reviewer: false,
     busy: false,
     queueRows: [],
@@ -70,13 +72,9 @@
   };
 
   function configuredProvider(name) {
-    const providers = config.providers || {};
-    if (name === "x") return providers.x === true ? "twitter" : null;
-    if (name === "instagram" || name === "threads") {
-      const identifier = typeof providers[name] === "string" ? providers[name].trim() : "";
-      return /^custom:[a-z0-9][a-z0-9:-]{0,42}$/.test(identifier) ? identifier : null;
-    }
-    return providers[name] === true ? name : null;
+    const providers = state.providers;
+    if (name !== "google") return null;
+    return providers.google === true ? "google" : null;
   }
 
   function isAnonymous(user) {
@@ -347,6 +345,24 @@
     elements.signOut.disabled = state.busy;
   }
 
+  async function loadAuthProviderStatus() {
+    try {
+      const loader = window.SAMEWAVE_AUTH_PROVIDER_STATUS?.load;
+      if (typeof loader !== "function") throw new Error("Provider status helper is unavailable.");
+      state.providers = { ...(config.providers || {}), ...(await loader()) };
+    } catch (error) {
+      console.warn("Could not load live Supabase OAuth providers", error);
+      state.providers = {
+        ...(config.providers || {}),
+        google: false
+      };
+      state.providerStatusError = true;
+    }
+    refreshAuthControls();
+    if (state.providerStatusError && !state.session) {
+      setStatus("目前無法確認審查員登入設定；案件內容仍保持鎖定。");
+    }
+  }
   async function handleSession(session) {
     const nextUserId = session?.user?.id || null;
     const previousUserId = state.session?.user?.id || null;
@@ -470,6 +486,7 @@
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
     });
     refreshAuthControls();
+    void loadAuthProviderStatus();
     state.client.auth.onAuthStateChange((_event, session) => {
       queueMicrotask(() => handleSession(session));
     });

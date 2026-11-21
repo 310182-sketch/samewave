@@ -4,6 +4,8 @@ import test from "node:test";
 import { runInNewContext } from "node:vm";
 
 const helperSource = readFileSync(new URL("../site/auth-provider-status.js", import.meta.url), "utf8");
+const indexSource = readFileSync(new URL("../site/index.html", import.meta.url), "utf8");
+const moderationSource = readFileSync(new URL("../site/moderation.html", import.meta.url), "utf8");
 const projectUrl = "https://example.supabase.co";
 const publicKey = "sb_publishable_test_key";
 
@@ -30,26 +32,36 @@ function loadProviderHelper(fetchImplementation, config = { url: projectUrl, ano
   return { load: window.SAMEWAVE_AUTH_PROVIDER_STATUS.load, clearedTimers };
 }
 
-test("maps Supabase provider flags and clears the timeout", async () => {
+test("returns only the Google provider flag and clears the timeout", async () => {
   let request;
   const helper = loadProviderHelper(async (url, options) => {
     request = { url: String(url), options };
     return {
       ok: true,
       async json() {
-        return { external: { google: true, facebook: false, twitter: true } };
+        return { external: { google: true, facebook: true, twitter: true } };
       }
     };
   });
 
   const providers = await helper.load();
 
-  assert.deepEqual({ ...providers }, { google: true, facebook: false, x: true });
+  assert.deepEqual({ ...providers }, { google: true });
   assert.equal(request.url, `${projectUrl}/auth/v1/settings`);
   assert.equal(request.options.method, "GET");
   assert.equal(request.options.headers.apikey, publicKey);
   assert.equal(request.options.cache, "no-store");
   assert.equal(helper.clearedTimers.length, 1);
+});
+
+test("shows only Google as a social sign-in option", () => {
+  for (const source of [indexSource, moderationSource]) {
+    assert.deepEqual(
+      [...source.matchAll(/data-auth-provider="([^"]+)"/g)].map((match) => match[1]),
+      ["google"]
+    );
+    assert.doesNotMatch(source, /data-auth-provider="(?:facebook|x|instagram|threads)"/);
+  }
 });
 
 test("rejects unsuccessful responses and clears the timeout", async () => {
