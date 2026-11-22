@@ -55,6 +55,17 @@ const browserTest = String.raw`
         if (document.querySelector('[data-question-count="5"]').getAttribute("aria-pressed") !== "true") {
           throw new Error("five questions are not selected by default");
         }
+        const topicChoice = document.querySelector('[data-topic-choice="K-pop"]');
+        const questionCountChoice = document.querySelector('[data-question-count="5"]');
+        if (Number.parseFloat(getComputedStyle(topicChoice).fontSize) < 14) {
+          throw new Error("topic choices must remain at least 14px at the mobile viewport");
+        }
+        if (Number.parseFloat(getComputedStyle(questionCountChoice).fontSize) < 14) {
+          throw new Error("question-count choices must remain at least 14px at the mobile viewport");
+        }
+        if (document.documentElement.scrollWidth > document.documentElement.clientWidth) {
+          throw new Error("the home view overflows horizontally at the mobile viewport");
+        }
         for (let round = 0; round < counts.length; round += 1) {
           const count = counts[round];
           const countButton = document.querySelector('[data-question-count="' + count + '"]');
@@ -109,7 +120,7 @@ const browserTest = String.raw`
         }
 
         document.documentElement.setAttribute("data-question-count-test", "passed");
-        output.textContent = "PASS: 5, 10, and 15 question games complete with accurate progress, results, and all K-pop prompts.";
+        output.textContent = "PASS: 360px mobile controls remain readable without horizontal overflow; 5, 10, and 15 question games complete with accurate progress, results, and all K-pop prompts.";
       })().catch((error) => fail(error?.message || String(error)));
     });
   </script>`;
@@ -133,6 +144,7 @@ function runChrome(url) {
       "--no-sandbox",
       "--disable-gpu",
       "--disable-dev-shm-usage",
+      "--window-size=360,844",
       `--user-data-dir=${profileDirectory}`,
       "--dump-dom",
       "--virtual-time-budget=30000",
@@ -196,7 +208,7 @@ try {
   if (!output.includes('data-question-count-test="passed"')) {
     throw new Error(`Browser verification failed: ${output.slice(-5000)}`);
   }
-  console.log("5, 10, and 15 question game flows passed in headless Chrome.");
+  console.log("360px mobile readability and 5, 10, and 15 question game flows passed in headless Chrome.");
 } finally {
   await new Promise((resolve) => server.close(resolve));
   const tempRoot = path.resolve(os.tmpdir());

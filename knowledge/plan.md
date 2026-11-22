@@ -92,6 +92,7 @@
 - [x] 題庫擴充至 15 類、每類 15 題；加入每局 5／10／15 題選項，預設 5 題。邀請房、隨機配對、進度、結果、分享卡、歷史與續玩沿用所選題數；random matchmaking 僅配對相同題數。
 - [x] 使用 headless Chrome 跑完本機 5、10、15 題示範對局，確認題目進度、完成題數、結果摘要及主題在流程間一致；Pages workflow 在部署前執行此測試。
 - [x] 更新 headless Chrome 題數流程，逐題核對 15 個 K-pop prompt，並保留 5／10／15 題及其他主題流程；本機測試通過。
+- [x] 在 360px headless Chrome 題數流程檢查主題及題數選項的 computed font-size 至少 14px，並確認首頁沒有水平溢出；本機 5／10／15 題和 K-pop 逐題流程通過。
 - [x] 以 PGlite 逐列比對 15 個 K-pop prompt 和雙選項；Actions run #45018311959 的 `verify` 通過。本機未安裝 Deno，由 CI 執行 PGlite。
 - [x] 加入手機版版面、鍵盤焦點樣式和減少動態效果支援。
 - [x] 畫面切換時將焦點移到新步驟標題，作答揭曉後將焦點移到下一步按鈕。
