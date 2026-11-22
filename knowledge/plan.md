@@ -167,6 +167,7 @@
 - [x] 排除 Facebook／X／Instagram／Threads 登入；Instagram 結果分享保留。
 - [x] 建立可直接連結的隱私與資料處理說明頁草稿，列出登入、遊戲資料用途及既定保存期限，並在頁面明示營運者法定名稱、適用地區及完整權利流程仍待正式覆核；已加首頁連結與 sitemap，尚未合併部署。這是產品資料說明草稿，尚不能視為法規覆核完成。
 - [ ] 完成公開隱私政策的營運者／適用地區覆核；將經確認的首頁及隱私政策 URL 填入 Google OAuth 品牌頁，確認 GitHub Pages 網站網域能否列為授權網域。服務條款欄位目前無必填標示，先不自行創作法律承諾；標誌目前未上傳，Google Console 提示上傳標誌後須送交驗證。
+- [ ] 確認 Google OAuth 的產品範圍：使用者詢問是否可不提供 Google 登入，先前決定與 Google 登入測試仍存在；答覆前不關閉 provider、不移除登入入口，也不切換 Production。
 - [ ] 在確認發布影響與 Google Cloud 最新要求後，經使用者明確核准，才將 Google OAuth consent screen 從 Testing 發布到 Production；再以非測試名單帳號走完整 Supabase callback 驗證一般登入。驗證中心的「不需要驗證」只適用於 Testing 狀態。
 - [ ] 使用已授權建立的兩個 Supabase production 測試帳號驗證匿名登入／登出、頁面重載後的 session 恢復及匿名帳號 linking；保留帳號，不呼叫刪除功能。
 - [x] 將邀請房建立、代碼加入、房主狀態查詢及離房接上 authenticated RPC；Chrome mock 流程已驗證，Supabase 真人環境仍待驗收。

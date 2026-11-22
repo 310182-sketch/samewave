@@ -56,6 +56,13 @@
 - **待決項目：** 確認產品服務營運者的正式名稱、主要服務地區與個資權利申請流程；確認 Google OAuth 是否接受 GitHub Pages 子網域作為授權網域；確認是否需要服務條款頁；取得 Production 發布的明確核准。
 - **推薦：** 依實際資料處理方式覆核 `site/privacy.html`，確認 operator/服務地區後再將其作為 OAuth 隱私政策 URL。Google 頁面沒有把服務條款欄位標為必填，故未確認必要前保持空白，不擅自創造法律承諾。先用目前免費網址；若授權網域不被接受，再提出付費網域等替代方案供決定。Production 變更延後至品牌資料齊備並且使用者明確核准。
 - **適用範圍：** Samewave Google OAuth 品牌設定與一般使用者上線；此決策不改變 Supabase 登入 callback、GitHub Pages 前端或匿名玩家入口。
+
+## Google OAuth 是否保留
+
+- **狀態：** 2026-11-22 使用者詢問是否可以不提供 Google OAuth。先前已選擇 Google 為唯一社群登入並要求優先處理；目前還不能確定這次是詢問可行性、暫緩 Production，或要從產品移除 Google 登入。
+- **推薦：** 暫時維持 Google provider 和既有登入流程在 Testing，不切換 Production，也先不關閉 provider；保留已驗證測試帳號的登入路徑，其他遊戲功能照常推進。這不會讓一般 Google 使用者登入。
+- **待選方向：** 1) 只暫緩 Production；2) 從網站移除 Google 登入入口，但保留 Supabase provider 設定；3) 關閉 Supabase Google provider。選項 2 或 3 都會讓既有 Google 帳號暫時無法從網站登入；不會自動刪除帳號或遊戲資料。
+- **適用範圍：** Samewave 前端 Google 登入入口、Supabase Google provider 與 OAuth 的 Production 發布。匿名登入及遊戲後端不依賴 Google provider。
 - 帳號連結：匿名玩家可連結 Google，完成後必須保留原 player ID 和歷史紀錄；真人 linking 驗收仍待完成。
 - 安全界線：provider secret 僅存於 Supabase Auth；GitHub Pages 只使用公開 Project URL／publishable key。不要把 OAuth secret 傳入聊天或 repository。
 - 下一步：驗證匿名玩家連結 Google 後是否保留原 player ID 與歷史；Google app 仍在外部測試模式，需完成 Google 的正式發布要求後才能向一般帳號開放。
