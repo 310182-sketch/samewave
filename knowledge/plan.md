@@ -10,15 +10,15 @@
 
 ## 目前狀態
 
-- **階段：** 15 個主題各 15 題與每局 5／10／15 題已實作；K-pop 題目為追星情境，其餘 14 個主題已改成具體日常情境。猜題前端載入 `app.js?v=23`、`styles.css?v=17`，功能已推至 Samewave `main`；公開頁仍載入舊版 `app.js?v=22`、`styles.css?v=16`，等待 GitHub Actions 驗證通過後部署。
-- **猜題功能：** 已加入出題者作答、建立分享連結、朋友猜完後逐題揭曉的前端流程。360px headless Chrome 已驗收 5／10／15 題、分享連結直開、錯誤連結處理及外部題目文字安全呈現。題目快照和答案放在 URL fragment，不寫入 Supabase 或帳號；Base64url 只是編碼而非加密，任何持有完整連結的人都能查看答案。連結不會過期、也無法撤銷；公開部署尚待 Actions 通過。
-- **已驗證：** 360px headless Chrome 的手機可讀性及 5／10／15 題流程通過；Node 語法與題庫解析確認 15 個主題各 15 題，210 筆 migration 和前端題目逐題一致。Actions run [#45021996623](https://github.com/310182-sketch/samewave/actions/runs/45021996623) 的題庫 parity、`block_race`、`deploy` 全成功；run [#45022926868](https://github.com/310182-sketch/samewave/actions/runs/45022926868) 的全主題逐題 Chrome 覆蓋也通過。最新 run [#45032458643](https://github.com/310182-sketch/samewave/actions/runs/45032458643) 的 `block_race` 通過，但 `verify` 被過時的暱稱 fallback 字串數量預期擋下；更新測試後使用 Deno 2.9.8 本機重跑 20 項 migration 測試，全數通過。真人邀請、配對、跨裝置及 RLS 流程仍待實測。
+- **階段：** 15 個主題各 15 題與每局 5／10／15 題已實作；K-pop 題目為追星情境，其餘 14 個主題已改成具體日常情境。猜題前端載入 `app.js?v=23`、`styles.css?v=17`，已部署至 Samewave Pages；直接讀取公開首頁確認兩個版本號。
+- **猜題功能：** 已加入出題者作答、建立分享連結、朋友猜完後逐題揭曉的前端流程。360px headless Chrome 已驗收 5／10／15 題、分享連結直開、錯誤連結處理及外部題目文字安全呈現。題目快照和答案放在 URL fragment，不寫入 Supabase 或帳號；Base64url 只是編碼而非加密，任何持有完整連結的人都能查看答案。連結不會過期、也無法撤銷；公開 MVP 已部署。
+- **已驗證：** 360px headless Chrome 的手機可讀性及 5／10／15 題流程通過；Node 語法與題庫解析確認 15 個主題各 15 題，210 筆 migration 和前端題目逐題一致。Actions run [#45021996623](https://github.com/310182-sketch/samewave/actions/runs/45021996623) 的題庫 parity、`block_race`、`deploy` 全成功；run [#45022926868](https://github.com/310182-sketch/samewave/actions/runs/45022926868) 的全主題逐題 Chrome 覆蓋也通過。run [#45032458643](https://github.com/310182-sketch/samewave/actions/runs/45032458643) 暴露過時的暱稱 fallback 預期；修正後 run [#45033376944](https://github.com/310182-sketch/samewave/actions/runs/45033376944) 的 `verify`、`block_race`、`deploy` 全成功，公開首頁版本號及隱私頁猜題告知均已唯讀確認。真人邀請、配對、跨裝置及 RLS 流程仍待實測。
 - **仍待線上驗證：** 匿名登入及 session 恢復、真人房間／配對／歷史資料、完整 RLS 權限和跨裝置流程尚未實測。邀請房答題與隨機配對前端已接上 RPC，Chrome mock 驗證成功揭曉、雙方確認、結果讀取、配對成功、逾時重試及取消；尚未在 Supabase Realtime 或兩部裝置驗證。歷史頁查詢、分頁、默契排名及逐筆刪除也僅以 mock 驗證。結果分享卡尚未在 iOS／Android 實機確認 Instagram 交接。
 - **後端：** 既有 Supabase migration ledger 顯示 15 筆，最新登記版本為 `20261122000300`。K-pop 15 筆與其他主題 210 筆更新已由 SQL Editor 套用；唯讀查詢確認 15 類各 15 題，production 與 repository 題庫 MD5 均為 `5b5d5369a8eec7193e39e0f7cf0e3c13`。ledger 尚未記錄 `00400`／`00500`，仍需用官方 Supabase CLI `migration repair` 同步；不要直接寫入 Supabase 內部歷史表。
 - **資料政策：** 真人房間、配對票券及原始答案最多保留 24 小時；個人歷史摘要保存 90 天且可逐筆刪除；檢舉資料保存 180 天；封鎖關係保留至解除或刪除帳號。相關 migration 與清理排程已部署，但資料保留週期和逾期刪除尚未經過實際時間週期驗證。
 - **登入與社群：** 玩家頁只提供 Supabase Anonymous Auth，persistSession 保存目前瀏覽器的玩家 session；清除網站資料或換裝置可能無法找回匿名帳號。玩家端 Google 登入和 linking 已移除；Google provider 保留給獨立審查頁的核准審查員，不切換 Google OAuth 玩家 Production，也不刪除既有帳號。
 - **前端設計：** 已完成第一輪整體字級、留白、按鈕及主題選項版面整理；登入卡片以獨立視覺層級呈現，同時保留先玩示範的主要流程。房間、真人答題、隨機配對等待及歷史頁已接上 RPC，無設定時仍保留清楚標示的操作預覽。Chrome mock 驗證流程分支；六種寬度與鍵盤流程的前一輪檢查已通過。真人服務環境的實際網路狀態仍待驗證。
-- **發布：** Samewave 公開頁目前仍載入 `app.js?v=22`、`styles.css?v=16`；猜題功能已推至 Samewave `main`，但 Actions run [#45032458643](https://github.com/310182-sketch/samewave/actions/runs/45032458643) 的 `verify` 失敗，因此該版尚未部署。暱稱 fallback 測試已修正並在本機 20/20 通過，等待修正推送後重新確認 `verify`、`block_race`、`deploy` 及公開頁版本。本工作樹的共用 `origin` 指向 `riddle-match`，必須明確指定 Samewave URL。題庫更新已在 Supabase 套用並唯讀核對，production ledger 同步尚待完成；真人新題數房間／配對及隔離裝置流程仍待驗收。
+- **發布：** 猜題功能已推送到 Samewave `main` 並發布在 [GitHub Pages](https://310182-sketch.github.io/samewave/)；Actions run [#45033376944](https://github.com/310182-sketch/samewave/actions/runs/45033376944) 的 `verify`、`block_race`、`deploy` 全成功。公開首頁載入 `app.js?v=23`、`styles.css?v=17`，隱私頁已包含猜題分享告知。本工作樹的共用 `origin` 指向 `riddle-match`，往後必須明確指定 Samewave URL。題庫更新已在 Supabase 套用並唯讀核對，production ledger 同步尚待完成；真人新題數房間／配對及隔離裝置流程仍待驗收。
 - **安全營運：** 前端已提供同房檢舉、封鎖／解除封鎖及隱私告知，並有獨立的審查員工作區；後端提供 allowlist、遮蔽細節的案件佇列、領案／結案及私有稽核事件，PGlite 和 headless Chrome 權限鎖定情境已由 CI 驗證。尚未建立審查員帳號或指定實際審查人員、玩家聯絡方式與值班安排；現有流程草案不是服務承諾，正式公開前不得宣稱有人即時處理。
 - **工作區：** 原型位於 `site/`，可直接開啟 `site/index.html` 操作，不需安裝套件或建置。
 - **產品方向：** 本專案以獨立的 `samewave` repository 發布二選一共同點遊戲，不沿用另一專案的 repository 歷史，詳見 [knowledge/decision.md](decision.md)。
@@ -98,7 +98,7 @@
 - [x] 在隱私頁說明猜題連結包含可讀取的答案、沒有加密／期限／撤銷，且朋友猜測不保存；與出題及分享畫面維持一致告知。
 - [x] 以 360px headless Chrome 驗收猜題 5／10／15 題、三種主題、朋友直接開啟分享連結、答案和命中數、錯誤 payload 以及含 HTML 內容的安全呈現；分享連結會移除原頁 query。
 - [x] 修正 GitHub Actions migration 測試對暱稱 fallback 數量的過時預期；使用 Deno 2.9.8 重跑 migration suite，20 項全數通過。
-- [ ] 推送修正後確認 GitHub Actions `verify`、`block_race`、`deploy` 全部通過，並核對 Pages 載入 `app.js?v=23`、`styles.css?v=17`。
+- [x] 推送修正至 Samewave `main` 後，GitHub Actions run #45033376944 的 `verify`、`block_race`、`deploy` 全部通過；唯讀確認公開 Pages 載入 `app.js?v=23`、`styles.css?v=17`，猜題隱私告知已發布。
 - [ ] 在 iOS／Android 實機檢查猜題分享面板、文字放大和鍵盤流程。
 - [x] 加入指定主題與隨機主題；原型提供旅行、音樂、日常、飲食四類。
 - [x] 題庫擴充至 15 類、每類 15 題；加入每局 5／10／15 題選項，預設 5 題。邀請房、隨機配對、進度、結果、分享卡、歷史與續玩沿用所選題數；random matchmaking 僅配對相同題數。
@@ -234,5 +234,5 @@
 - [x] 為線上版本設定 Supabase URL／公開 publishable key；Anonymous Auth、Manual Linking 和正式網站 redirect allow list 已設定，Google OAuth callback 已設定；最新 client secret 登入和 session 恢復驗收成功。
 - [x] 修正帳號刪除停用說明：Edge Function 已部署但尚未用真實登入者驗收，介面改為說明「目前尚未開放」及待驗收條件；操作錯誤訊息改成不推斷刪除一定失敗，並遞增 `app.js` 快取版本；Actions run #16 部署成功。
 - [ ] 在正式網站以真實帳號完成登入、房間／配對、遊戲、歷史及統計端對端驗收，並確認跨裝置行為。
-- [ ] 完成猜題功能的 iOS／Android 實機分享面板、鍵盤和文字放大驗收後，推送至 Samewave `main` 並確認 GitHub Pages 載入 `app.js?v=23`／`styles.css?v=17`。
+- [ ] 在 iOS／Android 實機驗收猜題功能的分享面板、鍵盤操作和文字放大；公開 Pages 的部署與版本核對已完成。
 - [ ] 根據玩家回饋改善題目品質、配對體驗、前端版面及歷史統計可讀性。

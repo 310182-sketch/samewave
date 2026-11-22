@@ -18,7 +18,7 @@
 
 ## 讓朋友猜自己的選擇
 
-- **狀態：** 前端原型與隱私頁告知已實作；360px headless Chrome 驗收 5／10／15 題、三個主題、分享連結直開、答案對照、錯誤連結及外部文字安全呈現通過。前端已推至 Samewave `main`；Actions 的暱稱 fallback 數量檢查已修正，本機 migration suite 20/20 通過，尚待重新跑 Actions 並部署。
+- **狀態：** 前端原型與隱私頁告知已實作；360px headless Chrome 驗收 5／10／15 題、三個主題、分享連結直開、答案對照、錯誤連結及外部文字安全呈現通過。暱稱 fallback 測試修正後，本機 migration suite 20/20 通過；Actions run #45033376944 的 `verify`、`block_race`、`deploy` 均成功，公開頁已載入 `app.js?v=23`、`styles.css?v=17`。
 - **決定：** 出題者沿用首頁的主題和 5／10／15 題設定，逐題選自己的答案，再分享連結；朋友打開連結後逐題猜測，完成後查看命中數及每題對照。每份挑戰保存完整題目快照，避免日後題庫文案更新影響已建立的連結。
 - **資料界線：** 題目快照、暱稱和出題答案以 Base64url 編碼放在 URL fragment，不傳給 Supabase 或寫入帳號／歷史。Base64url 不是加密；任何持有完整連結的人都能解出答案，連結目前沒有期限或撤銷功能。朋友猜測只留在目前頁面，重新載入會重來。
 - **限制：** 這是適合靜態 GitHub Pages 的無後端 MVP；不提供挑戰清單、撤銷、過期、追蹤朋友結果或私密答案保證。政治、感情觀等敏感題目請只分享給信任的人。若未來需要隱藏答案、期限或撤銷，改用受權限保護的服務端挑戰資料。
@@ -108,12 +108,12 @@
 - **資料一致性：** 題數須同步存在房間、隨機配對票券與歷史摘要；房間狀態、完成結果、分頁及共同點統計均回傳實際題數。
 - **政治題原則：** 聚焦公共議題討論、政策評估與社區參與，不提政黨、候選人或特定政治立場。
 - **資料告知：** 政治主題選擇和答案可能反映敏感偏好；原始答案最多保留 24 小時，個人歷史摘要保存 90 天，隱私頁已提示可略過該主題。
-- **本輪狀態：** 前端和三份 migration 已完成；migration 回歸涵蓋建立邀請房、加入、真人答題、結果、歷史、續玩、同題數配對及拒絕 7 題等無效設定。production ledger 15/15 對齊，遠端唯讀查詢確認 15×15 題庫與相關 RPC／限制。GitHub Actions run #64 的 `verify`、`block_race`、`deploy` 全成功；公開頁已載入 `app.js?v=20`、`styles.css?v=16`。真人新題數邀請／配對尚未端對端驗收。
+- **題數功能上線紀錄（早於 00400／00500）：** 前端和最初三份 migration 已完成；migration 回歸涵蓋建立邀請房、加入、真人答題、結果、歷史、續玩、同題數配對及拒絕 7 題等無效設定。當時 production ledger 15/15 對齊，遠端唯讀查詢確認 15×15 題庫與相關 RPC／限制。Actions run #64 的 `verify`、`block_race`、`deploy` 全成功，該版公開頁載入 `app.js?v=20`、`styles.css?v=16`。00400／00500 套用後的最新 ledger 狀態見本文件「K-pop 題庫內容更新」；真人新題數邀請／配對仍未端對端驗收。
 - **部署狀態：** 前端和 forward-only migration 已部署至 GitHub Pages 與 Samewave production；新題數真人流程仍待實測，不應只依本機 mock 或唯讀 schema 查詢視為已上線驗收。
 
 ## K-pop 題庫內容更新
 
-- **狀態：** 十五題追星情境已更新於前端；公開頁仍載入 `app.js?v=22`。Forward-only migration `20261122000400_refine_kpop_fandom_questions.sql` 已推至 Samewave `main` 並在 production SQL Editor 套用；唯讀查詢確認 K-pop 題號 1–15 的內容已更新。
+- **狀態：** 十五題追星情境已更新於前端；公開頁現載入 `app.js?v=23`。Forward-only migration `20261122000400_refine_kpop_fandom_questions.sql` 已推至 Samewave `main` 並在 production SQL Editor 套用；唯讀查詢確認 K-pop 題號 1–15 的內容已更新。
 - **完成核對：** 00400 與 00500 都已套用；production 總題數 225，15 個主題各 15 題；資料庫與 repository 的 MD5 均為 `5b5d5369a8eec7193e39e0f7cf0e3c13`。
 - **待同步：** Supabase CLI ledger 仍為 15 筆、最新 `20261122000300`，尚未記錄 00400／00500。使用官方 CLI `migration repair` 同步後再唯讀確認；不可直接改內部 migration history table。
 - **操作界線：** 使用者已授權套用 00400 與 00500，並已在 SQL Editor 成功執行及核對；不需再詢問套用許可。
@@ -122,7 +122,7 @@
 ## 其他主題題庫內容更新
 
 - **範圍：** K-pop 以外 14 個主題，每類 15 題；題目改用具體生活場景和容易比較的兩種做法。政治題保持中立，不提政黨或候選人。
-- **狀態：** K-pop 以外 14 類題目已發布於 Pages `app.js?v=22`；migration `20261122000500_refine_everyday_topic_questions.sql` 已推至 `main` 並已套用至 production，只 upsert 210 筆且保留 K-pop 題目及示範答案。唯讀查詢確認 225 題前端與 production 完全一致，MD5 為 `5b5d5369a8eec7193e39e0f7cf0e3c13`。
+- **狀態：** K-pop 以外 14 類題目已發布於 Pages `app.js?v=23`；migration `20261122000500_refine_everyday_topic_questions.sql` 已推至 `main` 並已套用至 production，只 upsert 210 筆且保留 K-pop 題目及示範答案。唯讀查詢確認 225 題前端與 production 完全一致，MD5 為 `5b5d5369a8eec7193e39e0f7cf0e3c13`。
 - **部署界線：** GitHub Pages 部署不會更新真人題庫；本次題庫內容已由 SQL Editor 套用。00400／00500 在 CLI ledger 的同步仍待使用官方 Supabase CLI `migration repair` 完成，再唯讀核對 ledger。
 - **適用範圍：** 需同步維護靜態前端示範題庫和 Supabase 正式題庫，且不重寫已套用 migration 的題目內容更新。
 
@@ -167,7 +167,7 @@
 
 ## 發布
 
-- **現況（2026-11-22，更新）：** `riddle-match` 的 Pages 網站屬於另一個專案。Samewave repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 的 `main` 已推進至 `cd941e442dd81b91f26a4b9730f96a3dd6cbee17`，與本工作樹 `codex/kpop-fandom-questions` 的 HEAD 相同；公開首頁回 HTTP 200 並載入 `app.js?v=22`。本工作樹共用的 `origin` 仍指向 `riddle-match`，不可盲目推送至 `origin`；後續以完整 Samewave repository URL 指定目標。
+- **現況（2026-11-22，更新）：** `riddle-match` 的 Pages 網站屬於另一個專案。Samewave repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 的 `main` 已包含猜題功能、隱私告知與 CI 修正；Actions run #45033376944 的 `verify`、`block_race`、`deploy` 均成功。公開首頁回 HTTP 200 並載入 `app.js?v=23`、`styles.css?v=17`；隱私頁已說明猜題連結資料界線。本工作樹共用的 `origin` 仍指向 `riddle-match`，不可盲目推送至 `origin`；後續以完整 Samewave URL 指定目標。
 - **題庫上線界線：** 00400／00500 已透過 Supabase SQL Editor 套用；唯讀查詢確認 225 題和 repository MD5 相同。CLI ledger 尚未記錄這兩版；後續以官方 Supabase CLI `migration repair` 同步，不要直接編輯 Supabase 內部 migration history table。
 - **真人服務驗收：** 匿名玩家流程及隔離裝置 Realtime 等真人服務驗收仍待完成。
 - **決定：** 採公開 repository，因為目標包含 GitHub Pages 免費發布；建立時只納入同頻原始碼和文件，不沿用另一專案歷史。已檢查用戶端設定範本沒有真實 Supabase URL／key，測試中的 JWT 為假資料；provider secret 與 service role key 不得推送。
