@@ -363,8 +363,8 @@
 - **適用範圍：** 在正式 OAuth provider 已設定、但需要無副作用地回歸單頁應用登入與匿名帳號升級分支時使用。真人 Manual Linking、PKCE callback、session 重載與伺服器資料保留仍須另外驗收。
 - **本專案做法：** 新增 `scripts/auth-login-flows.mjs`，以 loopback HTTP 和隔離 Chrome profile 載入首頁，使用不連外的 Supabase Auth mock。測試先確認未登入時只有 Google `signInWithOAuth`，再建立匿名 mock session，確認 Google 會改呼叫 `linkIdentity` 並沿用原 player ID；另外確認 redirect 指向目前子路徑。headless Chrome 與五項 Auth provider status 測試在本機通過；Actions [run 44934151866](https://github.com/310182-sketch/samewave/actions/runs/44934151866) 的 verify、block_race、deploy 全部成功，Pages workflow 會在每次部署前執行此流程。測試只建立 mock 資料，不會建立或刪除 Supabase 使用者。
 
-## 操作 OAuth 專案前確認目前 Google 帳號
+## 操作 OAuth 專案前確認目前 Google 帳號與發布狀態
 
-- **經驗：** 同一瀏覽器可能保留多個 Google 帳號；Cloud Console 顯示「沒有專案存取權」時，先核對目前登入帳號與專案預期所屬帳號／組織。不可因目前帳號看不到資源就直接建立替代專案、移轉 OAuth app 或送出 IAM 存取要求，應切回已指定的擁有者帳號後再檢查。
+- **經驗：** 同一瀏覽器可能保留多個 Google 帳號；Cloud Console 顯示「沒有專案存取權」時，先核對目前登入帳號與專案預期所屬帳號／組織。不可因目前帳號看不到資源就直接建立替代專案、移轉 OAuth app 或送出 IAM 存取要求，應切回已指定的擁有者帳號後再檢查。另須分開記錄 OAuth 的 Testing／Production 發布狀態和 Google 驗證狀態：驗證中心顯示 Testing「不需要驗證」，不代表 app 已發布或一般帳號可用。發布按鈕若指向品牌設定，應逐項核對首頁、隱私政策、服務條款、支援聯絡方式和授權網域；上傳標誌可能會要求送交驗證。
 - **適用範圍：** Google Cloud 專案由個人帳號建立、瀏覽器同時登入學校／公司／個人帳號，或 OAuth client、憑證要放在特定組織下的操作。
-- **本專案做法：** 2026-11-22 唯讀開啟 `samewave-auth` 時，Cloud Console 實際使用學校管理帳號並顯示該帳號沒有專案讀取權限。沒有送出存取要求，也沒有修改專案。下一步依使用者先前選擇切換至個人 Google 帳號，確認專案歸屬與 OAuth 發布要求後再提出 Production 核准。
+- **本專案做法：** 2026-11-22 先發現 Cloud Console 使用學校管理帳號且沒有 `samewave-auth` 讀取權；依使用者選擇改用個人帳號 `c280617@gmail.com` 後，唯讀確認專案可存取。Audience 顯示 Testing、1 位測試使用者、發布按鈕停用並要求完成 Branding；品牌名稱及支援信箱已填，首頁／隱私政策／服務條款尚空白，授權網域只有 `bbpfgavabdsdayuprhbp.supabase.co`。Verification Center 明確說 Testing 不需要驗證。沒有修改設定或發布；仍須確認 GitHub Pages 網域資格、完成品牌資料，再由使用者明確核准 Production，並以測試名單外帳號驗證登入。
