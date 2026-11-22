@@ -1342,6 +1342,99 @@ Deno.test("expanded topic catalog supports questions, invite rooms, and live mat
       );
     }
 
+    const expectedKpopQuestions = [
+      [
+        "回歸行程表一公布，你通常會？",
+        "把預告和打歌日期存進行事曆",
+        "追蹤官方社群，等通知再看",
+      ],
+      [
+        "概念照釋出後，你最喜歡？",
+        "和同好猜造型裡的概念線索",
+        "挑一張喜歡的照片收藏",
+      ],
+      ["MV teaser 出來時，你會？", "逐格回放找彩蛋", "重播歌曲片段先記旋律"],
+      [
+        "迷你專輯上線後，你想先？",
+        "從頭到尾聽完整張專輯",
+        "先看主打歌 MV 再補其他歌",
+      ],
+      [
+        "回歸週的打歌舞台，你比較想？",
+        "守直播看完整舞台",
+        "等舞台影片和精華再慢慢看",
+      ],
+      [
+        "看完打歌舞台，你會接著找？",
+        "本命直拍和個人鏡頭",
+        "全員舞台，重看隊形和編舞",
+      ],
+      [
+        "拆專輯時，你最期待看到？",
+        "寫真冊和整體概念設計",
+        "小卡和其他隨機特典",
+      ],
+      [
+        "抽到重複的小卡，你比較想？",
+        "和同好交換，找想收藏的成員",
+        "收進卡冊，當作這次回歸的紀念",
+      ],
+      [
+        "官方周邊開始預購時，你會先？",
+        "挑最想要的品項並抓好預算",
+        "比較不同版本和特典再決定",
+      ],
+      [
+        "準備搶台灣場演唱會門票，你會先？",
+        "確認場次、票價區域和預算",
+        "約好同行朋友並分配搶票準備",
+      ],
+      [
+        "演唱會前一天，你會先準備？",
+        "測試應援棒、連線和電池",
+        "複習歌單和應援法",
+      ],
+      [
+        "演唱會現場最期待哪一刻？",
+        "應援棒跟著全場燈光一起亮起",
+        "跟著應援法和全場一起大合唱",
+      ],
+      [
+        "如果有機會參加粉絲見面會，你最期待？",
+        "聽成員分享近況、近距離互動",
+        "看特別舞台和現場遊戲環節",
+      ],
+      [
+        "收到官方直播通知時，你通常會？",
+        "準時打開直播一起留言",
+        "等字幕或回放，有空再完整看",
+      ],
+      [
+        "朋友剛想認識一個團體，你會先推薦？",
+        "入坑歌單，從主打和收錄曲開始",
+        "直拍、團綜或幕後影片看個人魅力",
+      ],
+    ];
+    const storedKpopQuestions = await db.query<{
+      prompt: string;
+      choice_a: string;
+      choice_b: string;
+    }>(`
+      select prompt, choice_a, choice_b
+      from public.question_bank
+      where topic_key = 'kpop'
+      order by question_no
+    `);
+    assertEquals(
+      JSON.stringify(storedKpopQuestions.rows.map((row) => [
+        row.prompt,
+        row.choice_a,
+        row.choice_b,
+      ])),
+      JSON.stringify(expectedKpopQuestions),
+      "K-pop database questions match the fandom-focused set",
+    );
+
     for (const topicKey of topicKeys) {
       const index = topicKeys.indexOf(topicKey) * 2;
       const invitation = await rpc(

@@ -33,8 +33,25 @@ const browserTest = String.raw`
       });
       const visible = (selector) => !document.querySelector(selector).classList.contains("hidden");
       (async () => {
-        const counts = [5, 10, 15];
-        const topics = ["旅行", "K-pop", "政治"];
+        const counts = [5, 10, 15, 15];
+        const topics = ["旅行", "K-pop", "政治", "K-pop"];
+        const expectedKpopPrompts = [
+          "回歸行程表一公布，你通常會？",
+          "概念照釋出後，你最喜歡？",
+          "MV teaser 出來時，你會？",
+          "迷你專輯上線後，你想先？",
+          "回歸週的打歌舞台，你比較想？",
+          "看完打歌舞台，你會接著找？",
+          "拆專輯時，你最期待看到？",
+          "抽到重複的小卡，你比較想？",
+          "官方周邊開始預購時，你會先？",
+          "準備搶台灣場演唱會門票，你會先？",
+          "演唱會前一天，你會先準備？",
+          "演唱會現場最期待哪一刻？",
+          "如果有機會參加粉絲見面會，你最期待？",
+          "收到官方直播通知時，你通常會？",
+          "朋友剛想認識一個團體，你會先推薦？",
+        ];
         if (document.querySelector('[data-question-count="5"]').getAttribute("aria-pressed") !== "true") {
           throw new Error("five questions are not selected by default");
         }
@@ -61,6 +78,14 @@ const browserTest = String.raw`
             if (progress.getAttribute("aria-valuenow") !== String(question)) {
               throw new Error(count + "-question game skipped question " + question);
             }
+            if (
+              topics[round] === "K-pop" &&
+              document.querySelector("[data-question]").textContent !== expectedKpopPrompts[question - 1]
+            ) {
+              throw new Error(
+                "K-pop prompt " + question + " does not match the fandom-focused set",
+              );
+            }
             document.querySelector('[data-option="0"]').click();
             if (!visible("[data-reveal]")) throw new Error("question " + question + " did not reveal");
             document.querySelector("[data-next]").click();
@@ -84,7 +109,7 @@ const browserTest = String.raw`
         }
 
         document.documentElement.setAttribute("data-question-count-test", "passed");
-        output.textContent = "PASS: 5, 10, and 15 question games complete with accurate progress and results.";
+        output.textContent = "PASS: 5, 10, and 15 question games complete with accurate progress, results, and all K-pop prompts.";
       })().catch((error) => fail(error?.message || String(error)));
     });
   </script>`;

@@ -11,7 +11,7 @@
 ## 目前狀態
 
 - **階段：** 15 個主題各 15 題與每局 5／10／15 題已實作並部署；K-pop 題目已改為回歸、打歌直拍、小卡交換、台灣場售票及應援等追星情境。公開網站載入 `app.js?v=21`。第十六份題庫內容 migration 已推送並通過 GitHub Actions，但尚未套用至 Samewave production；遠端 ledger 目前仍為 15/15，真人對局仍讀取舊版 K-pop 題目。
-- **已驗證：** 本輪 PGlite migration 回歸 20 項全通過，headless Chrome 完整跑完 5／10／15 題並核對進度及結果；Deno 型別與 lint、前端 JS 語法、5 項 Auth helper 測試及匿名登入流程通過。GitHub Actions run [#64](https://github.com/310182-sketch/samewave/actions/runs/44980519034) 的 `verify`、`block_race`、`deploy` 全成功；公開首頁及 app.js、styles.css、privacy.html 回 HTTP 200。遠端驗證另包括 migration ledger 與唯讀 schema／題庫查詢；真人新題數邀請房、配對、跨裝置及 RLS 流程仍待實測。
+- **已驗證：** K-pop 前端 15 題 headless Chrome 流程、JS 語法與 diff 格式檢查通過；新的 PGlite 題目一致性測試等待 GitHub Actions `verify`。本機未安裝 Deno，未宣稱 PGlite 通過。既有題數功能的 PGlite 20 項、headless Chrome 5／10／15 流程及 run #64 驗證記錄仍有效；真人新題數邀請房、配對、跨裝置及 RLS 流程仍待實測。
 - **仍待線上驗證：** 匿名登入及 session 恢復、真人房間／配對／歷史資料、完整 RLS 權限和跨裝置流程尚未實測。邀請房答題與隨機配對前端已接上 RPC，Chrome mock 驗證成功揭曉、雙方確認、結果讀取、配對成功、逾時重試及取消；尚未在 Supabase Realtime 或兩部裝置驗證。歷史頁查詢、分頁、默契排名及逐筆刪除也僅以 mock 驗證。結果分享卡尚未在 iOS／Android 實機確認 Instagram 交接。
 - **後端：** 共十五份 migration 已部署並對帳；新增五類題庫、將 15 類擴充到各 15 題，並在房間、配對票券、RPC、完局歷史與續玩加入題數欄位。第十六份 migration 只更新 15 筆 K-pop 題目，尚未套用至 production；真實使用者流程仍待測試。
 - **資料政策：** 真人房間、配對票券及原始答案最多保留 24 小時；個人歷史摘要保存 90 天且可逐筆刪除；檢舉資料保存 180 天；封鎖關係保留至解除或刪除帳號。相關 migration 與清理排程已部署，但資料保留週期和逾期刪除尚未經過實際時間週期驗證。
@@ -91,6 +91,8 @@
 - [x] 加入指定主題與隨機主題；原型提供旅行、音樂、日常、飲食四類。
 - [x] 題庫擴充至 15 類、每類 15 題；加入每局 5／10／15 題選項，預設 5 題。邀請房、隨機配對、進度、結果、分享卡、歷史與續玩沿用所選題數；random matchmaking 僅配對相同題數。
 - [x] 使用 headless Chrome 跑完本機 5、10、15 題示範對局，確認題目進度、完成題數、結果摘要及主題在流程間一致；Pages workflow 在部署前執行此測試。
+- [x] 更新 headless Chrome 題數流程，逐題核對 15 個 K-pop prompt，並保留 5／10／15 題及其他主題流程；本機測試通過。
+- [ ] 以 PGlite 逐列比對 15 個 K-pop prompt 和雙選項；回歸測試已加入 workflow，待本輪 CI 的 `verify` 完成。本機未安裝 Deno。
 - [x] 加入手機版版面、鍵盤焦點樣式和減少動態效果支援。
 - [x] 畫面切換時將焦點移到新步驟標題，作答揭曉後將焦點移到下一步按鈕。
 - [x] 以 Chrome 模擬 320、360、390、768、1024、1440px 寬度檢查首頁，並於手機寬度用鍵盤完成五題流程。
