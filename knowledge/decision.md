@@ -16,9 +16,17 @@
 - **示範模式：** 由本機範例資料提供示範對象及答案，清楚標示模擬資料；可選五、十或十五題。真人模式以 Supabase 保存房間題數，邀請房依房間設定，隨機配對只配對相同題數；續玩沿用來源局題數。
 - **適用範圍：** 已實作的瀏覽器原型和 Supabase migration；本機資料庫回歸不代表正式 Supabase migration 已套用或跨裝置已驗收。
 
+## 讓朋友猜自己的選擇
+
+- **狀態：** 本機前端原型已實作；360px headless Chrome 驗收 5／10／15 題、三個主題、分享連結直開、答案對照、錯誤連結及外部文字安全呈現通過。尚未推送或部署。
+- **決定：** 出題者沿用首頁的主題和 5／10／15 題設定，逐題選自己的答案，再分享連結；朋友打開連結後逐題猜測，完成後查看命中數及每題對照。每份挑戰保存完整題目快照，避免日後題庫文案更新影響已建立的連結。
+- **資料界線：** 題目快照、暱稱和出題答案以 Base64url 編碼放在 URL fragment，不傳給 Supabase 或寫入帳號／歷史。Base64url 不是加密；任何持有完整連結的人都能解出答案，連結目前沒有期限或撤銷功能。朋友猜測只留在目前頁面，重新載入會重來。
+- **限制：** 這是適合靜態 GitHub Pages 的無後端 MVP；不提供挑戰清單、撤銷、過期、追蹤朋友結果或私密答案保證。政治、感情觀等敏感題目請只分享給信任的人。若未來需要隱藏答案、期限或撤銷，改用受權限保護的服務端挑戰資料。
+- **待驗收：** iOS／Android 實機分享面板、文字放大和鍵盤流程；完成後再公開部署。目前公開網站不含本功能。
+
 ## 房間與配對
 
-- **狀態：** 邀請房、六碼代碼與限流、Realtime 答題、雙方確認、結果及隨機配對已上線；目前 Supabase 有 15 份 migration。題庫／變動題數三份 migration 已套用，CLI ledger 15/15 對齊；遠端唯讀查詢確認 15 個主題各 15 題，5／10／15 題限制及新舊 RPC 簽名均存在。公開頁需在本輪前端發布後才會提供選題數。真實雙裝置遊戲與登入後 RPC/RLS 仍待實測。
+- **狀態：** 邀請房、六碼代碼與限流、Realtime 答題、雙方確認、結果及隨機配對已上線；Supabase 原有 15 份 migration 已登記。題數與遊戲服務 migration 已套用；00400／00500 題庫內容已由 SQL Editor 套用，唯讀查詢確認 15 個主題各 15 題，但 CLI ledger 尚未記錄這兩版。遠端已有 5／10／15 題限制及新舊 RPC 簽名。真實雙裝置遊戲與登入後 RPC/RLS 仍待實測。
 - **決定：** 玩家可建立雙人邀請房間，分享六位數字代碼讓另一位玩家加入；六碼代碼應有服務端猜測限流。過渡期接受尚未過期的舊 12 碼代碼；新房間使用六碼。房間 10 分鐘沒有第二位玩家加入就失效；房主在遊戲開始前離開時關閉房間。
 - **決定：** 玩家每次只能參加一個進行中的房間。隨機配對等候上限為 30 秒；逾時可以重新排隊。房間開始後閒置 10 分鐘就失效。
 - **重新載入：** Auth session 恢復後先找回本人進行中的房間，再查本人仍有效的等待票券；若等待已逾時，顯示重新配對入口，不自動建立另一張票券。若房間剛在查詢競速期間配對成功，則接入既有房間。
@@ -105,16 +113,17 @@
 
 ## K-pop 題庫內容更新
 
-- **狀態：** 十五題追星情境已更新於前端；目前 Pages `app.js?v=22` 保留該題庫。Forward-only migration `20261122000400_refine_kpop_fandom_questions.sql` 已推至 Samewave `main`，PGlite 和逐題 Chrome 驗證通過；更新後的完整題庫 parity 由 Actions run #45021996623 的 `verify` 通過。00400 尚未套用至 production；正式資料庫目前仍供應舊版 K-pop 題目。
-- **建議：** 在 Samewave Supabase SQL Editor 執行該 migration，再唯讀確認 `question_bank` 的 `kpop` 題號 1–15、題目及選項與 repository 一致。此 migration 只 upsert K-pop 題目列，不修改玩家資料或其他主題。
-- **操作界線：** 使用者已確認套用 00400；因新增的 migration 00500 尚待確認，兩份 migration 預計一起執行，避免正式資料庫只有部分主題更新。操作前檢查遠端 migration ledger，執行後唯讀核對題庫並同步記錄結果。
+- **狀態：** 十五題追星情境已更新於前端；公開頁仍載入 `app.js?v=22`。Forward-only migration `20261122000400_refine_kpop_fandom_questions.sql` 已推至 Samewave `main` 並在 production SQL Editor 套用；唯讀查詢確認 K-pop 題號 1–15 的內容已更新。
+- **完成核對：** 00400 與 00500 都已套用；production 總題數 225，15 個主題各 15 題；資料庫與 repository 的 MD5 均為 `5b5d5369a8eec7193e39e0f7cf0e3c13`。
+- **待同步：** Supabase CLI ledger 仍為 15 筆、最新 `20261122000300`，尚未記錄 00400／00500。使用官方 CLI `migration repair` 同步後再唯讀確認；不可直接改內部 migration history table。
+- **操作界線：** 使用者已授權套用 00400 與 00500，並已在 SQL Editor 成功執行及核對；不需再詢問套用許可。
 - **適用範圍：** 已發布的靜態網站使用資料庫作為正式題庫，且需在不改寫舊 migration 的情況下更新遊戲內容。
 
 ## 其他主題題庫內容更新
 
 - **範圍：** K-pop 以外 14 個主題，每類 15 題；題目改用具體生活場景和容易比較的兩種做法。政治題保持中立，不提政黨或候選人。
-- **狀態：** K-pop 以外 14 類題目已發布於 Pages `app.js?v=22`；migration `20261122000500_refine_everyday_topic_questions.sql` 已推至 `main`，只 upsert 210 筆並保留 K-pop 題目及示範答案。Actions run #45021996623 的 `verify`、`block_race`、`deploy` 全成功，PGlite 確認 225 題前端與 migration 一致；360px headless Chrome 及 5／10／15 題流程亦通過。00500 尚未套用至 Supabase。
-- **部署界線：** 遊戲前端正式題目由 Supabase 題庫供應；Pages 部署不會更新真人題庫。K-pop migration 00400 已獲先前授權；本 migration 00500 涵蓋另外 14 個主題，尚待使用者明確確認後才可套用。建議確認後與 00400 一起執行，並先檢查 remote ledger，再唯讀核對全部 225 筆。
+- **狀態：** K-pop 以外 14 類題目已發布於 Pages `app.js?v=22`；migration `20261122000500_refine_everyday_topic_questions.sql` 已推至 `main` 並已套用至 production，只 upsert 210 筆且保留 K-pop 題目及示範答案。唯讀查詢確認 225 題前端與 production 完全一致，MD5 為 `5b5d5369a8eec7193e39e0f7cf0e3c13`。
+- **部署界線：** GitHub Pages 部署不會更新真人題庫；本次題庫內容已由 SQL Editor 套用。00400／00500 在 CLI ledger 的同步仍待使用官方 Supabase CLI `migration repair` 完成，再唯讀核對 ledger。
 - **適用範圍：** 需同步維護靜態前端示範題庫和 Supabase 正式題庫，且不重寫已套用 migration 的題目內容更新。
 
 ## 歷史紀錄與共同點統計
@@ -159,7 +168,7 @@
 ## 發布
 
 - **現況（2026-11-22，更新）：** `riddle-match` 的 Pages 網站屬於另一個專案。Samewave repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 的 `main` 已推進至 `cd941e442dd81b91f26a4b9730f96a3dd6cbee17`，與本工作樹 `codex/kpop-fandom-questions` 的 HEAD 相同；公開首頁回 HTTP 200 並載入 `app.js?v=22`。本工作樹共用的 `origin` 仍指向 `riddle-match`，不可盲目推送至 `origin`；後續以完整 Samewave repository URL 指定目標。
-- **題庫上線界線：** K-pop 15 筆 migration `20261122000400_refine_kpop_fandom_questions.sql` 與其他 14 類 210 筆 migration `20261122000500_refine_everyday_topic_questions.sql` 已推送至 Samewave `main`，但尚未套用至 Supabase production；真人對局仍讀取舊題庫。使用者先前已授權 00400，00500 尚待確認。推薦確認後先檢查遠端 ledger，再一起套用兩份 migration，最後唯讀核對全部 225 題。
+- **題庫上線界線：** 00400／00500 已透過 Supabase SQL Editor 套用；唯讀查詢確認 225 題和 repository MD5 相同。CLI ledger 尚未記錄這兩版；後續以官方 Supabase CLI `migration repair` 同步，不要直接編輯 Supabase 內部 migration history table。
 - **真人服務驗收：** 匿名玩家流程及隔離裝置 Realtime 等真人服務驗收仍待完成。
 - **決定：** 採公開 repository，因為目標包含 GitHub Pages 免費發布；建立時只納入同頻原始碼和文件，不沿用另一專案歷史。已檢查用戶端設定範本沒有真實 Supabase URL／key，測試中的 JWT 為假資料；provider secret 與 service role key 不得推送。
 - **PR #3：** Google-only 登入修改已於 2026-11-22 透過 rebase merge 合併；GitHub Pages 部署 run 44927437625 成功。未來公開 repository 合併前，須核對 commit author 和 committer 兩個欄位的 email；rebase 預覽或 noreply author 單獨不足以證明 committer 也隱去個人 email。

@@ -400,7 +400,7 @@
 
 - **經驗：** 內嵌前端題庫可支援未登入示範，但真人遊戲從資料庫讀題；只更新任一邊都會造成玩家看到兩套不同內容。題目文案修改應以 `(topic_key, question_no)` 建立新的 upsert migration，並保留既有答案及玩家資料。
 - **適用範圍：** 前端示範題庫與 Supabase/PostgreSQL 正式題庫並存的問答或配對遊戲。
-- **本專案做法：** `scripts/refresh-topic-copy.mjs` 依同一份 15 題主題資料產生前端更新和 210 筆非 K-pop migration；PGlite 測試再讀取 `site/app.js`，逐題比對套用所有 migration 後的 225 筆資料。2026-11-22 Actions run #45021996623 的 `verify`、`block_race`、`deploy` 成功，公開頁載入 `app.js?v=22`；遠端題庫仍待套用 00400／00500 並唯讀核對。更新版本需同時增加 `app.js` cache query，依序驗證 CI、Pages 部署和資料庫 migration；Pages 上線不代表 Supabase 題庫已更新。
+- **本專案做法：** `scripts/refresh-topic-copy.mjs` 依同一份 15 題主題資料產生前端更新和 210 筆非 K-pop migration；PGlite 測試再讀取 `site/app.js`，逐題比對套用所有 migration 後的 225 筆資料。2026-11-22 Actions run #45021996623 的 `verify`、`block_race`、`deploy` 成功，公開頁載入 `app.js?v=22`；00400／00500 後來由 Supabase SQL Editor 套用，唯讀核對 production 與 repository 的 225 題 MD5 相同。CLI ledger 尚未同步這兩個版本；正式更新時仍須分別確認資料庫內容與 ledger 狀態，Pages 部署本身不會更新 Supabase 題庫。
 
 ## 逐題檢查主題題庫的實際畫面
 
@@ -412,4 +412,10 @@
 
 - **經驗：** 把每局題數視為房間設定，而不是只在首頁控制前端陣列長度。建立邀請房及配對票券時都要保存它；配對須以相同題數為條件，並在房間狀態、逐題進度、結果、歷史及續玩回傳／沿用。若舊用戶端仍以舊 RPC 參數呼叫，保留明確的相容 wrapper 和既有預設值。測試應覆蓋所有允許值、非法值、不同題數不可互配以及完局後歷史和續玩仍使用原題數。
 - **適用範圍：** 允許玩家選擇問卷／測驗長度，且長度會影響房間、配對、結果或歷史資料的前端與資料庫應用。
-- **本專案做法：** Samewave 提供 5、10、15 題選擇，預設 5 題；15 個主題各有 15 題。三份 forward-only migration 把題數接到房間、配對佇列、RPC 和歷史摘要，隨機配對只接相同題數，同玩家續玩繼承原值，舊兩參數 RPC wrapper 保持 5 題。2026-11-22 本機 20 項 PGlite migration 測試通過，headless Chrome 完整跑完 5／10／15 題並核對進度和結果；之後正式 Supabase CLI ledger 確認 15/15，唯讀查詢確認 15 類各 15 題、新舊 RPC 簽名及欄位限制。仍需以正式使用者 session 驗證邀請房、隨機配對、歷史和續玩，再將前端部署後檢查公開版本。
+- **本專案做法：** Samewave 提供 5、10、15 題選擇，預設 5 題；15 個主題各有 15 題。三份 forward-only migration 把題數接到房間、配對佇列、RPC 和歷史摘要，隨機配對只接相同題數，同玩家續玩繼承原值，舊兩參數 RPC wrapper 保持 5 題。2026-11-22 本機 20 項 PGlite migration 測試通過，headless Chrome 完整跑完 5／10／15 題並核對進度和結果；原有正式 Supabase CLI ledger 當時有 15 筆，唯讀查詢確認 15 類各 15 題、新舊 RPC 簽名及欄位限制。其後 00400／00500 已透過 SQL Editor 更新題庫，但 CLI ledger 的版本同步仍待完成。仍需以正式使用者 session 驗證邀請房、隨機配對、歷史和續玩，再將前端部署後檢查公開版本。
+
+## 靜態網站讓朋友猜自己的選擇
+
+- **經驗：** 若功能需要跨裝置分享、但不必保存玩家答案，可將驗證過的精簡題目快照、暱稱和答案放進 URL fragment，讓瀏覽器端解析；fragment 不會隨一般 HTTP 請求傳給網站伺服器。`textContent` 呈現連結資料，避免把外部輸入解讀成 HTML。Base64url 只負責編碼，不是保密或加密；完整連結持有人可以解出答案，因此介面需在產生連結前明確告知，敏感題目尤其要提醒。這種設計無法撤銷或設定期限，也不能追蹤收件者是否猜完；需要以上能力時應改用具備授權、期限和清理政策的服務端挑戰紀錄。
+- **適用範圍：** GitHub Pages 等靜態網站提供一次性的匿名分享活動，活動不要求帳號歷史、作者追蹤、答案保密或撤銷。
+- **本專案做法：** 猜題原型把每題文字、選項、出題者暱稱和答案打包至 `#guess=`；收件者完成所有猜測後才由 UI 顯示逐題結果，猜測不存入 Supabase。連結使用題目快照避免未來題庫更新改變既有挑戰；建立分享網址時清除原頁 query，避免把登入回呼碼或其他 query 參數一起分享。`scripts/guess-challenge-flow.mjs` 在 360px headless Chrome 模擬出題後直接導向分享連結，驗證 5／10／15 題、三個主題、快照與成績、錯誤連結及 HTML 注入內容保持純文字；GitHub Pages workflow 已納入此腳本。CI／本機 headless 通過不替代 iOS／Android 實機分享面板、鍵盤與文字放大驗收。

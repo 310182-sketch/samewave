@@ -275,6 +275,9 @@
     matchmakingBusy: false,
     shareFile: null,
     shareCardVersion: 0,
+    challenge: null,
+    challengeLink: null,
+    challengeLinkOpen: false,
     historyItems: [],
     historyCursor: null,
     historyHasMore: false,
@@ -442,6 +445,302 @@
     window.clearTimeout(state.matchTimer);
     renderQuestion();
     showView("game", true);
+  }
+
+  function shuffledChallengeQuestions(topic, count) {
+    const questions = questionBank[topic].map(({ prompt, choices }) => ({
+      prompt,
+      choices: [...choices]
+    }));
+    for (let index = questions.length - 1; index > 0; index -= 1) {
+      const swapIndex = Math.floor(Math.random() * (index + 1));
+      [questions[index], questions[swapIndex]] = [questions[swapIndex], questions[index]];
+    }
+    return questions.slice(0, count);
+  }
+
+  function encodeChallengePayload(challenge) {
+    const payload = {
+      v: 1,
+      t: challenge.topic,
+      n: challenge.nickname,
+      q: challenge.questions.map((question, index) => [
+        question.prompt,
+        question.choices[0],
+        question.choices[1],
+        challenge.answers[index]
+      ])
+    };
+    const bytes = new TextEncoder().encode(JSON.stringify(payload));
+    let binary = "";
+    for (let offset = 0; offset < bytes.length; offset += 8192) {
+      binary += String.fromCharCode(...bytes.subarray(offset, offset + 8192));
+    }
+    const token = btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    if (token.length > 14000) throw new Error("Challenge link is too large.");
+    return token;
+  }
+
+  function decodeChallengePayload(token) {
+    if (typeof token !== "string" || !token || token.length > 14000) {
+      throw new Error("Invalid challenge link.");
+    }
+    const base64 = token.replace(/-/g, "+").replace(/_/g, "/");
+    const binary = atob(base64 + "=".repeat((4 - (base64.length % 4)) % 4));
+    const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+    const payload = JSON.parse(new TextDecoder().decode(bytes));
+    const allowedCounts = [5, 10, 15];
+    if (payload?.v !== 1 || typeof payload.t !== "string" ||
+        !Object.prototype.hasOwnProperty.call(questionBank, payload.t) ||
+        typeof payload.n !== "string" || payload.n.length > 12 ||
+        !Array.isArray(payload.q) || !allowedCounts.includes(payload.q.length)) {
+      throw new Error("Invalid challenge data.");
+    }
+    const questions = [];
+    const answers = [];
+    for (const entry of payload.q) {
+      if (!Array.isArray(entry) || entry.length !== 4 ||
+          !entry.slice(0, 3).every((value) => typeof value === "string" && value.trim() && value.length <= 240) ||
+          ![0, 1].includes(entry[3])) {
+        throw new Error("Invalid challenge question.");
+      }
+      questions.push({ prompt: entry[0], choices: [entry[1], entry[2]] });
+      answers.push(entry[3]);
+    }
+    return {
+      topic: payload.t,
+      nickname: payload.n || "企鵝",
+      questions,
+      answers
+    };
+  }
+
+  function createChallengeLink(challenge) {
+    const url = new URL(window.location.href);
+    url.search = "";
+    url.hash = "guess=" + encodeChallengePayload(challenge);
+    return url.href;
+  }
+
+  function renderChallengeQuestion() {
+    const challenge = state.challenge;
+    if (!challenge || !["author", "guess"].includes(challenge.mode)) return;
+    const isAuthor = challenge.mode === "author";
+    const index = challenge.questionIndex;
+    const question = challenge.questions[index];
+    const selectedAnswer = isAuthor ? challenge.answers[index] : challenge.guesses[index];
+    const count = challenge.questions.length;
+    $("[data-challenge-eyebrow]").textContent = isAuthor ? "幫朋友出題" : `${challenge.topic}猜題挑戰`;
+    $("[data-challenge-title]").textContent = isAuthor
+      ? "先選出你自己會選的答案"
+      : `${challenge.nickname} 想讓你猜猜`;
+    $("[data-challenge-subtitle]").textContent = isAuthor
+      ? `${challenge.topic}・${count} 題。朋友會看到同一批題目，等他猜完才揭曉你的選擇。`
+      : `猜猜「${challenge.nickname}」在 ${challenge.topic} 主題裡會怎麼選。`;
+    $("[data-challenge-progress]").textContent = `第 ${index + 1} 題，共 ${count} 題`;
+    $("[data-challenge-progress-bar]").style.width = String(((index + 1) / count) * 100) + "%";
+    $("[data-challenge-question]").textContent = question.prompt;
+    $$("[data-challenge-choice]").forEach((button, choiceIndex) => {
+      const selected = selectedAnswer === choiceIndex;
+      button.classList.toggle("is-selected", selected);
+      button.setAttribute("aria-pressed", String(selected));
+      $("[data-challenge-choice-copy]", button).textContent = question.choices[choiceIndex];
+    });
+    $("[data-challenge-next]").disabled = ![0, 1].includes(selectedAnswer);
+    $("[data-challenge-next-label]").textContent = index === count - 1
+      ? isAuthor ? "完成並建立連結" : "看猜題結果"
+      : "下一題";
+    $("[data-challenge-answer-status]").textContent = [0, 1].includes(selectedAnswer)
+      ? isAuthor
+        ? "已記錄；你可以再改選，朋友完成猜題前不會看到答案。"
+        : "已記錄你的猜測；完成所有題目後才會揭曉答案。"
+      : isAuthor ? "請選一個你會選的答案。" : `請猜猜${challenge.nickname}會選哪一個。`;
+    $("[data-challenge-disclosure]").classList.toggle("hidden", !isAuthor);
+  }
+
+  function startGuessChallenge() {
+    const topic = chooseTopic();
+    const nickname = ($("#nickname").value.trim() || "企鵝").slice(0, 12);
+    state.challenge = {
+      mode: "author",
+      topic,
+      nickname,
+      questions: shuffledChallengeQuestions(topic, state.questionCount),
+      answers: [],
+      guesses: [],
+      questionIndex: 0
+    };
+    state.challengeLink = null;
+    $("[data-challenge-next]").disabled = true;
+    renderChallengeQuestion();
+    showView("challenge", true);
+  }
+
+  function selectChallengeAnswer(selection) {
+    const challenge = state.challenge;
+    if (!challenge || !["author", "guess"].includes(challenge.mode) || ![0, 1].includes(selection)) return;
+    const selections = challenge.mode === "author" ? challenge.answers : challenge.guesses;
+    selections[challenge.questionIndex] = selection;
+    const buttons = $$("[data-challenge-choice]");
+    buttons.forEach((button, index) => {
+      const selected = selection === index;
+      button.classList.toggle("is-selected", selected);
+      button.setAttribute("aria-pressed", String(selected));
+    });
+    $("[data-challenge-next]").disabled = false;
+    $("[data-challenge-answer-status]").textContent = challenge.mode === "author"
+      ? "已記錄；你可以再改選，朋友完成猜題前不會看到答案。"
+      : "已記錄你的猜測；完成所有題目後才會揭曉答案。";
+  }
+
+  function showChallengeReady() {
+    try {
+      state.challengeLink = createChallengeLink(state.challenge);
+      $("[data-challenge-ready-summary]").textContent = `${state.challenge.nickname} 已完成「${state.challenge.topic}」${state.challenge.questions.length} 題。把連結傳給朋友，看看他能猜中幾題。`;
+      $("[data-challenge-link]").value = state.challengeLink;
+      $("[data-challenge-share-status]").textContent = "";
+      showView("challenge-ready", true);
+    } catch (error) {
+      console.warn("Could not create guess challenge link", error);
+      $("[data-challenge-invalid-copy]").textContent = "挑戰連結太長，請改選較少題數後再試一次。";
+      showView("challenge-invalid", true);
+    }
+  }
+
+  function showChallengeResults() {
+    const challenge = state.challenge;
+    const correctCount = challenge.answers.filter((answer, index) => answer === challenge.guesses[index]).length;
+    $("[data-challenge-result-score]").textContent = String(correctCount);
+    $("[data-challenge-result-count]").textContent = String(challenge.questions.length);
+    $("[data-challenge-result-topic]").textContent = challenge.topic;
+    $("[data-challenge-result-copy]").textContent = correctCount === challenge.questions.length
+      ? `全部猜中！你很了解${challenge.nickname}。`
+      : correctCount === 0
+        ? `每題都是認識${challenge.nickname}的新線索。`
+        : `你猜中了 ${correctCount} 題，再多玩幾次會更懂${challenge.nickname}。`;
+    const list = $("[data-challenge-result-list]");
+    list.replaceChildren();
+    challenge.questions.forEach((question, index) => {
+      const item = document.createElement("li");
+      item.className = "challenge-result-item";
+      const prompt = document.createElement("p");
+      prompt.className = "challenge-result-question";
+      prompt.textContent = `${index + 1}. ${question.prompt}`;
+      const answers = document.createElement("div");
+      answers.className = "challenge-result-answers";
+      const guess = document.createElement("div");
+      guess.className = "challenge-result-answer";
+      const guessLabel = document.createElement("b");
+      guessLabel.textContent = "你的猜測";
+      const guessChoice = document.createElement("span");
+      guessChoice.textContent = question.choices[challenge.guesses[index]];
+      guess.append(guessLabel, guessChoice);
+      const answer = document.createElement("div");
+      answer.className = "challenge-result-answer";
+      const answerLabel = document.createElement("b");
+      answerLabel.textContent = `${challenge.nickname} 的選擇`;
+      const answerChoice = document.createElement("span");
+      answerChoice.textContent = question.choices[challenge.answers[index]];
+      answer.append(answerLabel, answerChoice);
+      const outcome = document.createElement("span");
+      const matched = challenge.guesses[index] === challenge.answers[index];
+      outcome.className = "challenge-result-outcome " + (matched ? "is-correct" : "is-wrong");
+      outcome.textContent = matched ? "✦ 猜中了" : "再認識一點";
+      answers.append(guess, answer);
+      item.append(prompt, answers, outcome);
+      list.append(item);
+    });
+    showView("challenge-results", true);
+  }
+
+  function advanceGuessChallenge() {
+    const challenge = state.challenge;
+    if (!challenge || !["author", "guess"].includes(challenge.mode)) return;
+    const selections = challenge.mode === "author" ? challenge.answers : challenge.guesses;
+    if (![0, 1].includes(selections[challenge.questionIndex])) return;
+    if (challenge.questionIndex + 1 < challenge.questions.length) {
+      challenge.questionIndex += 1;
+      renderChallengeQuestion();
+      $("[data-challenge-question]").focus({ preventScroll: true });
+      return;
+    }
+    if (challenge.mode === "author") {
+      showChallengeReady();
+    } else {
+      showChallengeResults();
+    }
+  }
+
+  async function copyChallengeLink() {
+    if (!state.challengeLink) return;
+    try {
+      await navigator.clipboard.writeText(state.challengeLink);
+      $("[data-challenge-share-status]").textContent = "猜題連結已複製，可以傳給朋友了。";
+    } catch {
+      const input = $("[data-challenge-link]");
+      input.focus();
+      input.select();
+      $("[data-challenge-share-status]").textContent = "無法自動複製，已選取連結；請手動複製。";
+    }
+  }
+
+  async function shareChallengeLink() {
+    if (!state.challengeLink) return;
+    if (!navigator.share) {
+      await copyChallengeLink();
+      return;
+    }
+    try {
+      await navigator.share({
+        title: "同頻猜題挑戰",
+        text: `猜猜${state.challenge.nickname}的選擇！`,
+        url: state.challengeLink
+      });
+      $("[data-challenge-share-status]").textContent = "已開啟分享面板。";
+    } catch (error) {
+      if (error?.name !== "AbortError") {
+        $("[data-challenge-share-status]").textContent = "分享沒有完成，可以改用複製連結。";
+      }
+    }
+  }
+
+  function leaveGuessChallenge() {
+    if (state.challengeLinkOpen) {
+      window.history.replaceState(window.history.state, "", window.location.pathname + window.location.search);
+    }
+    state.challenge = null;
+    state.challengeLink = null;
+    state.challengeLinkOpen = false;
+    showView("home", true);
+  }
+
+  function retryGuessChallenge() {
+    if (!state.challenge || state.challenge.mode !== "guess") return;
+    state.challenge.guesses = [];
+    state.challenge.questionIndex = 0;
+    renderChallengeQuestion();
+    showView("challenge", true);
+  }
+
+  function initializeChallengeFromLocation() {
+    const parameters = new URLSearchParams(window.location.hash.slice(1));
+    if (!parameters.has("guess")) return;
+    state.challengeLinkOpen = true;
+    try {
+      const payload = decodeChallengePayload(parameters.get("guess"));
+      state.challenge = {
+        mode: "guess",
+        ...payload,
+        guesses: [],
+        questionIndex: 0
+      };
+      renderChallengeQuestion();
+      showView("challenge", true);
+    } catch (error) {
+      console.warn("Could not open guess challenge", error);
+      $("[data-challenge-invalid-copy]").textContent = "請確認連結完整，或向出題者索取新的挑戰連結。";
+      showView("challenge-invalid", true);
+    }
   }
 
   function stopMatchmakingWatch() {
@@ -2159,7 +2458,7 @@
       const { data, error } = await authState.client.auth.getSession();
       if (error) throw error;
       authState.session = data.session;
-      if (authState.session?.user?.id) await restoreMyActiveRoom();
+      if (authState.session?.user?.id && !state.challengeLinkOpen) await restoreMyActiveRoom();
     } catch (error) {
       console.warn("Supabase Auth initialization failed", error);
       authState.client = null;
@@ -2716,6 +3015,17 @@
   });
 
   $("[data-demo-start]").addEventListener("click", () => startMatching("demo"));
+  $("[data-start-guess-challenge]").addEventListener("click", startGuessChallenge);
+  $$("[data-challenge-home]").forEach((button) => {
+    button.addEventListener("click", leaveGuessChallenge);
+  });
+  $$("[data-challenge-choice]").forEach((button) => {
+    button.addEventListener("click", () => selectChallengeAnswer(Number(button.dataset.challengeChoice)));
+  });
+  $("[data-challenge-next]").addEventListener("click", advanceGuessChallenge);
+  $("[data-copy-challenge]").addEventListener("click", copyChallengeLink);
+  $("[data-share-challenge]").addEventListener("click", shareChallengeLink);
+  $("[data-challenge-retry]").addEventListener("click", retryGuessChallenge);
   $("[data-random-match]").addEventListener("click", () => startMatching("random"));
   $("[data-create-room]").addEventListener("click", openInviteRoom);
   $("[data-toggle-join]").addEventListener("click", (event) => {
@@ -2807,5 +3117,6 @@
   });
 
   showView("home");
+  initializeChallengeFromLocation();
   initializeSupabaseAuth();
 })();

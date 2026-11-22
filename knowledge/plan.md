@@ -4,20 +4,21 @@
 
 ## 願景
 
-做一個讓玩家透過二選一問答發現共同點的網站。玩家以匿名身分開始，瀏覽器會記住目前裝置的玩家狀態；再選擇主題、每局 5／10／15 題，建立房間邀請朋友或加入相同題數的隨機配對。雙方回答後揭曉答案、查看共同點，並能查詢歷史紀錄、與同一位玩家續玩。遊戲結果可由玩家確認後分享。
+做一個讓玩家透過二選一問答發現共同點的網站。玩家以匿名身分開始，瀏覽器會記住目前裝置的玩家狀態；再選擇主題、每局 5／10／15 題，建立房間邀請朋友或加入相同題數的隨機配對，也可先回答並分享猜題連結，讓朋友猜自己的選擇。真人對局雙方回答後揭曉答案、查看共同點，並能查詢歷史紀錄、與同一位玩家續玩。遊戲結果可由玩家確認後分享。
 
 產品核心是主題配對與問答遊戲，不是聊天網站。前端需清楚、易讀、適合手機使用；後端負責登入、配對、房間同步、結果及歷史紀錄的權限與保存。
 
 ## 目前狀態
 
-- **階段：** 15 個主題各 15 題與每局 5／10／15 題已實作；K-pop 題目為追星情境，其餘 14 個主題已改成具體日常情境。前端快取版本 `app.js?v=22` 已部署；題庫內容 migration `20261122000400_refine_kpop_fandom_questions.sql` 和 `20261122000500_refine_everyday_topic_questions.sql` 尚未套用至 Samewave production，真人對局仍讀取原題庫。
+- **階段：** 15 個主題各 15 題與每局 5／10／15 題已實作；K-pop 題目為追星情境，其餘 14 個主題已改成具體日常情境。公開頁仍載入 `app.js?v=22`、`styles.css?v=16`；本工作樹新增的猜題前端載入 `app.js?v=23`、`styles.css?v=17`，本機 headless Chrome 已通過，尚未推送或部署。
+- **猜題功能：** 已加入出題者作答、建立分享連結、朋友猜完後逐題揭曉的前端流程。360px headless Chrome 已驗收 5／10／15 題、分享連結直開、錯誤連結處理及外部題目文字安全呈現。題目快照和答案放在 URL fragment，不寫入 Supabase 或帳號；Base64url 只是編碼而非加密，任何持有完整連結的人都能查看答案。連結不會過期、也無法撤銷；公開部署尚待完成。
 - **已驗證：** 360px headless Chrome 的手機可讀性及 5／10／15 題流程通過；Node 語法與題庫解析確認 15 個主題各 15 題，210 筆 migration 和前端題目逐題一致。Actions run [#45021996623](https://github.com/310182-sketch/samewave/actions/runs/45021996623) 的題庫 parity、`block_race`、`deploy` 全成功；run [#45022926868](https://github.com/310182-sketch/samewave/actions/runs/45022926868) 的全主題逐題 Chrome 覆蓋也通過。真人邀請、配對、跨裝置及 RLS 流程仍待實測。
 - **仍待線上驗證：** 匿名登入及 session 恢復、真人房間／配對／歷史資料、完整 RLS 權限和跨裝置流程尚未實測。邀請房答題與隨機配對前端已接上 RPC，Chrome mock 驗證成功揭曉、雙方確認、結果讀取、配對成功、逾時重試及取消；尚未在 Supabase Realtime 或兩部裝置驗證。歷史頁查詢、分頁、默契排名及逐筆刪除也僅以 mock 驗證。結果分享卡尚未在 iOS／Android 實機確認 Instagram 交接。
-- **後端：** 既有 migration ledger 維持 15/15；K-pop 15 筆和其他主題 210 筆內容 migration 均已推送，但尚未套用至 production。真實使用者流程仍待測試。
+- **後端：** 既有 Supabase migration ledger 顯示 15 筆，最新登記版本為 `20261122000300`。K-pop 15 筆與其他主題 210 筆更新已由 SQL Editor 套用；唯讀查詢確認 15 類各 15 題，production 與 repository 題庫 MD5 均為 `5b5d5369a8eec7193e39e0f7cf0e3c13`。ledger 尚未記錄 `00400`／`00500`，仍需用官方 Supabase CLI `migration repair` 同步；不要直接寫入 Supabase 內部歷史表。
 - **資料政策：** 真人房間、配對票券及原始答案最多保留 24 小時；個人歷史摘要保存 90 天且可逐筆刪除；檢舉資料保存 180 天；封鎖關係保留至解除或刪除帳號。相關 migration 與清理排程已部署，但資料保留週期和逾期刪除尚未經過實際時間週期驗證。
 - **登入與社群：** 玩家頁只提供 Supabase Anonymous Auth，persistSession 保存目前瀏覽器的玩家 session；清除網站資料或換裝置可能無法找回匿名帳號。玩家端 Google 登入和 linking 已移除；Google provider 保留給獨立審查頁的核准審查員，不切換 Google OAuth 玩家 Production，也不刪除既有帳號。
 - **前端設計：** 已完成第一輪整體字級、留白、按鈕及主題選項版面整理；登入卡片以獨立視覺層級呈現，同時保留先玩示範的主要流程。房間、真人答題、隨機配對等待及歷史頁已接上 RPC，無設定時仍保留清楚標示的操作預覽。Chrome mock 驗證流程分支；六種寬度與鍵盤流程的前一輪檢查已通過。真人服務環境的實際網路狀態仍待驗證。
-- **發布：** 前端 `app.js?v=22`、14 類新題目及題庫一致性測試已推送 Samewave `main`；2026-11-22 GitHub API 核對 `main` SHA 與目前工作樹 HEAD 相同，公開首頁回 HTTP 200 並載入 `app.js?v=22`。本工作樹的共用 `origin` 指向 `riddle-match`，後續必須明確指定 Samewave URL。Actions run [#45021996623](https://github.com/310182-sketch/samewave/actions/runs/45021996623) 的 `verify`、`block_race`、`deploy` 全成功。兩份題庫 migration 尚未套用至 Supabase，因此真人對局仍使用資料庫中的舊題；真人新題數房間／配對及隔離裝置流程仍待驗收。
+- **發布：** Samewave 公開頁目前仍載入 `app.js?v=22`、`styles.css?v=16`；本輪猜題功能只在本機工作樹，尚未推送或部署。本工作樹的共用 `origin` 指向 `riddle-match`，後續必須明確指定 Samewave URL。Actions run [#45021996623](https://github.com/310182-sketch/samewave/actions/runs/45021996623) 的 `verify`、`block_race`、`deploy` 全成功。題庫更新已在 Supabase 套用並唯讀核對，production ledger 同步尚待完成；真人新題數房間／配對及隔離裝置流程仍待驗收。
 - **安全營運：** 前端已提供同房檢舉、封鎖／解除封鎖及隱私告知，並有獨立的審查員工作區；後端提供 allowlist、遮蔽細節的案件佇列、領案／結案及私有稽核事件，PGlite 和 headless Chrome 權限鎖定情境已由 CI 驗證。尚未建立審查員帳號或指定實際審查人員、玩家聯絡方式與值班安排；現有流程草案不是服務承諾，正式公開前不得宣稱有人即時處理。
 - **工作區：** 原型位於 `site/`，可直接開啟 `site/index.html` 操作，不需安裝套件或建置。
 - **產品方向：** 本專案以獨立的 `samewave` repository 發布二選一共同點遊戲，不沿用另一專案的 repository 歷史，詳見 [knowledge/decision.md](decision.md)。
@@ -32,6 +33,7 @@
 - 真人對局完成後可邀請同一位玩家再玩；對方接受後，以相同主題、新房間及新歷史紀錄開始。邀請 10 分鐘後失效；任一方已封鎖對方或正參加其他有效房間時不建立新局。示範對局仍使用本機「再玩一局」。
 - 一場遊戲使用一個主題；玩家可指定主題或選擇隨機主題。
 - 目前提供 15 個主題，每類 15 題。邀請房與續玩沿用題數；隨機配對只媒合相同題數。
+- 玩家可先選主題與 5／10／15 題、逐題回答自己的選擇，再分享猜題連結；朋友完成猜測後才在頁面逐題看到答案及命中數。此 MVP 使用 URL fragment 傳遞題目快照和答案，不需要後端儲存；必須清楚告知答案沒有加密，任何拿到連結的人都可查看，連結也沒有期限或撤銷功能。
 - 不把自由聊天作為主要玩法。
 
 ### 登入
@@ -60,6 +62,7 @@
 - [x] 確立兩人一局、單一主題、每題兩個選項；互動原型使用五題。
 - [x] 將每局題數訂為 5／10／15 題，預設五題；隨機配對須題數相同，邀請房與同玩家續玩沿用該設定。
 - [x] 確立玩家可指定主題或使用隨機主題。
+- [x] 確立「讓朋友猜自己的選擇」使用靜態分享連結；猜題結果不存檔，完整連結持有人可查看答案且連結不可撤銷。
 - [x] 玩家使用匿名登入並由瀏覽器保存 session；移除玩家頁 Google 登入與 linking，保留審查員工作區的 Google 登入。
 - [x] 查明 Supabase 內建與 custom provider 支援方式，並記錄 Instagram 專業帳號限制、Threads app review 和 custom provider 名額。
 - [x] 確立玩家可建立房間邀請他人，也可使用隨機配對。
@@ -91,6 +94,9 @@
 - [x] 產生只更新上述 14 個主題、共 210 筆的 forward-only migration，並逐題核對 SQL 與前端題目及選項相同；不覆寫既有 migration，也不改寫 K-pop 題目。
 - [x] 以 PGlite 套用全部 migration 後，逐題比對資料庫與前端 15 個主題共 225 筆；GitHub Actions run #45021996623 的 `verify` 通過。
 - [x] 建立首頁、暱稱輸入、主題選擇、示範配對、逐題作答、答案揭曉及結果頁。
+- [x] 新增猜題挑戰前端：出題者可選主題與題數並逐題作答，產生含題目快照的分享連結；朋友逐題猜完才看到命中數與答案比較。資料不寫入 Supabase，支援直接開啟分享連結。
+- [x] 以 360px headless Chrome 驗收猜題 5／10／15 題、三種主題、朋友直接開啟分享連結、答案和命中數、錯誤 payload 以及含 HTML 內容的安全呈現；分享連結會移除原頁 query。
+- [ ] 在實機檢查猜題分享面板、文字放大和鍵盤流程；完成後安排公開部署並核對 Pages 版本。
 - [x] 加入指定主題與隨機主題；原型提供旅行、音樂、日常、飲食四類。
 - [x] 題庫擴充至 15 類、每類 15 題；加入每局 5／10／15 題選項，預設 5 題。邀請房、隨機配對、進度、結果、分享卡、歷史與續玩沿用所選題數；random matchmaking 僅配對相同題數。
 - [x] 使用 headless Chrome 跑完本機 5、10、15 題示範對局，確認題目進度、完成題數、結果摘要及主題在流程間一致；Pages workflow 在部署前執行此測試。
@@ -130,8 +136,9 @@
 
 ### 3. 完整後端與真人遊戲服務
 
-- [x] 將三份 forward-only migration 套用至 Samewave production；Supabase CLI 確認 remote ledger 15/15，本機 PGlite 20 項回歸通過。遠端唯讀查詢確認 15 類各 15 題、5／10／15 題 constraints、新舊邀請／配對 RPC 及續玩 RPC 存在。
-- [ ] 在 Samewave production 執行 K-pop migration `20261122000400_refine_kpop_fandom_questions.sql`（使用者先前已授權）及其餘主題 migration `20261122000500_refine_everyday_topic_questions.sql`（新 migration 待確認）；執行前檢查遠端 migration ledger，完成後唯讀比對 225 筆題目與 repository。不要只套用其中一份，以免真人題庫短暫出現版本不一致。
+- [x] 將遊戲服務與題數 migration 套用至 Samewave production；Supabase CLI 遠端 ledger 原有 15 筆，本機 PGlite 回歸通過。遠端唯讀查詢確認 15 類各 15 題、5／10／15 題 constraints、新舊邀請／配對 RPC 及續玩 RPC 存在。
+- [x] 依使用者授權在 Supabase SQL Editor 套用題庫 migration `20261122000400_refine_kpop_fandom_questions.sql` 與 `20261122000500_refine_everyday_topic_questions.sql`；唯讀確認 225 題與 repository 相同，兩端 MD5 為 `5b5d5369a8eec7193e39e0f7cf0e3c13`。
+- [ ] 以官方 Supabase CLI `migration repair` 將 `00400`／`00500` 同步到 remote migration ledger，並唯讀確認 ledger。不要直接寫入 Supabase 內部 migration history table。
 - [ ] 用兩個已授權測試 session 驗證 production 邀請房 10／15 題、相同題數隨機配對、跨題數不配對、續玩題數繼承與歷史；尚未驗證前不把本機 PGlite 結果描述成真人流程通過。
 - [ ] 完成完整真人線上服務後端驗收：資料庫 migration、migration ledger、Anonymous Auth／Manual Linking、核心 schema、主要 RLS、Realtime publication、清理排程及帳號刪除 Edge Function 已部署或設定；仍須以真實登入、跨裝置對局和權限測試驗證。migration、mock 或 CI 通過都不單獨算完成。
 - [x] 新增並部署同一玩家續玩 migration：私有邀請資料、10 分鐘逾期、雙方同意、相同玩家與主題的新房間、封鎖／有效房間檢查；18 項 PGlite migration 測試通過，CLI 確認第十一份 migration 已列入遠端 ledger。
@@ -224,4 +231,5 @@
 - [x] 為線上版本設定 Supabase URL／公開 publishable key；Anonymous Auth、Manual Linking 和正式網站 redirect allow list 已設定，Google OAuth callback 已設定；最新 client secret 登入和 session 恢復驗收成功。
 - [x] 修正帳號刪除停用說明：Edge Function 已部署但尚未用真實登入者驗收，介面改為說明「目前尚未開放」及待驗收條件；操作錯誤訊息改成不推斷刪除一定失敗，並遞增 `app.js` 快取版本；Actions run #16 部署成功。
 - [ ] 在正式網站以真實帳號完成登入、房間／配對、遊戲、歷史及統計端對端驗收，並確認跨裝置行為。
+- [ ] 完成猜題功能的 iOS／Android 實機分享面板、鍵盤和文字放大驗收後，推送至 Samewave `main` 並確認 GitHub Pages 載入 `app.js?v=23`／`styles.css?v=17`。
 - [ ] 根據玩家回饋改善題目品質、配對體驗、前端版面及歷史統計可讀性。

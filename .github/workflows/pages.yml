@@ -53,6 +53,9 @@ jobs:
       - name: Test 5, 10, and 15 question game flows in headless Chrome
         run: node scripts/question-count-selection.mjs
 
+      - name: Test share-link guessing challenges in headless Chrome
+        run: node scripts/guess-challenge-flow.mjs
+
       - name: Test matchmaking cancellation race in headless Chrome
         run: node scripts/matchmaking-cancel-race.mjs
 

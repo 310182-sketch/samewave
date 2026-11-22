@@ -16,10 +16,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=16">
+    <link rel="stylesheet" href="styles.css?v=17">
     <script src="supabase-config.js?v=4" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.2/dist/umd/supabase.js" integrity="sha384-A97u3Qnt9GZHURO9YJZRe7VQgGUeFzcv6I1oIGnUTxQrCxnpQMwR0/G8F2zt9abZ" crossorigin="anonymous" defer></script>
-    <script src="app.js?v=22" defer></script>
+    <script src="app.js?v=23" defer></script>
   </head>
   <body>
     <div class="app-shell">
@@ -84,6 +84,11 @@
                 <button class="primary-button" type="button" data-random-match><span>隨機配對</span><span class="button-arrow" aria-hidden="true">↗</span></button>
                 <button class="secondary-button" type="button" data-create-room>建立邀請房</button>
               </div>
+              <button class="challenge-start-button" type="button" data-start-guess-challenge>
+                <span class="challenge-start-mark" aria-hidden="true">?</span>
+                <span><b>讓朋友猜我的選擇</b><small>先答題，再把挑戰連結傳給朋友</small></span>
+                <span class="challenge-start-arrow" aria-hidden="true">→</span>
+              </button>
               <button class="join-toggle" type="button" data-toggle-join aria-expanded="false" aria-controls="join-room-panel">輸入房間代碼加入</button>
               <div class="join-room-panel hidden" id="join-room-panel" data-join-panel>
                 <label class="field-label" for="invite-code">房間代碼 <span>6 位數字</span></label>
@@ -136,6 +141,65 @@
             <span class="decor-star star-two" aria-hidden="true">✴</span>
             <p class="preview-caption">不必一樣，找到共鳴就很好。</p>
           </div>
+        </section>
+
+        <section id="challenge" class="view workflow-view challenge-view hidden" data-view="challenge" aria-labelledby="challenge-title">
+          <button class="back-button workflow-back" type="button" data-challenge-home aria-label="回到首頁">← <span>回首頁</span></button>
+          <div class="workflow-mark challenge-mark" aria-hidden="true">?</div>
+          <p class="eyebrow centered-eyebrow" data-challenge-eyebrow>準備你的猜題挑戰</p>
+          <h1 id="challenge-title" data-focus-target tabindex="-1" data-challenge-title>先選出你會怎麼回答</h1>
+          <p class="workflow-copy" data-challenge-subtitle>朋友會看到相同題目，等他猜完才揭曉你的選擇。</p>
+          <div class="challenge-progress-track" aria-hidden="true"><span data-challenge-progress-bar></span></div>
+          <p class="challenge-progress-label" data-challenge-progress>第 1 題，共 5 題</p>
+          <div class="challenge-question-card">
+            <p class="challenge-question" data-challenge-question tabindex="-1"></p>
+            <div class="challenge-options" role="group" aria-label="選擇答案">
+              <button class="challenge-option" type="button" data-challenge-choice="0" aria-pressed="false"><span class="option-letter">A</span><span data-challenge-choice-copy></span></button>
+              <button class="challenge-option" type="button" data-challenge-choice="1" aria-pressed="false"><span class="option-letter">B</span><span data-challenge-choice-copy></span></button>
+            </div>
+          </div>
+          <p class="challenge-answer-status" data-challenge-answer-status role="status" aria-live="polite">請選一個答案。</p>
+          <button class="primary-button challenge-next-button" type="button" data-challenge-next disabled><span data-challenge-next-label>下一題</span><span class="button-arrow" aria-hidden="true">↗</span></button>
+          <p class="challenge-disclosure" data-challenge-disclosure>你的選擇不會保存到帳號；產生連結後，知道連結的人都能查看答案。</p>
+        </section>
+
+        <section id="challenge-ready" class="view workflow-view challenge-ready-view hidden" data-view="challenge-ready" aria-labelledby="challenge-ready-title">
+          <button class="back-button workflow-back" type="button" data-challenge-home aria-label="回到首頁">← <span>回首頁</span></button>
+          <div class="workflow-mark challenge-mark" aria-hidden="true">✦</div>
+          <p class="eyebrow centered-eyebrow">挑戰已準備好</p>
+          <h1 id="challenge-ready-title" data-focus-target tabindex="-1">把題目傳給朋友來猜</h1>
+          <p class="workflow-copy" data-challenge-ready-summary></p>
+          <label class="challenge-link-label" for="challenge-link">猜題連結</label>
+          <input class="text-input challenge-link-input" id="challenge-link" type="text" readonly data-challenge-link aria-describedby="challenge-link-note">
+          <p class="challenge-link-note" id="challenge-link-note">連結內含你的答案，不會上傳或保存到 Samewave；任何拿到完整連結的人都能查看。請只分享給你想邀請的人。</p>
+          <p class="challenge-share-status" data-challenge-share-status role="status" aria-live="polite"></p>
+          <div class="result-actions challenge-ready-actions">
+            <button class="primary-button" type="button" data-share-challenge><span>分享猜題連結</span><span class="button-arrow" aria-hidden="true">↗</span></button>
+            <button class="secondary-button" type="button" data-copy-challenge>複製連結</button>
+          </div>
+          <button class="text-button challenge-home-button" type="button" data-challenge-home>回到首頁</button>
+        </section>
+
+        <section id="challenge-results" class="view workflow-view challenge-results-view hidden" data-view="challenge-results" aria-labelledby="challenge-results-title">
+          <button class="back-button workflow-back" type="button" data-challenge-home aria-label="回到首頁">← <span>回首頁</span></button>
+          <div class="workflow-mark challenge-mark" aria-hidden="true">✦</div>
+          <p class="eyebrow centered-eyebrow">猜題結果 · <span data-challenge-result-topic></span></p>
+          <h1 id="challenge-results-title" data-focus-target tabindex="-1">你猜中了 <span data-challenge-result-score>0</span> / <span data-challenge-result-count>5</span> 題</h1>
+          <p class="workflow-copy" data-challenge-result-copy></p>
+          <ul class="challenge-result-list" data-challenge-result-list></ul>
+          <p class="challenge-link-note challenge-result-note">這是一次性的本機猜題；你的答案和成績不會保存到帳號。</p>
+          <div class="result-actions challenge-result-actions">
+            <button class="primary-button" type="button" data-challenge-retry><span>再猜一次</span><span class="button-arrow" aria-hidden="true">↗</span></button>
+            <button class="secondary-button" type="button" data-challenge-home>回到首頁</button>
+          </div>
+        </section>
+
+        <section id="challenge-invalid" class="view workflow-view challenge-invalid-view hidden" data-view="challenge-invalid" aria-labelledby="challenge-invalid-title">
+          <div class="workflow-mark challenge-mark" aria-hidden="true">?</div>
+          <p class="eyebrow centered-eyebrow">無法開啟猜題</p>
+          <h1 id="challenge-invalid-title" data-focus-target tabindex="-1">這個猜題連結無效</h1>
+          <p class="workflow-copy" data-challenge-invalid-copy>請向出題者索取新的挑戰連結。</p>
+          <button class="primary-button challenge-home-button" type="button" data-challenge-home><span>回到首頁</span><span class="button-arrow" aria-hidden="true">↗</span></button>
         </section>
 
         <section id="matching" class="view matching-view hidden" data-view="matching" aria-live="polite">
