@@ -288,7 +288,7 @@
 
 - **經驗：** Google 的 `site:` 查詢能確認搜尋結果中是否已出現某個網址，但不能證明所有頁面都已收錄或保證排名。公開 `robots.txt` 和 sitemap 回應成功也不代表 sitemap 已提交到 Search Console；提交需要網站擁有權驗證。Search Console 顯示「已成功提交」仍不代表已讀取或解析 sitemap，應另外檢查已提交列表中的抓取狀態與找到的 URL 數。
 - **適用範圍：** GitHub Pages 等靜態網站，以及沒有伺服器端搜尋分析工具的公開網站。
-- **本專案做法：** 2026-11-21 以 `site:310182-sketch.github.io/samewave` 查詢，Google 結果已出現同頻網站；`robots.txt` 和 `sitemap.xml` 均回 HTTP 200。以首頁 HTML 標籤驗證 Search Console 擁有權並提交 sitemap 後，Search Console 接受提交，但詳細狀態顯示「無法讀取 Sitemap」及 0 個已探索網頁；一般及 Googlebot User-Agent 對 XML 的請求仍回 HTTP 200、`application/xml`，內容是有效的單頁 urlset。保留驗證標籤和提交紀錄，待 Google 後續處理，再依報表狀態排查；不要只憑提交成功提示就勾選 sitemap 處理完成。
+- **本專案做法：** 2026-11-21 以 `site:310182-sketch.github.io/samewave` 查詢，Google 結果已出現同頻網站；`robots.txt` 和 `sitemap.xml` 均回 HTTP 200。以首頁 HTML 標籤驗證 Search Console 擁有權並提交 sitemap 後，Search Console 接受提交，但當時詳細狀態顯示「無法讀取 Sitemap」及 0 個已探索網頁。2026-11-22 重新以 Googlebot User-Agent 取得公開 XML，回 HTTP 200、`application/xml`，可解析且列出首頁和隱私頁兩個 URL，兩個頁面也都回 HTTP 200；首頁 `lastmod` 已更新至實際發布日。Search Console 是否已處理仍須查看擁有者報表；不要只憑提交成功或直接 HTTP 請求就勾選處理完成。
 
 ## 部署破壞性 Edge Function 前先限制來源並驗證預檢
 
@@ -373,7 +373,7 @@
 
 - **經驗：** OAuth 品牌設定需要可公開瀏覽的網站和隱私政策入口時，可先把已確認的遊戲內資料告知整理成獨立靜態頁，採相對資產與回首頁路徑，並更新首頁連結、canonical、Open Graph 和 sitemap。保留跟遊戲內版本一致的用途與保存期限；若營運者法定名稱、服務地區或資料權利申請流程未定，清楚標為待覆核的資料說明草稿，不能宣稱已完成法律審查，也不能以草稿冒充正式政策。
 - **適用範圍：** GitHub Pages 等靜態產品需要 OAuth 可連結的資料處理說明、但完整法務資訊尚未取得時；草稿可協助準備設定，不代表 Google verification 或法律合規已完成。
-- **本專案做法：** 建立 `site/privacy.html`，明列 Supabase Auth、遊戲資料和檢舉資料的用途與目前 24 小時、90 天、180 天保存期限，註明自助刪除尚未開放及人工檢舉處理未配置；以頁面提示要求正式公開前覆核營運者名稱、適用地區和權利申請流程。首頁新增獨立頁面連結並加入 sitemap。頁面仍在尚未合併的分支；部署後可被公開連結，仍須確認 GitHub Pages 網域授權和正式政策內容後，才能提交 Google 品牌設定。
+- **本專案做法：** 建立 `site/privacy.html`，明列 Supabase Auth、遊戲資料和檢舉資料的用途與目前 24 小時、90 天、180 天保存期限，註明自助刪除尚未開放及人工檢舉處理未配置；以頁面提示要求正式公開前覆核營運者名稱、適用地區和權利申請流程。首頁新增獨立頁面連結並加入 sitemap。2026-11-22 已在 GitHub Pages 公開；首頁與隱私頁均由 Googlebot User-Agent 取得 HTTP 200，Sitemap 可解析並同時列出兩者。公開和可連結不等於法務覆核完成，正式服務地區與權利申請流程仍需確認。
 
 
 ## 同步前端題庫與服務端主題允許清單
