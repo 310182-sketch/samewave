@@ -105,7 +105,7 @@
 
 ## K-pop 題庫內容更新
 
-- **狀態：** 十五題追星情境已更新於前端，`app.js?v=21` 已部署至 GitHub Pages；forward-only migration `20261122000400_refine_kpop_fandom_questions.sql` 已推至 Samewave `main`，但尚未套用至 production。正式資料庫目前仍供應舊版 K-pop 題目。
+- **狀態：** 十五題追星情境已更新於前端，`app.js?v=21` 已部署至 GitHub Pages；forward-only migration `20261122000400_refine_kpop_fandom_questions.sql` 已推至 Samewave `main`，PGlite 與逐題 Chrome 一致性檢查通過，Actions run #45018311959 的 `verify`、`block_race`、`deploy` 全成功。但 migration 尚未套用至 production；正式資料庫目前仍供應舊版 K-pop 題目。
 - **建議：** 在 Samewave Supabase SQL Editor 執行該 migration，再唯讀確認 `question_bank` 的 `kpop` 題號 1–15、題目及選項與 repository 一致。此 migration 只 upsert K-pop 題目列，不修改玩家資料或其他主題。
 - **操作界線：** 套用前先檢查遠端 migration ledger 確認版本仍是 15/15；SQL Editor 執行會更換公開真人對局顯示的題目文案，須在按下執行前取得本次明確確認。完成後將路線圖狀態改為已部署，記錄遠端 ledger 和題目查詢結果。
 - **適用範圍：** 已發布的靜態網站使用資料庫作為正式題庫，且需在不改寫舊 migration 的情況下更新遊戲內容。

@@ -106,8 +106,8 @@
 
 - **經驗：** 更新前端題庫只會改變本機示範；真人房間從 Supabase `question_bank` 取得題目，必須另外以 forward-only migration 更新資料列。GitHub Pages 部署成功不代表遊戲資料庫內容已更新。
 - **適用範圍：** 靜態前端展示題庫、但正式互動由 API／資料庫載入題目的遊戲、測驗或多語內容網站。
-- **本專案做法：** 前端 `questionBank` 和資料庫題目保持同一套 15 個題號；內容修改以 `(topic_key, question_no)` upsert 新 migration，避免改寫已部署 seed migration；同步增加 `app.js` 查詢參數以刷新瀏覽器快取。推送後分別確認 Actions／公開腳本版本，以及 production migration ledger／題目列。K-pop 題庫 commit `55d80d5` 的 Pages run #45002608644 已成功、公開頁載入 `app.js?v=21`，但第十六份資料 migration 尚未執行，因此真人對局仍讀取舊文案；不可將前端發布當成完整題庫發布。
-- **一致性檢查：** 前端 headless Chrome 測試逐題核對 15 個 K-pop prompt；PGlite 在依序套用 migration 後比對正式題庫的 prompt 與雙選項。兩邊都通過後仍要另外查 production，因為本機 SQL 測試不能證明遠端 migration 已執行。
+- **本專案做法：** 前端 `questionBank` 和資料庫題目保持同一套 15 個題號；內容修改以 `(topic_key, question_no)` upsert 新 migration，避免改寫已部署 seed migration；同步增加 `app.js` 查詢參數以刷新瀏覽器快取。推送後分別確認 Actions／公開腳本版本，以及 production migration ledger／題目列。K-pop 題庫 commit `55d80d5` 的 Pages 部署成功、公開頁載入 `app.js?v=21`；後續一致性測試 Actions run #45018311959 的 `verify`、`block_race`、`deploy` 均通過。但第十六份資料 migration 尚未執行，因此真人對局仍讀取舊文案；不可將前端發布當成完整題庫發布。
+- **一致性檢查：** 前端 headless Chrome 測試逐題核對 15 個 K-pop prompt；PGlite 在依序套用 migration 後比對資料庫題目的 prompt 與雙選項。兩者均由本機／CI 驗證通過後，仍需另外查 production，因為本機 SQL 測試不能證明遠端 migration 已執行。
 - **測試環境：** 若本機缺少 Deno、而 repository 的 GitHub Actions 已固定 Deno 版本，先跑可用的 Node／Chrome 檢查，再把 PGlite 回歸交給該 workflow；只有確認 `verify` 成功才記為通過，不需為單一檢查另裝未設定的 runtime。
 
 ## 共用工作目錄的 Git remote 可能指向另一個產品
