@@ -400,7 +400,7 @@
 
 - **經驗：** 內嵌前端題庫可支援未登入示範，但真人遊戲從資料庫讀題；只更新任一邊都會造成玩家看到兩套不同內容。題目文案修改應以 `(topic_key, question_no)` 建立新的 upsert migration，並保留既有答案及玩家資料。
 - **適用範圍：** 前端示範題庫與 Supabase/PostgreSQL 正式題庫並存的問答或配對遊戲。
-- **本專案做法：** `scripts/refresh-topic-copy.mjs` 依同一份 15 題主題資料產生前端更新和 210 筆非 K-pop migration；PGlite 測試再讀取 `site/app.js`，逐題比對套用所有 migration 後的 225 筆資料。更新版本需同時增加 `app.js` cache query，依序驗證 CI、Pages 部署和資料庫 migration；Pages 上線不代表 Supabase 題庫已更新。
+- **本專案做法：** `scripts/refresh-topic-copy.mjs` 依同一份 15 題主題資料產生前端更新和 210 筆非 K-pop migration；PGlite 測試再讀取 `site/app.js`，逐題比對套用所有 migration 後的 225 筆資料。2026-11-22 Actions run #45021996623 的 `verify`、`block_race`、`deploy` 成功，公開頁載入 `app.js?v=22`；遠端題庫仍待套用 00400／00500 並唯讀核對。更新版本需同時增加 `app.js` cache query，依序驗證 CI、Pages 部署和資料庫 migration；Pages 上線不代表 Supabase 題庫已更新。
 
 ## 讓可選題數貫穿整局與保存資料
 
