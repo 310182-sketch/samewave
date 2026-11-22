@@ -6,26 +6,23 @@
 
 ## 原型目前包含
 
-- 從旅行、音樂、日常、飲食、影視娛樂、興趣嗜好、運動、寵物、閱讀學習及藝術文化十類主題選題，也可以隨機選題。
+- 從旅行、音樂、日常、飲食、影視娛樂、興趣嗜好、運動、寵物、閱讀學習、藝術文化、K-pop、F1、價值觀、感情觀及政治十五類主題選題，也可以隨機選題。
+- 每個主題有 15 道題目；玩家可選每局 5、10 或 15 題，預設 5 題。邀請房和續玩沿用所選題數，隨機配對只媒合相同題數。
 - 使用一次性的暱稱進入示範配對，不需要註冊。
 - 具備 Supabase Auth client、邀請房、隨機配對、真人雙人答題、歷史查詢和共同點統計的前端接線；有 Supabase 專案設定時走真人 RPC，沒有設定時保留明確標示的本機示範。
 - 真人對局提供檢舉及封鎖入口，歷史頁可管理封鎖清單；隱私說明列出資料用途和保存期限。此原型尚無人工審查人員，檢舉不代表即時有人處理。
 - 另有獨立的檢舉案件審查工作區，只有 Supabase reviewer allowlist 帳號可透過 RPC 查看與處理案件；Supabase 尚未設定時頁面會鎖定，不會顯示案件資料。
-- 完成五題二選一，逐題揭曉雙方答案並查看共同選擇。
+- 完成所選題數的二選一問答，逐題揭曉雙方答案並查看共同選擇。
 - 匯出 1080×1920 結果分享卡；可呼叫系統分享面板或下載 PNG。Instagram 交接仍需用實機確認。
 - 可在手機與桌面瀏覽器操作。
 
-網站已接上 Samewave Supabase 專案，Anonymous Auth／Manual Linking 與 Google provider 已設定。Google app 仍在外部測試模式；2026-11-22 以已授權的測試名單帳號驗證 Google 登入及新分頁 session 恢復成功。匿名帳號 linking、Realtime 跨裝置通知和帳號刪除仍待驗收。公開 main 現有十二份 migration；六碼邀請 migration 已在 Supabase 套用，七項遠端檢查通過並由官方 CLI 對帳。PR #1 已於 2026-11-22 rebase merge；Pages Actions [run 44931736216](https://github.com/310182-sketch/samewave/actions/runs/44931736216) 的 verify、block_race、deploy 全部成功，公開網站載入 app.js?v=19，六碼邀請碼與自適應 Realtime 輪詢已發布。
+網站已接上 Samewave Supabase 專案。玩家使用匿名登入，session 會保存在目前瀏覽器；清除網站資料或換裝置後可能無法找回匿名帳號。Google 登入從玩家頁面移除；獨立案件審查頁仍供核准審查員使用。政治主題的答案可能反映敏感偏好，依一般期限保存。Realtime 跨裝置通知和帳號刪除仍待驗收。公開 `main` 目前載入 `app.js?v=19`；15 份 Supabase migration 已部署並由 CLI 對帳，遠端唯讀查詢確認 15 個主題各有 15 題，並保留舊版五題 RPC。5／10／15 題的前端、回歸測試與部署尚待本輪發布；本機 PGlite 20 項與 headless Chrome 題數流程已通過。
 
 ## Supabase Auth 設定
 
-site/supabase-config.js 配置 Samewave 專案公開 Project URL 與 publishable key。Google 是唯一社群登入；匿名遊客入口也保留。Facebook／X 已關閉，Instagram／Threads 不提供登入。PR #3 已移除首頁和審查工作區的其他 provider 按鈕；最新 Pages run [44931736216](https://github.com/310182-sketch/samewave/actions/runs/44931736216) 成功，公開網站載入 app.js?v=19。Google 仍在測試模式，只有測試名單帳號可登入。
+site/supabase-config.js 配置 Samewave 專案公開 Project URL 與 publishable key。玩家頁面只提供 Supabase Anonymous Auth；session 由瀏覽器持久保存，但匿名身分依賴目前瀏覽器資料，清除網站資料或換裝置後可能無法找回。Google OAuth 入口和匿名帳號 linking 已從玩家頁面移除；獨立案件審查工作區仍使用 Google 驗證核准的審查員。Supabase Google provider 保持設定，以維持審查員登入；不會為此停用或刪除既有 Google 帳號。
 
-Google OAuth 使用 Supabase Dashboard 顯示的 callback URL。Google app 目前為外部測試模式，只有測試名單帳號可登入。最新 client secret 已存入 Supabase，2026-11-22 已以測試名單帳號確認登入及同來源新分頁 session 恢復；client secret 僅存於 Supabase Auth，不放在網站或 repository。
-
-瀏覽器使用 Supabase JS v2.119.2 處理匿名登入、Google OAuth、PKCE session 恢復與匿名帳號 identity linking；CDN 檔案以 SRI 固定完整性。匿名帳號 linking 和真人遊戲跨裝置流程仍待驗收。未設定 URL／key 或 SDK 無法載入時，保留不會保存資料的本機示範。publishable key 是公開 client 設定；service role key 和 Google client secret 僅能留在 Supabase 後端。
-
-匿名帳號連結前，需在 Supabase Auth 設定中啟用 Manual Linking。OAuth redirect allow list 必須包含實際網站子路徑；本機應透過 HTTP localhost 預覽，而不是直接開啟 HTML 檔。
+瀏覽器使用 Supabase JS v2.119.2 處理匿名登入、PKCE 相容設定及 session 恢復；CDN 檔案以 SRI 固定完整性。沒有 URL／key 或 SDK 無法載入時，保留不會保存資料的本機示範。publishable key 是公開 client 設定；service role key 和 Google client secret 僅能留在 Supabase 後端。
 ### 自助刪除帳號
 
 刪除帳號由 `supabase/functions/delete-account/` 的 Edge Function 執行：函式先驗證目前登入者，再以 Supabase 後端的 service role 刪除該使用者。資料庫會先關閉該玩家的進行中房間；玩家自己的歷史和封鎖關係會移除，其他玩家的歷史會匿名化，既有檢舉則解除帳號連結並保留至 180 天期限。靜態前端不會取得 service role key。
@@ -34,7 +31,7 @@ Google OAuth 使用 Supabase Dashboard 顯示的 callback URL。Google app 目�
 
 ## 真人配對後端
 
-Public `main` contains twelve PostgreSQL migration files. PR #1 added six-digit numeric invite codes, server-side guess throttling and legacy-code transition support; the migration was applied in Supabase, passed seven remote checks, and its CLI ledger entry was reconciled without rerunning SQL. PR #1 was rebase-merged on 2026-11-22. Actions run 44931736216 passed `verify`, `block_race` and `deploy`; the public site now loads `app.js?v=19`. Per-account throttling is not a substitute for broader anti-abuse controls if account farming becomes a concern. Anonymous no-session `HEAD` probes with the public publishable key returned HTTP 401 for `game_answers`, `player_match_history` and `player_safety_reports`; no rows were read, and this does not verify authenticated users’ row ownership. The backend also provides RPCs for ten topic sets, matchmaking, paired answers, private history, moderation, rate limits and data cleanup. PGlite and PostgreSQL 16 results do not replace live Auth, RLS, Realtime or cross-device checks. Never put the service role key in the static site.
+Public `main` contains twelve PostgreSQL migration files. PR #1 added six-digit numeric invite codes, server-side guess throttling and legacy-code transition support; the migration was applied in Supabase, passed seven remote checks, and its CLI ledger entry was reconciled without rerunning SQL. PR #1 was rebase-merged on 2026-11-22. Actions run 44931736216 passed `verify`, `block_race` and `deploy`; the public site now loads `app.js?v=19`. Per-account throttling is not a substitute for broader anti-abuse controls if account farming becomes a concern. Anonymous no-session `HEAD` probes with the public publishable key returned HTTP 401 for `game_answers`, `player_match_history` and `player_safety_reports`; no rows were read, and this does not verify authenticated users’ row ownership. The backend also provides RPCs for fifteen topic sets, matchmaking, paired answers, private history, moderation, rate limits and data cleanup. PGlite and PostgreSQL 16 results do not replace live Auth, RLS, Realtime or cross-device checks. Never put the service role key in the static site.
 
 ### 本機 migration 回歸測試
 
@@ -44,7 +41,7 @@ Public `main` contains twelve PostgreSQL migration files. PR #1 added six-digit 
 deno test --allow-read --allow-net supabase/tests/migrations.test.ts
 ```
 
-14 項測試會自動依檔名排序並套用 `supabase/migrations/` 中所有 SQL migration，新增驗證十類題庫、六個新增類別的邀請房與隨機配對，以及未知主題拒絕；其他案例涵蓋雙人作答揭曉與歷史摘要、配對和封鎖／取消、交易鎖、歷史與排名、資料清理、限量、檢舉、帳號刪除和審查流程。這些測試使用最小 Auth／角色 stub，不取代 Supabase 專案中的 Auth、Realtime、pg_cron、RLS 或跨裝置驗證。
+20 項測試會自動依檔名排序並套用 `supabase/migrations/` 中所有 SQL migration，涵蓋十五類題庫、5／10／15 題在邀請房／配對／結果／歷史／續玩間的一致性，以及不同題數不互相配對；另驗證未知主題與非法題數拒絕。其他案例涵蓋雙人作答揭曉與歷史摘要、封鎖／取消競態、交易鎖、歷史與排名、資料清理、限量、檢舉、帳號刪除和審查流程。這些測試使用最小 Auth／角色 stub，不取代 Supabase 專案中的 Auth、Realtime、pg_cron、RLS 或跨裝置驗證。
 
 另有 `supabase/tests/block_match_concurrency.test.ts`，以 PostgreSQL 16 多連線實際交錯執行封鎖、隨機配對、邀請加入、限量和取消。第三條管理連線會確認 advisory lock 與票券列鎖等待狀態。封鎖提交後配對不會成功，邀請加入會被拒絕；第六間房及第十二張票券可建立，第七次開房與第十三次配對請求會被拒絕。取消先鎖定票券時配對會略過；配對先鎖定時取消等待後回報 `matched`。此測試會建立角色、schema 和資料，只允許 loopback 主機；請只用一次性的空白 PostgreSQL 16 資料庫，絕不可指向 Supabase 或其他正式資料庫。GitHub Actions 會在獨立 PostgreSQL service 執行此測試，並要求它通過後才部署 Pages：
 
@@ -55,7 +52,7 @@ deno test --allow-env --allow-net --allow-read supabase/tests/block_match_concur
 
 ## 本機預覽
 
-直接用瀏覽器開啟 site/index.html 即可預覽，不需要安裝套件或建置工具。
+執行 `node scripts/preview-site.mjs` 後開啟 `http://127.0.0.1:4173/`。預覽服務只綁定本機回環位址，從 `site/` 提供靜態檔案，不需安裝套件或建置工具；也可直接開啟 `site/index.html`。
 
 ## GitHub Pages 部署
 
@@ -73,9 +70,8 @@ deno test --allow-env --allow-net --allow-read supabase/tests/block_match_concur
 
 ## 下一步
 
-- 使用兩個已授權的 Supabase 測試 session 驗證匿名登入／登出、重新載入後 session 恢復，以及連結 Google 後 player ID／歷史保留。
+- 使用兩個已授權的 Supabase 測試 session 驗證匿名登入／登出、重新載入後 session 恢復，以及新主題在正式後端的邀請房和配對流程。
 - 使用兩部隔離裝置端到端驗證邀請房、隨機配對、完整對局、歷史查詢、RLS 與 Realtime 權限。
-- 經使用者明確核准後，將 Google OAuth 從 Testing 發布至 Production，並用非測試名單帳號驗證一般帳號登入；目前僅測試名單能登入。
 - 經明確核准後，以一次性測試帳號驗證帳號刪除 Edge Function 的 JWT／origin 拒絕與資料收尾；驗收通過後再決定是否開啟前端刪除入口。
 - 在 Supabase 真人環境檢查封鎖、檢舉、限量與清理排程；建立並實際驗證審查員和玩家聯絡流程。
 - 在 iOS／Android 實機與 VoiceOver／TalkBack 檢查無障礙操作、分享交接和文字放大，收集玩家回饋。

@@ -47,8 +47,11 @@ jobs:
       - name: Test live Auth provider status helper
         run: node --test scripts/auth-provider-status.test.mjs
 
-      - name: Test anonymous and Google auth flows in headless Chrome
+      - name: Test anonymous-only player auth flow in headless Chrome
         run: node scripts/auth-login-flows.mjs
+
+      - name: Test 5, 10, and 15 question game flows in headless Chrome
+        run: node scripts/question-count-selection.mjs
 
       - name: Test matchmaking cancellation race in headless Chrome
         run: node scripts/matchmaking-cancel-race.mjs

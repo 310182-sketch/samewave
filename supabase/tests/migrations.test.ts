@@ -139,8 +139,9 @@ async function completeRoom(
   roomId: string,
   hostId = users.host,
   guestId = users.guest,
+  questionCount = 5,
 ) {
-  for (let question = 1; question <= 5; question += 1) {
+  for (let question = 1; question <= questionCount; question += 1) {
     const hostChoice = question % 2;
     const guestChoice = question === 3 ? 1 - hostChoice : hostChoice;
     await rpc(
@@ -169,7 +170,7 @@ async function completeRoom(
     );
     assertEquals(
       result.status,
-      question === 5 ? "completed" : "advanced",
+      question === questionCount ? "completed" : "advanced",
       `room completion after question ${question}`,
     );
   }
@@ -1191,7 +1192,7 @@ Deno.test("block writes share matchmaking and invite-join serialization", async 
       from pg_proc p
       where p.oid in (
         'public.block_room_opponent(uuid)'::regprocedure,
-        'public.queue_for_match(text,text)'::regprocedure,
+        'public.queue_for_match(text,text,smallint)'::regprocedure,
         'public.join_invite_room(text,text)'::regprocedure
       )
     `);
@@ -1302,6 +1303,11 @@ Deno.test("expanded topic catalog supports questions, invite rooms, and live mat
     "pets",
     "reading",
     "culture",
+    "kpop",
+    "f1",
+    "values",
+    "relationships",
+    "politics",
   ];
   const topicUsers = topicKeys.flatMap((_, index) => {
     const first = String(201 + index * 2).padStart(12, "0");
@@ -1325,21 +1331,22 @@ Deno.test("expanded topic catalog supports questions, invite rooms, and live mat
     `);
     assertEquals(
       catalog.rows.length,
-      10,
-      "all ten topic categories are seeded",
+      15,
+      "all fifteen topic categories are seeded",
     );
     for (const topic of catalog.rows) {
       assertEquals(
         topic.question_count,
-        5,
-        `${topic.topic_key} has five questions`,
+        15,
+        `${topic.topic_key} has fifteen questions`,
       );
     }
 
     for (const topicKey of topicKeys) {
+      const index = topicKeys.indexOf(topicKey) * 2;
       const invitation = await rpc(
         db,
-        users.host,
+        topicUsers[index],
         "select public.create_invite_room($1, $2) as response",
         [topicKey, "Host"],
       );
@@ -1355,12 +1362,11 @@ Deno.test("expanded topic catalog supports questions, invite rooms, and live mat
       );
       await rpc(
         db,
-        users.host,
+        topicUsers[index],
         "select public.leave_room($1::uuid) as response",
         [invitation.room_id],
       );
 
-      const index = topicKeys.indexOf(topicKey) * 2;
       const firstUser = topicUsers[index];
       const secondUser = topicUsers[index + 1];
       const waiting = await rpc(
@@ -2368,6 +2374,237 @@ Deno.test("moderation workflow restricts access, records review events, and purg
       retainedAudit.rows[0].count,
       0,
       "audit entries expire with the report",
+    );
+  } finally {
+    await db.close();
+  }
+});
+
+Deno.test("5, 10, and 15 question games stay consistent across backend flows", async () => {
+  const db = await createDatabase();
+  const matchUsers = [
+    "00000000-0000-4000-8000-000000000301",
+    "00000000-0000-4000-8000-000000000302",
+    "00000000-0000-4000-8000-000000000303",
+  ];
+  try {
+    await insertUsers(db, [...Object.values(users), ...matchUsers]);
+
+    const html = await Deno.readTextFile(
+      new URL("../../site/index.html", import.meta.url),
+    );
+    const app = await Deno.readTextFile(
+      new URL("../../site/app.js", import.meta.url),
+    );
+    for (const questionCount of [5, 10, 15]) {
+      assert(
+        html.includes(`data-question-count="${questionCount}"`),
+        `the UI offers ${questionCount} questions`,
+      );
+    }
+    assert(
+      app.includes("p_question_count: state.questionCount"),
+      "room and matchmaking RPCs send the selected count",
+    );
+
+    const invite = await rpc(
+      db,
+      users.host,
+      "select public.create_invite_room($1, $2, $3::smallint) as response",
+      ["kpop", "Host", 10],
+    );
+    assertEquals(
+      invite.question_count,
+      10,
+      "invite response retains 10 questions",
+    );
+    const room = await db.query<{ question_count: number }>(
+      "select question_count from public.game_rooms where id = $1",
+      [invite.room_id],
+    );
+    assertEquals(
+      room.rows[0].question_count,
+      10,
+      "invite room stores its count",
+    );
+    const joined = await rpc(
+      db,
+      users.guest,
+      "select public.join_invite_room($1, $2) as response",
+      [invite.invite_code, "Guest"],
+    );
+    assertEquals(joined.status, "joined", "guest joins the 10-question room");
+    const liveState = await rpc(
+      db,
+      users.host,
+      "select public.get_room_state($1::uuid) as response",
+      [invite.room_id],
+    );
+    assertEquals(liveState.question_count, 10, "live room exposes its count");
+
+    await completeRoom(db, String(invite.room_id), users.host, users.guest, 10);
+    const result = await rpc(
+      db,
+      users.guest,
+      "select public.get_room_results($1::uuid) as response",
+      [invite.room_id],
+    );
+    assertEquals(
+      result.question_count,
+      10,
+      "results expose the selected count",
+    );
+    const history = await db.query<{ question_count: number }>(
+      "select question_count from public.player_match_history where room_id = $1 and user_id = $2",
+      [invite.room_id, users.guest],
+    );
+    assertEquals(
+      history.rows[0].question_count,
+      10,
+      "history stores the selected count",
+    );
+
+    await rpc(
+      db,
+      users.host,
+      "select public.request_same_player_rematch($1::uuid) as response",
+      [invite.room_id],
+    );
+    const rematch = await rpc(
+      db,
+      users.guest,
+      "select public.request_same_player_rematch($1::uuid) as response",
+      [invite.room_id],
+    );
+    const rematchRoom = await db.query<{ question_count: number }>(
+      "select question_count from public.game_rooms where id = $1",
+      [rematch.room_id],
+    );
+    assertEquals(rematch.status, "matched", "both players can rematch");
+    assertEquals(
+      rematchRoom.rows[0].question_count,
+      10,
+      "rematch inherits the count",
+    );
+
+    await assertRejects(
+      () =>
+        rpc(
+          db,
+          users.blocked,
+          "select public.create_invite_room($1, $2, $3::smallint) as response",
+          ["travel", "Invalid", 7],
+        ),
+      "Question count must be 5, 10, or 15",
+    );
+    await assertRejects(
+      () =>
+        rpc(
+          db,
+          users.blocked,
+          "select public.queue_for_match($1, $2, $3::smallint) as response",
+          ["random", "Invalid", 7],
+        ),
+      "Question count must be 5, 10, or 15",
+    );
+
+    const fifteenQuestionInvite = await rpc(
+      db,
+      users.outsider,
+      "select public.create_invite_room($1, $2, $3::smallint) as response",
+      ["politics", "Fifteen", 15],
+    );
+    await rpc(
+      db,
+      users.blocked,
+      "select public.join_invite_room($1, $2) as response",
+      [fifteenQuestionInvite.invite_code, "Partner"],
+    );
+    await completeRoom(
+      db,
+      String(fifteenQuestionInvite.room_id),
+      users.outsider,
+      users.blocked,
+      15,
+    );
+    const fifteenHistory = await db.query<{ question_count: number }>(
+      "select question_count from public.player_match_history where room_id = $1 and user_id = $2",
+      [fifteenQuestionInvite.room_id, users.blocked],
+    );
+    assertEquals(
+      fifteenHistory.rows[0].question_count,
+      15,
+      "15-question game completes into history",
+    );
+
+    const fiveQuestionTicket = await rpc(
+      db,
+      matchUsers[0],
+      "select public.queue_for_match($1, $2, $3::smallint) as response",
+      ["travel", "Five", 5],
+    );
+    const tenQuestionTicket = await rpc(
+      db,
+      matchUsers[1],
+      "select public.queue_for_match($1, $2, $3::smallint) as response",
+      ["music", "Ten A", 10],
+    );
+    const tenQuestionMatch = await rpc(
+      db,
+      matchUsers[2],
+      "select public.queue_for_match($1, $2, $3::smallint) as response",
+      ["random", "Ten B", 10],
+    );
+    assertEquals(
+      fiveQuestionTicket.status,
+      "waiting",
+      "5-question player waits separately",
+    );
+    assertEquals(
+      tenQuestionTicket.status,
+      "waiting",
+      "first 10-question player waits",
+    );
+    assertEquals(
+      tenQuestionMatch.status,
+      "matched",
+      "10-question players match together",
+    );
+    assertEquals(
+      tenQuestionMatch.question_count,
+      10,
+      "match response retains 10 questions",
+    );
+    const matchedRoom = await db.query<{ question_count: number }>(
+      "select question_count from public.game_rooms where id = $1",
+      [tenQuestionMatch.room_id],
+    );
+    assertEquals(
+      matchedRoom.rows[0].question_count,
+      10,
+      "matched room stores the count",
+    );
+    const fiveStatus = await rpc(
+      db,
+      matchUsers[0],
+      "select public.get_match_status($1::uuid) as response",
+      [fiveQuestionTicket.ticket_id],
+    );
+    assertEquals(
+      fiveStatus.status,
+      "waiting",
+      "different question counts never match",
+    );
+
+    await assertRejects(
+      () =>
+        rpc(
+          db,
+          users.blocked,
+          "select public.queue_for_match($1, $2) as response",
+          ["unsupported", "Player"],
+        ),
+      "Unsupported topic choice",
     );
   } finally {
     await db.close();

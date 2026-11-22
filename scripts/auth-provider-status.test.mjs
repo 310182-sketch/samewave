@@ -54,14 +54,16 @@ test("returns only the Google provider flag and clears the timeout", async () =>
   assert.equal(helper.clearedTimers.length, 1);
 });
 
-test("shows only Google as a social sign-in option", () => {
-  for (const source of [indexSource, moderationSource]) {
-    assert.deepEqual(
-      [...source.matchAll(/data-auth-provider="([^"]+)"/g)].map((match) => match[1]),
-      ["google"]
-    );
-    assert.doesNotMatch(source, /data-auth-provider="(?:facebook|x|instagram|threads)"/);
-  }
+test("keeps player sign-in anonymous and reviewer sign-in Google-only", () => {
+  assert.deepEqual(
+    [...indexSource.matchAll(/data-auth-provider="([^"]+)"/g)].map((match) => match[1]),
+    []
+  );
+  assert.deepEqual(
+    [...moderationSource.matchAll(/data-auth-provider="([^"]+)"/g)].map((match) => match[1]),
+    ["google"]
+  );
+  assert.doesNotMatch(moderationSource, /data-auth-provider="(?:facebook|x|instagram|threads)"/);
 });
 
 test("rejects unsuccessful responses and clears the timeout", async () => {

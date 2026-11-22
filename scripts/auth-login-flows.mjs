@@ -18,9 +18,8 @@ const mockClient = String.raw`
         url: "http://127.0.0.1:54321",
         anonKey: "public-test-key",
         accountDeletionEnabled: false,
-        providers: { google: false }
+      providers: {}
       };
-      window.SAMEWAVE_AUTH_PROVIDER_STATUS = { async load() { return { google: true }; } };
       const authTest = window.__authLoginTest = { calls: [], session: null, authCallback: null };
       window.supabase = {
         createClient() {
@@ -85,19 +84,11 @@ const browserTest = String.raw`
       (async () => {
         const test = window.__authLoginTest;
         const anonymousButton = document.querySelector("[data-auth-anonymous]");
-        const googleButton = document.querySelector('[data-auth-provider="google"]');
-        if (!anonymousButton || !googleButton) throw new Error("Expected anonymous and Google controls");
-        await waitFor(() => !googleButton.disabled && !anonymousButton.disabled, "enabled auth controls");
-
-        googleButton.click();
-        await waitFor(() => test.calls.some((call) => call.method === "signInWithOAuth"), "Google sign-in call");
-        const signInCall = test.calls.find((call) => call.method === "signInWithOAuth");
-        if (signInCall.options.provider !== "google") throw new Error("social sign-in did not select Google");
-        const expectedRedirect = window.location.origin + window.location.pathname;
-        if (signInCall.options.options?.redirectTo !== expectedRedirect) {
-          throw new Error("Google sign-in did not use the current page as its redirect");
+        const socialButtons = document.querySelectorAll("[data-auth-provider]");
+        if (!anonymousButton || socialButtons.length) {
+          throw new Error("Expected an anonymous control without social sign-in buttons");
         }
-        await waitFor(() => !googleButton.disabled, "Google control after OAuth handoff");
+        await waitFor(() => !anonymousButton.disabled, "enabled anonymous auth control");
 
         anonymousButton.click();
         await waitFor(() => test.session?.user?.id === "mock-anonymous-player-id", "anonymous session");
@@ -105,24 +96,12 @@ const browserTest = String.raw`
         if (!anonymousButton.textContent.includes("已匿名登入")) {
           throw new Error("anonymous login state was not reflected in the UI");
         }
-        const originalUserId = test.session.user.id;
-        await waitFor(() => !googleButton.disabled, "Google link control");
-        googleButton.click();
-        await waitFor(() => test.calls.some((call) => call.method === "linkIdentity"), "Google identity link call");
-        const linkCall = test.calls.find((call) => call.method === "linkIdentity");
-        if (linkCall.options.provider !== "google") throw new Error("identity linking did not select Google");
-        if (linkCall.options.options?.redirectTo !== expectedRedirect) {
-          throw new Error("Google identity linking did not use the current page as its redirect");
-        }
-        if (linkCall.userId !== originalUserId || test.session.user.id !== originalUserId) {
-          throw new Error("linking did not preserve the current anonymous player ID");
-        }
-        if (test.calls.filter((call) => call.method === "signInWithOAuth").length !== 1) {
-          throw new Error("linking replaced or repeated the standalone Google sign-in flow");
+        if (test.calls.some((call) => call.method === "signInWithOAuth" || call.method === "linkIdentity")) {
+          throw new Error("the player page invoked a social sign-in or identity-linking flow");
         }
 
         document.documentElement.setAttribute("data-auth-login-flows", "passed");
-        output.textContent = "PASS: Google sign-in, anonymous sign-in, and Google identity-link invocation preserve the player ID.";
+        output.textContent = "PASS: anonymous sign-in works without social sign-in or identity-linking controls.";
       })().catch((error) => fail(error?.message || String(error)));
     });
   </script>`;
@@ -139,8 +118,8 @@ function createTestPage() {
   const appScript = html.match(/<script src="app\.js[^\"]*" defer><\/script>/)?.[0];
   if (!appScript) throw new Error("Could not find the application script in site/index.html");
   html = html.replace(appScript, `${mockClient}\n    ${appScript}`);
-  if (!html.includes("data-auth-anonymous") || !html.includes('data-auth-provider="google"')) {
-    throw new Error("The page is missing an expected supported login control");
+  if (!html.includes("data-auth-anonymous") || html.includes('data-auth-provider="google"')) {
+    throw new Error("The page must expose anonymous sign-in without Google player sign-in");
   }
   return html.replace("</body>", `${browserTest}\n  </body>`);
 }
@@ -215,7 +194,7 @@ try {
   if (!output.includes('data-auth-login-flows="passed"')) {
     throw new Error(`Browser verification failed: ${output.slice(-5000)}`);
   }
-  console.log("Anonymous and Google auth flows passed in headless Chrome.");
+  console.log("Anonymous-only player auth flow passed in headless Chrome.");
 } finally {
   await new Promise((resolve) => server.close(resolve));
   const tempRoot = path.resolve(os.tmpdir());

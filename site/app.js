@@ -7,76 +7,262 @@
       { prompt: "到了陌生城市，你最想先做什麼？", choices: ["找在地小吃", "四處散步看看"], demoAnswer: 0 },
       { prompt: "你比較想把旅行記憶留在哪裡？", choices: ["拍很多照片", "好好感受當下"], demoAnswer: 1 },
       { prompt: "旅途中多出半天空檔，你會？", choices: ["探索沒去過的地方", "找間咖啡店休息"], demoAnswer: 0 },
-      { prompt: "你偏好的旅行夥伴是？", choices: ["一起安排、互相提醒", "走到哪裡算哪裡"], demoAnswer: 1 }
+      { prompt: "你偏好的旅行夥伴是？", choices: ["一起安排、互相提醒", "走到哪裡算哪裡"], demoAnswer: 1 },
+      { prompt: "長途移動時，你比較喜歡？", choices: ["搭火車欣賞沿途風景", "開車掌握自己的節奏"], demoAnswer: 0 },
+      { prompt: "旅行住宿你會優先選？", choices: ["交通方便、節省時間", "環境舒服、適合休息"], demoAnswer: 1 },
+      { prompt: "安排景點時，你比較想？", choices: ["把經典地標排進行程", "留時間探索在地街區"], demoAnswer: 1 },
+      { prompt: "旅行打包時，你通常？", choices: ["先列清單確認用品", "帶上基本需要就出發"], demoAnswer: 0 },
+      { prompt: "在旅途中遇到下雨，你會？", choices: ["改去室內景點", "穿雨具繼續散步"], demoAnswer: 0 },
+      { prompt: "買旅行紀念品時，你偏好？", choices: ["實用、回家還會用到", "有故事、能想起旅程"], demoAnswer: 1 },
+      { prompt: "旅行照片你比較喜歡？", choices: ["拍下人物和當下互動", "記錄風景與城市細節"], demoAnswer: 0 },
+      { prompt: "到一個新地方吃飯，你會？", choices: ["先找當地代表料理", "挑一間看起來舒服的店"], demoAnswer: 1 },
+      { prompt: "旅程結束回家後，你會先？", choices: ["整理照片和回憶", "好好休息、慢慢收行李"], demoAnswer: 0 },
+      { prompt: "抵達景點後，你比較想？", choices: ["先確認回程和集合時間", "趁有興致立刻開始逛"], demoAnswer: 1 }
     ],
     音樂: [
       { prompt: "聽一首新歌時，你通常先注意？", choices: ["歌詞寫了什麼", "旋律聽起來如何"], demoAnswer: 1 },
       { prompt: "你最常在什麼時候聽音樂？", choices: ["通勤或移動時", "專心休息的時候"], demoAnswer: 0 },
       { prompt: "遇到喜歡的歌，你比較會？", choices: ["立刻分享給朋友", "先收藏起來自己聽"], demoAnswer: 1 },
       { prompt: "如果去聽現場演出，你會？", choices: ["跟著唱、享受熱鬧", "安靜感受每一首歌"], demoAnswer: 0 },
-      { prompt: "你的歌單通常比較像？", choices: ["熟悉的歌反覆播放", "常常加入新發現"], demoAnswer: 1 }
+      { prompt: "你的歌單通常比較像？", choices: ["熟悉的歌反覆播放", "常常加入新發現"], demoAnswer: 1 },
+      { prompt: "聽音樂時，你比較常用？", choices: ["耳機專心聽", "讓音樂在背景播放"], demoAnswer: 0 },
+      { prompt: "一張專輯你會怎麼聽？", choices: ["從頭到尾完整播放", "先挑喜歡的單曲"], demoAnswer: 1 },
+      { prompt: "歌曲裡你容易記住？", choices: ["一句很有感的歌詞", "讓人難忘的旋律"], demoAnswer: 1 },
+      { prompt: "發現一位新歌手，你會先？", choices: ["找現場演出影片", "聽幾首代表歌曲"], demoAnswer: 0 },
+      { prompt: "搭配工作或讀書的音樂，你偏好？", choices: ["有歌詞、跟著哼唱", "純音樂、比較不分心"], demoAnswer: 1 },
+      { prompt: "去音樂祭時，你想？", choices: ["站近舞台感受現場", "找舒服位置聽不同演出"], demoAnswer: 0 },
+      { prompt: "老歌再次播放時，你會？", choices: ["想起當時的回憶", "注意以前沒聽見的細節"], demoAnswer: 0 },
+      { prompt: "挑一副耳機，你更在意？", choices: ["音質和細節", "戴久也舒服方便"], demoAnswer: 1 },
+      { prompt: "朋友推薦一首歌，你會？", choices: ["馬上點開來聽", "等有空時找完整時間聽"], demoAnswer: 0 },
+      { prompt: "第一次聽一張專輯，你通常？", choices: ["找安靜時間從頭聽", "先挑幾首歌試聽"], demoAnswer: 1 }
     ],
     日常: [
       { prompt: "放假早上，你比較想？", choices: ["早點起床開始一天", "睡到自然醒再說"], demoAnswer: 1 },
       { prompt: "做事時，你偏好哪一種節奏？", choices: ["先排好順序再開始", "想到什麼就先做什麼"], demoAnswer: 0 },
       { prompt: "一天結束後，哪種方式最能放鬆？", choices: ["自己安靜待一會兒", "找人聊聊今天的事"], demoAnswer: 0 },
       { prompt: "你比較常用哪種方式記住事情？", choices: ["寫在行事曆或清單上", "相信自己會記得"], demoAnswer: 1 },
-      { prompt: "突然有一小時空檔，你會？", choices: ["完成一件待辦事項", "讓自己放空一下"], demoAnswer: 1 }
+      { prompt: "突然有一小時空檔，你會？", choices: ["完成一件待辦事項", "讓自己放空一下"], demoAnswer: 1 },
+      { prompt: "早上出門前，你通常？", choices: ["預留時間慢慢準備", "快速整理就出發"], demoAnswer: 1 },
+      { prompt: "平日午餐你比較常？", choices: ["帶熟悉的餐點或便當", "看看今天想吃什麼"], demoAnswer: 0 },
+      { prompt: "桌面或房間整理時，你會？", choices: ["一次整理到定位", "需要時再收拾"], demoAnswer: 0 },
+      { prompt: "你比較喜歡哪種提醒？", choices: ["行事曆提前通知", "自己記住時間和安排"], demoAnswer: 1 },
+      { prompt: "忙完一天回到家，你想先？", choices: ["換好衣服休息一下", "把明天要用的東西準備好"], demoAnswer: 0 },
+      { prompt: "生活用品快用完時，你通常？", choices: ["提前補貨", "用完再去買"], demoAnswer: 1 },
+      { prompt: "週末行程你會？", choices: ["先約好時間和地點", "當天再看心情決定"], demoAnswer: 0 },
+      { prompt: "遇到小小的不順，你比較會？", choices: ["先處理能改變的部分", "休息一下再重新開始"], demoAnswer: 1 },
+      { prompt: "一天中你最有精神的時候是？", choices: ["早上剛開始時", "傍晚或夜晚"], demoAnswer: 1 },
+      { prompt: "你會怎麼開始一個新習慣？", choices: ["設定固定時間提醒", "先從容易做到的小步驟開始"], demoAnswer: 0 }
     ],
     飲食: [
       { prompt: "點餐時，你通常會選？", choices: ["最熟悉、吃不膩的", "試試沒吃過的新口味"], demoAnswer: 1 },
       { prompt: "你喜歡哪一種早餐？", choices: ["慢慢吃一頓完整早餐", "簡單方便就可以"], demoAnswer: 0 },
       { prompt: "和朋友聚餐時，你比較在意？", choices: ["大家能一起分享食物", "每個人都吃到喜歡的"], demoAnswer: 0 },
       { prompt: "甜點擺在面前，你會？", choices: ["先拍照再開始吃", "趁熱趁新鮮馬上吃"], demoAnswer: 1 },
-      { prompt: "喝飲料時，你偏好？", choices: ["固定點最愛的那款", "偶爾換個新口味"], demoAnswer: 1 }
+      { prompt: "喝飲料時，你偏好？", choices: ["固定點最愛的那款", "偶爾換個新口味"], demoAnswer: 1 },
+      { prompt: "吃火鍋時，你會先？", choices: ["挑喜歡的湯底", "把想吃的料放進鍋裡"], demoAnswer: 0 },
+      { prompt: "選餐廳時，你更看重？", choices: ["餐點口味和特色", "用餐環境和氣氛"], demoAnswer: 1 },
+      { prompt: "吃辣時，你通常？", choices: ["微辣提味就好", "越辣越過癮"], demoAnswer: 0 },
+      { prompt: "自助餐取餐時，你會？", choices: ["每樣都拿一點嘗試", "集中選最想吃的幾樣"], demoAnswer: 1 },
+      { prompt: "週末早午餐你偏好？", choices: ["找間店慢慢吃", "在家簡單準備"], demoAnswer: 0 },
+      { prompt: "一份甜點你喜歡？", choices: ["清爽、甜度低一點", "濃郁、口感豐富"], demoAnswer: 1 },
+      { prompt: "看到期間限定口味，你會？", choices: ["想趁機試試看", "還是選平常喜歡的"], demoAnswer: 0 },
+      { prompt: "和朋友分食時，你更在意？", choices: ["大家都能吃到想吃的", "點幾道特別的菜分享"], demoAnswer: 1 },
+      { prompt: "自己煮飯時，你通常？", choices: ["照食譜一步步做", "看現有食材自由搭配"], demoAnswer: 1 },
+      { prompt: "旅行時遇到排隊名店，你會？", choices: ["願意排隊試試招牌", "改找附近不用久等的店"], demoAnswer: 0 }
     ],
     影視娛樂: [
       { prompt: "看影視作品時，你最容易被什麼吸引？", choices: ["精彩的故事", "鮮明的畫面與氛圍"], demoAnswer: 0 },
       { prompt: "追劇時你比較喜歡？", choices: ["一次看好幾集", "留著慢慢享受"], demoAnswer: 1 },
       { prompt: "挑一部新作品時，你會先看？", choices: ["朋友推薦", "預告或片段"], demoAnswer: 0 },
       { prompt: "休閒時打開影音平台，你通常想看？", choices: ["輕鬆好笑的內容", "引人好奇的故事"], demoAnswer: 1 },
-      { prompt: "看完喜歡的作品後，你比較會？", choices: ["找人分享心得", "回味最喜歡的片段"], demoAnswer: 0 }
+      { prompt: "看完喜歡的作品後，你比較會？", choices: ["找人分享心得", "回味最喜歡的片段"], demoAnswer: 0 },
+      { prompt: "挑電影時，你會先看？", choices: ["故事簡介和題材", "演員或創作團隊"], demoAnswer: 1 },
+      { prompt: "看懸疑作品時，你喜歡？", choices: ["一路猜線索和結局", "跟著角色感受情緒"], demoAnswer: 0 },
+      { prompt: "追一部長篇影集，你通常？", choices: ["按播出進度慢慢追", "等完結後一次看"], demoAnswer: 1 },
+      { prompt: "看喜劇時，你更喜歡？", choices: ["對白節奏和機智", "角色互動和情境"], demoAnswer: 0 },
+      { prompt: "作品配樂對你來說？", choices: ["能加深故事印象", "有氣氛就很加分"], demoAnswer: 1 },
+      { prompt: "看完一部作品後，你會？", choices: ["搜尋幕後或解析", "讓故事留在心裡一會兒"], demoAnswer: 0 },
+      { prompt: "你比較喜歡哪種結局？", choices: ["線索完整、收得清楚", "留一些想像空間"], demoAnswer: 1 },
+      { prompt: "和朋友一起看影片，你會？", choices: ["專心看完再討論", "邊看邊交換反應"], demoAnswer: 0 },
+      { prompt: "選一部舊作品重看，你通常挑？", choices: ["最喜歡、很熟悉的", "以前沒注意到細節的"], demoAnswer: 1 },
+      { prompt: "看紀錄片時，你會？", choices: ["關注真實人物的經歷", "留意議題背景和資料"], demoAnswer: 0 }
     ],
     興趣嗜好: [
       { prompt: "開始一項新興趣時，你會先？", choices: ["跟著入門教學試試看", "直接動手邊做邊學"], demoAnswer: 1 },
       { prompt: "週末有一段空閒，你比較想？", choices: ["做點手作或創作", "出門走走找靈感"], demoAnswer: 0 },
       { prompt: "做興趣活動時，你偏好？", choices: ["自己專心完成", "找朋友一起玩"], demoAnswer: 1 },
       { prompt: "遇到喜歡的新嗜好，你會？", choices: ["先試最基本的玩法", "很快想挑戰進階內容"], demoAnswer: 0 },
-      { prompt: "你比較享受興趣中的哪一部分？", choices: ["完成一個作品或目標", "過程裡的新發現"], demoAnswer: 1 }
+      { prompt: "你比較享受興趣中的哪一部分？", choices: ["完成一個作品或目標", "過程裡的新發現"], demoAnswer: 1 },
+      { prompt: "學一項新技能時，你喜歡？", choices: ["有人示範再跟著練習", "自己摸索找出方法"], demoAnswer: 0 },
+      { prompt: "做手作或創作時，你會？", choices: ["先想好大致成果", "邊做邊讓想法改變"], demoAnswer: 1 },
+      { prompt: "你比較常選擇的興趣是？", choices: ["可以在家完成的活動", "需要外出體驗的活動"], demoAnswer: 0 },
+      { prompt: "遇到興趣上的小挫折，你會？", choices: ["找教學或請人指點", "休息後再自己試一次"], demoAnswer: 1 },
+      { prompt: "買興趣用品時，你偏好？", choices: ["先買基本款慢慢升級", "一次準備好常用工具"], demoAnswer: 0 },
+      { prompt: "參加興趣社團時，你會？", choices: ["先觀察熟悉大家", "主動聊聊交換經驗"], demoAnswer: 1 },
+      { prompt: "你比較喜歡哪種活動成果？", choices: ["看得見、摸得到的作品", "學到技巧或留下體驗"], demoAnswer: 1 },
+      { prompt: "休閒活動安排，你想？", choices: ["專心投入一整段時間", "穿插在日常空檔中"], demoAnswer: 0 },
+      { prompt: "嘗試陌生興趣時，你會先？", choices: ["參加體驗課", "看資料自己開始"], demoAnswer: 0 },
+      { prompt: "如果有一整個下午，你最想？", choices: ["完成正在進行的興趣計畫", "試試一件完全不同的事"], demoAnswer: 1 }
     ],
     運動: [
       { prompt: "活動身體時，你通常偏好？", choices: ["戶外走動與跑跳", "室內運動或伸展"], demoAnswer: 0 },
       { prompt: "做運動時你比較喜歡？", choices: ["和大家組隊", "照自己的步調進行"], demoAnswer: 1 },
       { prompt: "看一場比賽時，你最期待？", choices: ["緊張的攻防變化", "選手展現技巧"], demoAnswer: 0 },
       { prompt: "安排運動時間，你會選？", choices: ["早一點開始一天", "忙完後放鬆活動"], demoAnswer: 1 },
-      { prompt: "運動時哪種感覺更吸引你？", choices: ["突破自己的紀錄", "享受流汗後的輕鬆"], demoAnswer: 1 }
+      { prompt: "運動時哪種感覺更吸引你？", choices: ["突破自己的紀錄", "享受流汗後的輕鬆"], demoAnswer: 1 },
+      { prompt: "開始運動前，你通常？", choices: ["先暖身並規劃內容", "先動起來再調整節奏"], demoAnswer: 0 },
+      { prompt: "你比較喜歡的運動場地是？", choices: ["公園或戶外步道", "健身房或室內場館"], demoAnswer: 1 },
+      { prompt: "運動時你會聽？", choices: ["節奏明快的音樂", "環境聲或教練指示"], demoAnswer: 0 },
+      { prompt: "看體育賽事，你會先注意？", choices: ["比賽策略和整體配合", "個別選手的表現"], demoAnswer: 1 },
+      { prompt: "學一項運動時，你更想？", choices: ["找人一起練習", "先自己掌握基本動作"], demoAnswer: 0 },
+      { prompt: "運動目標你比較重視？", choices: ["固定維持活動習慣", "逐步提升速度或力量"], demoAnswer: 0 },
+      { prompt: "休息日你通常？", choices: ["完全放鬆恢復體力", "做輕鬆散步或伸展"], demoAnswer: 1 },
+      { prompt: "團隊比賽中，你喜歡？", choices: ["負責協調和傳球", "把握機會完成進攻"], demoAnswer: 0 },
+      { prompt: "遇到天氣不適合戶外運動，你會？", choices: ["改做室內訓練", "休息等天氣好再去"], demoAnswer: 1 },
+      { prompt: "運動結束後，你最期待？", choices: ["記下今天的成果", "沖澡放鬆、恢復精神"], demoAnswer: 1 }
     ],
     寵物: [
       { prompt: "和熟悉的動物相處時，你更喜歡？", choices: ["一起散步活動", "安靜陪伴一會兒"], demoAnswer: 1 },
       { prompt: "如果照顧寵物，你比較期待？", choices: ["一起玩耍互動", "觀察牠慢慢熟悉你"], demoAnswer: 0 },
       { prompt: "看到可愛的動物內容，你會先看？", choices: ["活潑逗趣的日常", "溫馨療癒的陪伴"], demoAnswer: 1 },
       { prompt: "你覺得理想的寵物個性是？", choices: ["親人又愛互動", "自在而有自己的步調"], demoAnswer: 1 },
-      { prompt: "在公園遇見不認識的狗，你會？", choices: ["先詢問飼主能否打招呼", "保持距離欣賞牠"], demoAnswer: 0 }
+      { prompt: "在公園遇見不認識的狗，你會？", choices: ["先詢問飼主能否打招呼", "保持距離欣賞牠"], demoAnswer: 0 },
+      { prompt: "看到貓咪時，你比較想？", choices: ["等牠主動靠近", "輕聲打招呼看看反應"], demoAnswer: 1 },
+      { prompt: "照顧動物時，你會先注意？", choices: ["飲食和身體狀況", "情緒和活動狀態"], demoAnswer: 0 },
+      { prompt: "寵物玩具你會選？", choices: ["能一起互動的玩具", "可以自己探索的玩具"], demoAnswer: 0 },
+      { prompt: "和動物相處時，你喜歡？", choices: ["陪牠玩一會兒", "在旁邊安靜陪伴"], demoAnswer: 1 },
+      { prompt: "你比較喜歡看哪種動物影片？", choices: ["有趣的訓練日常", "放鬆療癒的生活片段"], demoAnswer: 1 },
+      { prompt: "帶寵物外出時，你會？", choices: ["先規劃安全路線", "選熟悉、牠喜歡的地方"], demoAnswer: 0 },
+      { prompt: "你覺得動物最可愛的時候是？", choices: ["專心探索新事物", "自在休息打瞌睡"], demoAnswer: 1 },
+      { prompt: "和朋友聊到寵物，你比較想分享？", choices: ["牠最近學會的小事", "牠平常的個性和習慣"], demoAnswer: 0 },
+      { prompt: "如果幫動物取名字，你會選？", choices: ["簡單好叫的名字", "有特別故事的名字"], demoAnswer: 1 },
+      { prompt: "照顧寵物遇到新問題，你會先？", choices: ["詢問專業獸醫", "查找可信的照護資訊"], demoAnswer: 0 }
     ],
     閱讀學習: [
       { prompt: "挑一本書時，你比較會選？", choices: ["想像豐富的故事", "新的知識或真實經驗"], demoAnswer: 0 },
       { prompt: "想學會一件新事物，你通常先？", choices: ["找文章或書來讀", "看示範後親自練習"], demoAnswer: 1 },
       { prompt: "讀到有用的內容，你會？", choices: ["記下重點方便回看", "先繼續讀完再整理"], demoAnswer: 0 },
       { prompt: "你比較喜歡哪種閱讀節奏？", choices: ["每天讀一小段", "有空時一次讀久一點"], demoAnswer: 1 },
-      { prompt: "遇到感興趣的主題，你想？", choices: ["先廣泛看看不同面向", "挑一個方向深入研究"], demoAnswer: 1 }
+      { prompt: "遇到感興趣的主題，你想？", choices: ["先廣泛看看不同面向", "挑一個方向深入研究"], demoAnswer: 1 },
+      { prompt: "讀一本新書時，你習慣？", choices: ["從第一頁按順序讀", "先翻目錄找感興趣的章節"], demoAnswer: 0 },
+      { prompt: "讀到喜歡的句子，你會？", choices: ["畫線或記下來", "停下來想一想就繼續讀"], demoAnswer: 1 },
+      { prompt: "學習新知時，你比較喜歡？", choices: ["短篇文章和重點整理", "完整書籍或長篇內容"], demoAnswer: 0 },
+      { prompt: "閱讀時你喜歡的環境是？", choices: ["安靜、少有人打擾", "有一點背景聲音"], demoAnswer: 1 },
+      { prompt: "選下一本書時，你會？", choices: ["延續最近感興趣的主題", "換個領域探索看看"], demoAnswer: 1 },
+      { prompt: "遇到不熟悉的詞句，你通常？", choices: ["立刻查清楚意思", "先看上下文再決定"], demoAnswer: 0 },
+      { prompt: "讀完一本書後，你會？", choices: ["找人聊聊心得", "自己整理印象最深的部分"], demoAnswer: 1 },
+      { prompt: "你比較常使用哪種閱讀方式？", choices: ["紙本書", "電子書或手機閱讀"], demoAnswer: 0 },
+      { prompt: "學一項新知識時，你會？", choices: ["先建立整體概念", "先從具體例子開始"], demoAnswer: 1 },
+      { prompt: "你更容易被哪種書吸引？", choices: ["讓我想像不同人生的故事", "提供實用方法的內容"], demoAnswer: 0 }
     ],
     藝術文化: [
       { prompt: "逛展覽時，你比較喜歡？", choices: ["聽導覽了解背景", "照自己的步調欣賞"], demoAnswer: 1 },
       { prompt: "看現場表演時，你更享受？", choices: ["音樂與節奏的感染力", "演出和故事的張力"], demoAnswer: 0 },
       { prompt: "走進一座陌生城市，你會留意？", choices: ["老建築與在地歷史", "當代設計與新空間"], demoAnswer: 0 },
       { prompt: "接觸不同文化時，你比較想？", choices: ["體驗節慶和日常習俗", "欣賞藝術和表演"], demoAnswer: 1 },
-      { prompt: "在文化活動中，你更喜歡？", choices: ["和人交流分享看法", "安靜感受作品"], demoAnswer: 1 }
+      { prompt: "在文化活動中，你更喜歡？", choices: ["和人交流分享看法", "安靜感受作品"], demoAnswer: 1 },
+      { prompt: "參觀博物館時，你會？", choices: ["先看展覽主題和介紹", "直接從感興趣的展品開始"], demoAnswer: 0 },
+      { prompt: "欣賞一件藝術作品時，你先注意？", choices: ["色彩、線條和形式", "作品背後的故事"], demoAnswer: 1 },
+      { prompt: "旅行到不同城市，你想參加？", choices: ["在地節慶或市集", "音樂、戲劇或展演"], demoAnswer: 0 },
+      { prompt: "看表演時，你更喜歡？", choices: ["近距離感受舞台", "從遠處看完整場景"], demoAnswer: 1 },
+      { prompt: "了解一座城市的文化，你會？", choices: ["走訪老街和歷史建築", "參觀當代展館和空間"], demoAnswer: 0 },
+      { prompt: "接觸陌生文化時，你會先？", choices: ["了解生活習俗", "欣賞代表性的藝術"], demoAnswer: 1 },
+      { prompt: "看完展覽後，你想？", choices: ["帶走一個小紀念品", "把印象和感受記下來"], demoAnswer: 0 },
+      { prompt: "欣賞現場演出時，你在意？", choices: ["表演者和觀眾的互動", "作品本身的呈現細節"], demoAnswer: 1 },
+      { prompt: "週末文化行程你偏好？", choices: ["參加導覽或工作坊", "自由逛展、自己探索"], demoAnswer: 1 },
+      { prompt: "你比較想深入認識？", choices: ["地方飲食和日常生活", "建築、設計和公共空間"], demoAnswer: 0 }
+    ],
+    'K-pop': [
+      { prompt: "追一個 K-pop 團體時，你最期待？", choices: ["舞台表演", "成員互動"], demoAnswer: 0 },
+      { prompt: "新歌剛發佈，你通常先看？", choices: ["音樂錄影帶", "現場舞台"], demoAnswer: 1 },
+      { prompt: "聽到喜歡的歌，你比較會？", choices: ["先收藏起來", "分享給朋友"], demoAnswer: 0 },
+      { prompt: "看表演影片時，你容易注意？", choices: ["編舞和隊形", "整體氣氛和造型"], demoAnswer: 1 },
+      { prompt: "認識一個新團體時，你想先了解？", choices: ["音樂風格", "成員特色"], demoAnswer: 0 },
+      { prompt: "回歸前的預告內容，你最期待？", choices: ["概念照片和造型", "歌曲片段和編曲"], demoAnswer: 1 },
+      { prompt: "看團體舞台時，你會留意？", choices: ["整體隊形和同步度", "每位成員的舞台表現"], demoAnswer: 0 },
+      { prompt: "收藏喜歡的 K-pop 內容，你偏好？", choices: ["實體專輯和小卡", "歌單和數位影片"], demoAnswer: 1 },
+      { prompt: "追團時，你最喜歡？", choices: ["舞台和音樂作品", "團體節目和幕後日常"], demoAnswer: 0 },
+      { prompt: "新歌聽了幾遍後，你會？", choices: ["開始注意歌詞含義", "跟著節奏記住副歌"], demoAnswer: 1 },
+      { prompt: "演唱會上你想？", choices: ["跟著全場一起應援", "專心看舞台細節"], demoAnswer: 0 },
+      { prompt: "第一次看一個團體的影片，你會？", choices: ["從熱門舞台開始", "看一段輕鬆的團體內容"], demoAnswer: 1 },
+      { prompt: "你偏好的歌曲概念是？", choices: ["明亮有活力", "成熟或帶點故事感"], demoAnswer: 0 },
+      { prompt: "想推薦一首 K-pop 歌給朋友，你會選？", choices: ["最能代表團體風格的歌", "最近自己一直重播的歌"], demoAnswer: 1 },
+      { prompt: "喜歡的團體發布新內容，你通常？", choices: ["看到通知就立刻點開", "找空閒時間完整欣賞"], demoAnswer: 0 }
+    ],
+    F1: [
+      { prompt: "F1 賽事週末，你最期待？", choices: ["排位賽", "正賽"], demoAnswer: 1 },
+      { prompt: "看比賽時，你更享受？", choices: ["車手在賽道上的攻防", "車隊的策略安排"], demoAnswer: 0 },
+      { prompt: "你偏好的賽道是？", choices: ["街道賽道", "傳統永久賽道"], demoAnswer: 1 },
+      { prompt: "追 F1 時，你通常會支持？", choices: ["特定車手", "特定車隊"], demoAnswer: 0 },
+      { prompt: "賽後回看精華，你會先找？", choices: ["車手視角片段", "進站與策略解析"], demoAnswer: 1 },
+      { prompt: "比賽開始前，你比較會看？", choices: ["發車格和車手近況", "天氣與輪胎策略分析"], demoAnswer: 0 },
+      { prompt: "一場比賽最讓你緊張的是？", choices: ["起跑後第一圈", "最後幾圈的攻防"], demoAnswer: 1 },
+      { prompt: "看 F1 時，你更喜歡？", choices: ["跟著即時無線電和賽況", "專心看賽道上的位置變化"], demoAnswer: 0 },
+      { prompt: "車隊策略成功時，你會？", choices: ["佩服團隊溝通和判斷", "注意車手如何執行計畫"], demoAnswer: 1 },
+      { prompt: "雨戰中你比較關注？", choices: ["車手控制賽車的技巧", "車隊何時更換輪胎"], demoAnswer: 0 },
+      { prompt: "挑一場經典賽事重看，你會選？", choices: ["充滿超車的比賽", "策略反轉很多的比賽"], demoAnswer: 1 },
+      { prompt: "排位賽中你更享受？", choices: ["單圈極限速度", "車手逐步刷新成績"], demoAnswer: 0 },
+      { prompt: "你會怎麼追蹤賽季？", choices: ["每站都看完整賽事", "看精華和積分變化"], demoAnswer: 1 },
+      { prompt: "F1 賽事週末的氣氛，你更喜歡？", choices: ["賽道現場的熱鬧", "在家和朋友一起觀賽"], demoAnswer: 0 },
+      { prompt: "比賽結束後，你會先看？", choices: ["頒獎和車手訪問", "積分榜和下一站消息"], demoAnswer: 1 }
+    ],
+    價值觀: [
+      { prompt: "面對重要選擇時，你通常先考慮？", choices: ["是否符合自己的原則", "會帶來什麼實際結果"], demoAnswer: 0 },
+      { prompt: "做承諾時，你比較重視？", choices: ["盡力準時完成", "有變化就及早溝通"], demoAnswer: 1 },
+      { prompt: "分配有限資源時，你傾向？", choices: ["先照顧眼前最需要的人", "為長期目標預留資源"], demoAnswer: 0 },
+      { prompt: "遇到和自己不同的觀點，你會先？", choices: ["理解對方在意什麼", "說明自己看重的理由"], demoAnswer: 0 },
+      { prompt: "你更欣賞哪種做事方式？", choices: ["保持一致、公平對待", "依情況彈性調整"], demoAnswer: 1 },
+      { prompt: "團隊完成一件事時，你覺得？", choices: ["每個人的付出都應被看見", "大家共享成果就很重要"], demoAnswer: 0 },
+      { prompt: "做決定時，你更重視？", choices: ["對所有人採用相同原則", "考慮每個人的具體處境"], demoAnswer: 1 },
+      { prompt: "朋友需要幫忙時，你會先？", choices: ["確認對方最需要什麼", "直接提出自己能做到的事"], demoAnswer: 0 },
+      { prompt: "遇到承諾和臨時機會衝突，你會？", choices: ["優先履行先前承諾", "先溝通再看是否能調整"], demoAnswer: 1 },
+      { prompt: "你更看重一個目標的？", choices: ["達成後帶來的改變", "過程是否符合原則"], demoAnswer: 1 },
+      { prompt: "面對有限時間，你會？", choices: ["先完成影響最大的一件事", "分配時間照顧每個重要面向"], demoAnswer: 0 },
+      { prompt: "表達不同意見時，你會？", choices: ["直接說明立場和理由", "先找到彼此認同的部分"], demoAnswer: 1 },
+      { prompt: "你認為公平比較像？", choices: ["每個人遵守相同規則", "依需要提供合適支持"], demoAnswer: 0 },
+      { prompt: "答應別人一件事後發現很難做到，你會？", choices: ["及早說明並提出替代方案", "先努力完成原本答應的事"], demoAnswer: 1 },
+      { prompt: "選擇長期方向時，你會？", choices: ["守住最重要的原則", "保留修正和學習的空間"], demoAnswer: 0 }
+    ],
+    感情觀: [
+      { prompt: "相處時，你比較重視？", choices: ["常常分享日常", "保留各自的空間"], demoAnswer: 1 },
+      { prompt: "意見不同時，你比較希望？", choices: ["先冷靜一下再談", "趁當下把感受說清楚"], demoAnswer: 0 },
+      { prompt: "表達在乎時，你更常用？", choices: ["說出鼓勵和感謝", "用行動幫忙或陪伴"], demoAnswer: 1 },
+      { prompt: "安排兩人時間，你喜歡？", choices: ["一起嘗試新活動", "做熟悉而放鬆的事"], demoAnswer: 0 },
+      { prompt: "關係中遇到難題，你會先？", choices: ["一起討論解法", "確認彼此感受和需求"], demoAnswer: 1 },
+      { prompt: "安排約會或相處時間，你偏好？", choices: ["一起決定要做什麼", "輪流準備驚喜行程"], demoAnswer: 0 },
+      { prompt: "心情不太好時，你希望對方？", choices: ["先聽你說、陪在身邊", "給你一些空間整理心情"], demoAnswer: 1 },
+      { prompt: "表達想念時，你比較會？", choices: ["直接說出來", "傳訊息或分享日常小事"], demoAnswer: 0 },
+      { prompt: "關係中的重要決定，你希望？", choices: ["多聊幾次再一起決定", "確認方向後就著手安排"], demoAnswer: 1 },
+      { prompt: "對方做了一件貼心的事，你會？", choices: ["當下說謝謝和感受", "之後找機會回應這份心意"], demoAnswer: 0 },
+      { prompt: "相處時發生誤會，你想？", choices: ["盡快把事情說清楚", "等彼此冷靜後再談"], demoAnswer: 1 },
+      { prompt: "你比較看重關係裡的？", choices: ["穩定可靠的陪伴", "一起體驗新事物"], demoAnswer: 0 },
+      { prompt: "彼此興趣不太一樣時，你會？", choices: ["輪流參與對方喜歡的活動", "保留各自享受興趣的時間"], demoAnswer: 1 },
+      { prompt: "遇到值得紀念的日子，你偏好？", choices: ["簡單但專心地一起度過", "安排特別活動留下回憶"], demoAnswer: 0 },
+      { prompt: "關係中需要協調安排時，你會？", choices: ["把需求和界線說明白", "先找雙方都舒服的折衷"], demoAnswer: 1 }
+    ],
+    政治: [
+      { prompt: "討論公共議題時，你通常先？", choices: ["聽聽不同立場", "查找資料和背景"], demoAnswer: 1 },
+      { prompt: "規劃公共資源時，你會先想到？", choices: ["眼前有需要的人", "長期公共建設"], demoAnswer: 0 },
+      { prompt: "評估一項公共政策，你比較先看？", choices: ["可能影響哪些人", "實際成效如何衡量"], demoAnswer: 0 },
+      { prompt: "參與社區公共事務，你比較傾向？", choices: ["出席討論交流", "整理意見後提出建議"], demoAnswer: 1 },
+      { prompt: "公共方案需要調整時，你較支持？", choices: ["先小規模試行再檢視", "先規劃長期方向再推動"], demoAnswer: 0 },
+      { prompt: "城市空間有限時，你會優先考慮？", choices: ["公共運輸和步行環境", "道路通行和停車需求"], demoAnswer: 0 },
+      { prompt: "評估公共資訊政策時，你更在意？", choices: ["資訊公開、方便查詢", "個人資料受到妥善保護"], demoAnswer: 1 },
+      { prompt: "公共預算規劃時，你傾向先？", choices: ["改善目前迫切的服務", "投入能長期受益的建設"], demoAnswer: 0 },
+      { prompt: "面對複雜公共議題，你會先？", choices: ["比較不同來源的資料", "聽取受影響居民的經驗"], demoAnswer: 1 },
+      { prompt: "社區新增設施時，你比較支持？", choices: ["先蒐集附近居民意見", "依整體需求和專業評估決定"], demoAnswer: 0 },
+      { prompt: "公共服務需要改進時，你會先？", choices: ["確認目前使用者遇到的問題", "研究其他地方的做法"], demoAnswer: 1 },
+      { prompt: "討論公共政策時，你認為重要的是？", choices: ["清楚說明政策目標", "公開檢視執行結果"], demoAnswer: 0 },
+      { prompt: "遇到公共議題的不同說法，你會？", choices: ["查證資料和原始來源", "了解每種說法的背景"], demoAnswer: 1 },
+      { prompt: "規劃社區活動經費，你更傾向？", choices: ["讓更多居民都能參與", "集中資源辦好少數活動"], demoAnswer: 0 },
+      { prompt: "公共設施的改善順序，你會優先？", choices: ["處理安全和無障礙需求", "改善日常使用的便利性"], demoAnswer: 1 }
     ]
   };
 
   const state = {
     topicChoice: "隨機",
     topic: "旅行",
+    questionCount: 5,
     nickname: "企鵝",
     matchMode: "demo",
     questionIndex: 0,
@@ -140,8 +326,6 @@
     busy: false,
     notice: "",
     initError: false,
-    providerStatusReady: false,
-    providerStatusError: false,
     subscription: null
   };
 
@@ -302,6 +486,7 @@
         roomId: data.room_id,
         inviteCode: null,
         topicKey: data.topic_key,
+        questionCount: Number(data.question_count) || state.questionCount,
         status: "playing",
         expiresAt: data.expires_at,
         opponentNickname: data.opponent_nickname,
@@ -315,6 +500,7 @@
         roomId: data.room_id,
         inviteCode,
         topicKey: data.topic_key,
+        questionCount: Number(data.question_count) || state.questionCount,
         status: inviteCode ? "waiting" : "active_room",
         expiresAt: data.expires_at,
         opponentNickname: data.opponent_nickname || null,
@@ -338,6 +524,9 @@
 
   async function handleMatchStatus(attempt, data) {
     if (!matchingIsCurrent(attempt)) return;
+    if ([5, 10, 15].includes(Number(data?.question_count))) {
+      state.questionCount = Number(data.question_count);
+    }
     if (routeToMatchedRoom(data, attempt.userId)) return;
     if (data?.status === "waiting") {
       if (!data.ticket_id) throw new Error("Waiting match response did not include a ticket id");
@@ -418,7 +607,8 @@
     try {
       const { data, error } = await authState.client.rpc("queue_for_match", {
         p_topic_choice: topicChoiceKeys[state.topicChoice] || "random",
-        p_nickname: state.nickname
+        p_nickname: state.nickname,
+        p_question_count: state.questionCount
       });
       if (!matchingIsCurrent(attempt)) return;
       if (error) throw error;
@@ -539,11 +729,13 @@
     const room = state.liveRoom;
     if (!room) return;
     room.status = status.status || room.status;
+    if ([5, 10, 15].includes(Number(status.question_count))) room.questionCount = Number(status.question_count);
     if (Object.prototype.hasOwnProperty.call(status, "invite_code")) room.inviteCode = status.invite_code;
     if (Object.prototype.hasOwnProperty.call(status, "expires_at")) room.expiresAt = status.expires_at;
     if (Object.prototype.hasOwnProperty.call(status, "opponent_nickname")) room.opponentNickname = status.opponent_nickname;
 
     const code = room.inviteCode;
+    $(`[data-room-question-count]`).textContent = `${room.questionCount || state.questionCount} 題`;
     const waitingForInvite = room.status === "waiting" && room.createdBy;
     const closed = ["expired", "abandoned", "completed"].includes(room.status);
     $("[data-room-code]").textContent = code || (room.status === "joined" ? "已加入" : "—");
@@ -626,6 +818,7 @@
 
   function showLiveInviteRoom(room) {
     stopRoomStatusWatch();
+    if ([5, 10, 15].includes(Number(room.questionCount))) state.questionCount = Number(room.questionCount);
     state.liveRoom = room;
     if (["joined", "playing", "active_room"].includes(room.status) && !room.inviteCode) {
       enterLiveRoomGame(room);
@@ -669,6 +862,7 @@
         roomId: data.room_id,
         inviteCode: data.invite_code || null,
         topicKey: data.topic_key,
+        questionCount: Number(data.question_count) || 5,
         status: data.status,
         expiresAt: data.expires_at,
         opponentNickname: data.opponent_nickname,
@@ -704,6 +898,9 @@
         .find(([, key]) => key === data.topic_choice)?.[0] || "隨機";
       state.matchMode = "live";
       state.topicChoice = topicChoice;
+      state.questionCount = [5, 10, 15].includes(Number(data.question_count))
+        ? Number(data.question_count)
+        : 5;
       state.topic = topicLabels[data.topic_key] || (topicChoice === "隨機" ? "旅行" : topicChoice);
       state.nickname = data.nickname || getPlayerNickname();
       state.answers = [];
@@ -798,7 +995,13 @@
 
   function renderLiveGameState(roomState) {
     const questionNo = Number(roomState.current_question);
-    if (!Number.isInteger(questionNo) || questionNo < 1 || questionNo > 5) return;
+    const questionCount = Number(roomState.question_count);
+    if ([5, 10, 15].includes(questionCount) && questionCount !== state.questionCount) {
+      state.questionCount = questionCount;
+      state.gameQuestions = Array.from({ length: questionCount }, (_, index) => state.gameQuestions?.[index] || null);
+    }
+    if ([5, 10, 15].includes(questionCount) && state.liveRoom) state.liveRoom.questionCount = questionCount;
+    if (!Number.isInteger(questionNo) || questionNo < 1 || questionNo > state.questionCount) return;
     const index = questionNo - 1;
     state.topic = topicLabels[roomState.topic_key] || state.topic;
     state.nickname = roomState.you?.nickname || state.nickname;
@@ -844,7 +1047,7 @@
         : "每個人的偏好都不同，這也是認識新觀點的開始。";
       $("[data-player-answer]").textContent = question.choices[ownChoice];
       $("[data-peer-answer]").textContent = question.choices[partnerChoice];
-      $("[data-next-label]").textContent = questionNo === 5 ? "看這局結果" : "下一題";
+      $("[data-next-label]").textContent = questionNo === state.questionCount ? "看這局結果" : "下一題";
       $("[data-next]").disabled = roomState.your_ready === true || state.gameBusy;
       $("[data-reveal]").classList.remove("hidden");
       showRemoteGameStatus(roomState.your_ready === true
@@ -880,13 +1083,17 @@
       if (!remoteGameIsCurrent(roomId, syncId, userId)) return false;
       if (error) throw error;
       if (!data || !Array.isArray(data.common_choices)) throw new Error("Unexpected room results response");
-      const questions = Array.from({ length: 5 }, (_, index) =>
+      const questionCount = [5, 10, 15].includes(Number(data.question_count))
+        ? Number(data.question_count)
+        : state.questionCount;
+      state.questionCount = questionCount;
+      const questions = Array.from({ length: questionCount }, (_, index) =>
         state.gameQuestions[index] || { prompt: "", choices: ["", ""] }
       );
-      const answers = Array(5).fill(null);
+      const answers = Array(questionCount).fill(null);
       data.common_choices.forEach((item) => {
         const index = Number(item.question_no) - 1;
-        if (index < 0 || index > 4 || typeof item.choice !== "string") return;
+        if (index < 0 || index >= questionCount || typeof item.choice !== "string") return;
         questions[index] = { prompt: item.prompt || questions[index].prompt, choices: [item.choice, item.choice] };
         answers[index] = { player: 0, opponent: 0 };
       });
@@ -998,9 +1205,12 @@
     state.opponentBlocked = false;
     state.matchMode = "live";
     state.topic = topicLabels[room.topicKey] || state.topic;
+    state.questionCount = [5, 10, 15].includes(Number(room.questionCount))
+      ? Number(room.questionCount)
+      : state.questionCount;
     state.questionIndex = 0;
     state.gameQuestionNo = 0;
-    state.gameQuestions = Array(5).fill(null);
+    state.gameQuestions = Array(state.questionCount).fill(null);
     state.answers = [];
     state.gameChoice = null;
     state.gameBusy = false;
@@ -1124,7 +1334,8 @@
     try {
       const { data, error } = await authState.client.rpc("create_invite_room", {
         p_topic_choice: topicChoiceKeys[state.topicChoice] || "random",
-        p_nickname: state.nickname
+        p_nickname: state.nickname,
+        p_question_count: state.questionCount
       });
       if (operationId !== state.roomOperationId || authState.session?.user?.id !== userId) return;
       if (error) throw error;
@@ -1136,6 +1347,7 @@
         roomId: data.room_id,
         inviteCode: data.invite_code || null,
         topicKey: data.topic_key,
+        questionCount: Number(data.question_count) || state.questionCount,
         status: waiting ? "waiting" : data.status,
         expiresAt: data.expires_at,
         opponentNickname: null,
@@ -1281,15 +1493,17 @@
 
   function updateProgress() {
     const questionNumber = state.questionIndex + 1;
+    const questionCount = currentGameQuestions().length;
     $("[data-question-number]").textContent = String(questionNumber);
+    $("[data-question-count-label]").textContent = String(questionCount);
     $("[data-game-topic]").textContent = state.topic;
     $("[data-player-name]").textContent = state.nickname;
     $("[data-player-avatar]").textContent = state.nickname.slice(0, 1);
-    $("[data-progress]").style.width = String((questionNumber / questionBank[state.topic].length) * 100) + "%";
+    $("[data-progress]").style.width = String((questionNumber / questionCount) * 100) + "%";
     const progress = $(".game-progress");
-    progress.setAttribute("aria-valuemax", String(questionBank[state.topic].length));
+    progress.setAttribute("aria-valuemax", String(questionCount));
     progress.setAttribute("aria-valuenow", String(questionNumber));
-    progress.setAttribute("aria-valuetext", "第 " + questionNumber + " 題，共 " + questionBank[state.topic].length + " 題");
+    progress.setAttribute("aria-valuetext", "第 " + questionNumber + " 題，共 " + questionCount + " 題");
 
     const knownAnswers = state.answers.filter(Boolean);
     const answered = knownAnswers.length;
@@ -1300,7 +1514,7 @@
   }
 
   function currentGameQuestions() {
-    return state.gameQuestions || questionBank[state.topic];
+    return state.gameQuestions || questionBank[state.topic].slice(0, state.questionCount);
   }
 
   function renderQuestion() {
@@ -1338,7 +1552,7 @@
     $("[data-peer-answer]").textContent = question.choices[question.demoAnswer];
     $("[data-peer-answer-label]").textContent = `${$("[data-opponent-name]").textContent}・示範`;
     $("[data-reveal]").classList.remove("hidden");
-    $("[data-next-label]").textContent = state.questionIndex === questionBank[state.topic].length - 1 ? "看這局結果" : "下一題";
+    $("[data-next-label]").textContent = state.questionIndex === currentGameQuestions().length - 1 ? "看這局結果" : "下一題";
     updateProgress();
     $("[data-next]").focus({ preventScroll: true });
   }
@@ -1350,6 +1564,7 @@
       return indexes;
     }, []);
     $("[data-result-score]").textContent = String(matchedIndexes.length);
+    $("[data-result-question-count]").textContent = String(questions.length);
     $("[data-result-topic]").textContent = state.topic;
     $("[data-result-disclaimer]").textContent = state.matchMode === "live_completed"
       ? "真人對局結果由伺服器確認；個人紀錄可在歷史頁查詢。"
@@ -1762,9 +1977,6 @@
     announce.timer = window.setTimeout(() => toast.classList.remove("visible"), 2400);
   }
 
-  const authProviderLabels = {
-    google: "Google"
-  };
   const topicLabels = {
     travel: "旅行",
     music: "音樂",
@@ -1775,7 +1987,12 @@
     sports: "運動",
     pets: "寵物",
     reading: "閱讀學習",
-    culture: "藝術文化"
+    culture: "藝術文化",
+    kpop: "K-pop",
+    f1: "F1",
+    values: "價值觀",
+    relationships: "感情觀",
+    politics: "政治"
   };
   const topicChoiceKeys = {
     旅行: "travel",
@@ -1788,14 +2005,13 @@
     寵物: "pets",
     閱讀學習: "reading",
     藝術文化: "culture",
+    "K-pop": "kpop",
+    F1: "f1",
+    價值觀: "values",
+    感情觀: "relationships",
+    政治: "politics",
     隨機: "random"
   };
-
-  function configuredAuthProvider(name) {
-    const providers = authState.config && authState.config.providers;
-    if (name !== "google" || !providers) return null;
-    return providers.google === true ? "google" : null;
-  }
 
   function isAnonymousUser(user) {
     return Boolean(user && (user.is_anonymous === true || user.app_metadata?.provider === "anonymous"));
@@ -1821,18 +2037,18 @@
       status = "登入服務設定無法使用。請確認 Supabase 專案網址和公開用戶端金鑰。";
     } else if (authState.client && user) {
       status = isAnonymousUser(user)
-        ? "已匿名登入。可建立或加入真人邀請房、使用隨機配對並查詢最近 90 天紀錄；連結社群身分可保留帳號。"
-        : "已登入。可建立或加入真人邀請房、使用隨機配對並查詢最近 90 天紀錄。";
+        ? "已匿名登入。此瀏覽器會記住玩家身分；清除網站資料或更換裝置後，匿名帳號可能無法找回。"
+        : "已登入。此瀏覽器會記住玩家身分；清除網站資料或更換裝置後，可能無法使用這個帳號。";
     } else if (authState.client) {
-      status = "登入服務已就緒。登入後可建立或加入真人邀請房、使用隨機配對並查詢歷史紀錄。";
+      status = "登入服務已就緒。匿名登入後可建立或加入真人邀請房、隨機配對並查詢歷史紀錄。";
     }
     if (authState.client && authState.notice) status = authState.notice;
 
     const entryMessage = !authState.client
       ? "尚未設定真人服務時，只能玩本機示範；房間與紀錄不會跨裝置或保存。"
       : user
-        ? "可建立或加入跨裝置真人邀請房、使用隨機配對並查詢對局歷史；本機示範不會保存紀錄。"
-        : "匿名登入後可建立或加入跨裝置真人邀請房、使用隨機配對並查詢對局歷史；本機示範不會保存紀錄。";
+        ? "可建立或加入真人邀請房、隨機配對並查詢對局歷史。瀏覽器會保留玩家身分；清除網站資料或換裝置可能無法找回匿名帳號。"
+        : "匿名登入後可建立或加入真人邀請房、隨機配對並查詢對局歷史。瀏覽器會保留玩家身分；清除網站資料或換裝置可能無法找回帳號。";
     $("[data-entry-disclaimer]").textContent = entryMessage;
     $("[data-room-disclaimer]").textContent = authState.client
       ? "登入後可輸入房主分享的邀請代碼加入真人房間。"
@@ -1853,65 +2069,6 @@
       ? "刪除會移除帳號、個人歷史及封鎖清單；已送出的檢舉會去除帳號連結，說明最多保留 180 天。"
       : "自助刪除目前尚未開放；完成真實登入、刪除權限與資料收尾驗收後再啟用。";
 
-    const providerNote = $("[data-auth-note]");
-    if (providerNote) {
-      if (!hasPublicConfig) {
-        providerNote.textContent = "Google 登入需要先設定 Supabase Auth。";
-      } else if (!hasSdk || authState.initError || authState.providerStatusError) {
-        providerNote.textContent = "目前無法確認 Google 登入設定；匿名登入仍可使用。";
-      } else if (!authState.providerStatusReady) {
-        providerNote.textContent = "正在確認 Google 登入設定…";
-      } else {
-        const providers = authState.config.providers || {};
-        providerNote.textContent = providers.google === true
-          ? "Google 登入目前在測試模式，只有測試名單帳號可用；匿名玩家也可連結 Google，保留玩家身分。"
-          : "Google 尚未在 Supabase 啟用；匿名登入仍可使用。";
-      }
-    }
-
-    $$("[data-auth-provider]").forEach((button) => {
-      const name = button.dataset.authProvider;
-      const provider = configuredAuthProvider(name);
-      const identities = user?.identities || [];
-      const linked = identities.some((identity) => identity.provider === provider || identity.provider === name);
-      button.disabled = !authState.client || !provider || authState.busy || linked;
-      button.querySelector("[data-auth-provider-label]").textContent = linked
-        ? `${authProviderLabels[name]} 已連結`
-        : user
-          ? `連結 ${authProviderLabels[name]}`
-          : `使用 ${authProviderLabels[name]} 登入`;
-    });
-  }
-
-  function getAuthRedirectUrl() {
-    const isLocalHttp = window.location.protocol === "http:" &&
-      (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
-    if (window.location.protocol !== "https:" && !isLocalHttp) {
-      throw new Error("Auth redirects require HTTPS or localhost.");
-    }
-    return `${window.location.origin}${window.location.pathname}`;
-  }
-
-  async function loadAuthProviderStatus() {
-    authState.providerStatusReady = false;
-    authState.providerStatusError = false;
-    refreshAuthPanel();
-    try {
-      const loader = window.SAMEWAVE_AUTH_PROVIDER_STATUS?.load;
-      if (typeof loader !== "function") throw new Error("Provider status helper is unavailable.");
-      const providers = await loader();
-      authState.config.providers = { ...(authState.config.providers || {}), ...providers };
-    } catch (error) {
-      console.warn("Could not load live Supabase OAuth providers", error);
-      authState.config.providers = {
-        ...(authState.config.providers || {}),
-        google: false
-      };
-      authState.providerStatusError = true;
-    } finally {
-      authState.providerStatusReady = true;
-      refreshAuthPanel();
-    }
   }
 
   async function initializeSupabaseAuth() {
@@ -1936,7 +2093,6 @@
           persistSession: true
         }
       });
-      void loadAuthProviderStatus();
       const { data: listener } = authState.client.auth.onAuthStateChange((_event, session) => {
         const previousUserId = authState.session?.user?.id || null;
         const nextUserId = session?.user?.id || null;
@@ -2022,7 +2178,7 @@
       const { data, error } = await authState.client.auth.signInAnonymously();
       if (error) throw error;
       authState.session = data.session;
-      authState.notice = "匿名登入完成。可建立或加入真人邀請房；連結社群身分可保留帳號及歷史紀錄。";
+      authState.notice = "匿名登入完成。瀏覽器會記住這台裝置的玩家身分；清除網站資料或更換裝置後，匿名帳號可能無法找回。";
     } catch (error) {
       console.warn("Anonymous sign-in failed", error);
       authState.notice = "匿名登入沒有完成。請確認 Supabase 已啟用 Anonymous Auth 後再試。";
@@ -2032,33 +2188,9 @@
     }
   }
 
-  async function signInOrLinkProvider(name) {
-    const provider = configuredAuthProvider(name);
-    if (!authState.client || !provider || authState.busy) return;
-    authState.busy = true;
-    authState.notice = `正在連接 ${authProviderLabels[name]}…`;
-    refreshAuthPanel();
-    try {
-      const options = { provider, options: { redirectTo: getAuthRedirectUrl() } };
-      const result = authState.session
-        ? await authState.client.auth.linkIdentity(options)
-        : await authState.client.auth.signInWithOAuth(options);
-      if (result.error) throw result.error;
-      authState.notice = authState.session
-        ? `正在連結 ${authProviderLabels[name]}；完成後會返回此頁。`
-        : `正在前往 ${authProviderLabels[name]} 登入；完成後會返回此頁。`;
-    } catch (error) {
-      console.warn("Social sign-in or identity linking failed", error);
-      authState.notice = "登入沒有完成。請確認該 provider 已在 Supabase 啟用，且回呼網址設定正確。";
-    } finally {
-      authState.busy = false;
-      refreshAuthPanel();
-    }
-  }
-
   async function signOut() {
     if (!authState.client || authState.busy) return;
-    if (isAnonymousUser(authState.session?.user) && !window.confirm("這是尚未連結社群身分的匿名帳號。登出後可能無法找回，仍要登出嗎？")) return;
+    if (isAnonymousUser(authState.session?.user) && !window.confirm("這個匿名玩家帳號只由目前瀏覽器記住；登出後可能無法再次使用同一身分或查看舊紀錄。仍要登出嗎？")) return;
     authState.busy = true;
     authState.notice = "正在登出…";
     refreshAuthPanel();
@@ -2066,7 +2198,7 @@
       const { error } = await authState.client.auth.signOut();
       if (error) throw error;
       authState.session = null;
-      authState.notice = "已登出。重新登入後可查詢這個帳號的真人對局紀錄。";
+      authState.notice = "已登出。匿名玩家帳號可能無法找回；重新建立的帳號不會看到舊紀錄。";
     } catch (error) {
       console.warn("Sign-out failed", error);
       authState.notice = "登出沒有完成，請稍後重試。";
@@ -2538,9 +2670,6 @@
   $("[data-auth-anonymous]").addEventListener("click", signInAnonymously);
   $("[data-auth-signout]").addEventListener("click", signOut);
   $("[data-auth-delete-account]").addEventListener("click", deleteAccount);
-  $$("[data-auth-provider]").forEach((button) => {
-    button.addEventListener("click", () => signInOrLinkProvider(button.dataset.authProvider));
-  });
   $("[data-history-items]").addEventListener("click", (event) => {
     const button = event.target.closest("[data-history-delete]");
     if (button) deleteMyMatchHistory(button);
@@ -2563,6 +2692,17 @@
     button.addEventListener("click", () => {
       state.topicChoice = button.dataset.topicChoice;
       $$("[data-topic-choice]").forEach((choice) => {
+        const selected = choice === button;
+        choice.classList.toggle("is-selected", selected);
+        choice.setAttribute("aria-pressed", String(selected));
+      });
+    });
+  });
+
+  $$("[data-question-count]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.questionCount = Number(button.dataset.questionCount);
+      $$("[data-question-count]").forEach((choice) => {
         const selected = choice === button;
         choice.classList.toggle("is-selected", selected);
         choice.setAttribute("aria-pressed", String(selected));
@@ -2621,7 +2761,7 @@
       continueLiveRoom();
       return;
     }
-    if (state.questionIndex + 1 < questionBank[state.topic].length) {
+    if (state.questionIndex + 1 < currentGameQuestions().length) {
       state.questionIndex += 1;
       renderQuestion();
       $(".game-question").focus({ preventScroll: true });

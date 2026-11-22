@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f7f4ee">
-    <meta name="description" content="用旅行、音樂、日常等主題的二選一問答，和朋友一起發現彼此的共同點。">
+    <meta name="description" content="用 K-pop、F1、價值觀、感情觀、政治等主題的二選一問答，和朋友一起發現彼此的共同點。">
     <link rel="canonical" href="https://310182-sketch.github.io/samewave/">
     <meta name="google-site-verification" content="msmM0f7LADqSSFRZTe4qmoYOw78QXkKeznCwsRRd0-8">
     <meta property="og:type" content="website">
@@ -16,11 +16,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=15">
+    <link rel="stylesheet" href="styles.css?v=16">
     <script src="supabase-config.js?v=4" defer></script>
-    <script src="auth-provider-status.js?v=2" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.2/dist/umd/supabase.js" integrity="sha384-A97u3Qnt9GZHURO9YJZRe7VQgGUeFzcv6I1oIGnUTxQrCxnpQMwR0/G8F2zt9abZ" crossorigin="anonymous" defer></script>
-    <script src="app.js?v=19" defer></script>
+    <script src="app.js?v=20" defer></script>
   </head>
   <body>
     <div class="app-shell">
@@ -64,8 +63,22 @@
                   <button class="topic-choice" type="button" data-topic-choice="寵物" aria-pressed="false"><span aria-hidden="true">🐾</span>寵物</button>
                   <button class="topic-choice" type="button" data-topic-choice="閱讀學習" aria-pressed="false"><span aria-hidden="true">📚</span>閱讀學習</button>
                   <button class="topic-choice" type="button" data-topic-choice="藝術文化" aria-pressed="false"><span aria-hidden="true">🎭</span>藝術文化</button>
+                  <button class="topic-choice" type="button" data-topic-choice="K-pop" aria-pressed="false"><span aria-hidden="true">🎤</span>K-pop</button>
+                  <button class="topic-choice" type="button" data-topic-choice="F1" aria-pressed="false"><span aria-hidden="true">🏁</span>F1</button>
+                  <button class="topic-choice" type="button" data-topic-choice="價值觀" aria-pressed="false"><span aria-hidden="true">⚖️</span>價值觀</button>
+                  <button class="topic-choice" type="button" data-topic-choice="感情觀" aria-pressed="false"><span aria-hidden="true">💞</span>感情觀</button>
+                  <button class="topic-choice" type="button" data-topic-choice="政治" aria-pressed="false"><span aria-hidden="true">🏛️</span>政治</button>
                   <button class="topic-choice random-choice is-selected" type="button" data-topic-choice="隨機" aria-pressed="true"><span aria-hidden="true">✳</span>隨機主題</button>
                 </div>
+              </fieldset>
+              <fieldset class="question-count-picker">
+                <legend>每局題數</legend>
+                <div class="question-count-options" role="group" aria-label="選擇每局題數">
+                  <button class="question-count-choice is-selected" type="button" data-question-count="5" aria-pressed="true">5 題</button>
+                  <button class="question-count-choice" type="button" data-question-count="10" aria-pressed="false">10 題</button>
+                  <button class="question-count-choice" type="button" data-question-count="15" aria-pressed="false">15 題</button>
+                </div>
+                <p class="question-count-note">隨機配對會尋找選擇相同題數的玩家。</p>
               </fieldset>
               <div class="entry-methods">
                 <button class="primary-button" type="button" data-random-match><span>隨機配對</span><span class="button-arrow" aria-hidden="true">↗</span></button>
@@ -104,14 +117,7 @@
                 <svg class="auth-method-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm0 2c-4.14 0-7.5 2.13-7.5 4.75V21h15v-2.25C19.5 16.13 16.14 14 12 14Z" fill="currentColor"/></svg>
                 <span data-auth-anonymous-label>匿名登入</span>
               </button>
-              <p id="auth-provider-heading" class="auth-provider-heading">或使用 Google 帳號</p>
-              <div class="auth-provider-grid" role="group" aria-labelledby="auth-provider-heading">
-                <button class="auth-provider-button" type="button" data-auth-provider="google" disabled>
-                  <svg class="auth-provider-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M23.49 12.27c0-.79-.07-1.55-.2-2.27H12v4.3h6.44a5.5 5.5 0 0 1-2.38 3.6v2.8h3.85c2.25-2.08 3.58-5.14 3.58-8.43Z" fill="#4285F4"/><path d="M12 24c3.24 0 5.95-1.08 7.93-2.93l-3.85-2.99c-1.07.72-2.43 1.14-4.08 1.14-3.14 0-5.8-2.12-6.76-4.97H1.27v3.09A12 12 0 0 0 12 24Z" fill="#34A853"/><path d="M5.24 14.25a7.2 7.2 0 0 1 0-4.5V6.66H1.27a12 12 0 0 0 0 10.68l3.97-3.09Z" fill="#FBBC05"/><path d="M12 4.78c1.77 0 3.35.61 4.6 1.81l3.44-3.44C17.95 1.19 15.24 0 12 0A12 12 0 0 0 1.27 6.66l3.97 3.09C6.2 6.9 8.86 4.78 12 4.78Z" fill="#EA4335"/></svg>
-                  <span data-auth-provider-label>Google</span>
-                </button>
-              </div>
-              <p class="auth-note" data-auth-note role="status" aria-live="polite" aria-atomic="true">正在確認 Google 登入設定…</p>
+              <p class="auth-note">瀏覽器會記住這台裝置的玩家身分；清除網站資料或更換裝置後，匿名帳號可能無法找回。</p>
               <button class="auth-delete-account hidden" type="button" data-auth-delete-account>永久刪除帳號</button>
               <p class="auth-delete-note hidden" data-auth-delete-note></p>
             </section>
@@ -157,6 +163,7 @@
             <strong data-room-code>000000000000</strong>
             <button class="secondary-button" type="button" data-copy-room-code>複製代碼</button>
           </div>
+          <div class="workflow-meta"><span>本局題數</span><b data-room-question-count>5 題</b></div>
           <p class="workflow-note" data-room-note>示範代碼僅供預覽，其他裝置目前無法使用。</p>
           <div class="workflow-meta"><span>等待時間</span><b>10 分鐘</b></div>
           <div class="workflow-actions">
@@ -205,7 +212,7 @@
           <div class="game-heading">
             <button class="back-button" type="button" data-home aria-label="離開這局並返回首頁">← <span>離開這局</span></button>
             <div class="round-center">
-              <span class="round-tag">第 <b data-question-number>1</b> 題 <span>/</span> <b>5</b></span>
+              <span class="round-tag">第 <b data-question-number>1</b> 題 <span>/</span> <b data-question-count-label>5</b></span>
               <span class="round-divider" aria-hidden="true"></span>
               <span class="round-topic"><span aria-hidden="true">✳</span><b data-game-topic>旅行</b></span>
             </div>
@@ -264,7 +271,7 @@
         <section id="results" class="view results-view hidden" data-view="results" aria-labelledby="result-title">
           <div class="result-mark" aria-hidden="true">✦</div>
           <p class="eyebrow centered-eyebrow">這一局的小發現</p>
-          <h1 id="result-title" data-focus-target tabindex="-1">你們有 <span data-result-score>0</span> 題選得一樣。</h1>
+          <h1 id="result-title" data-focus-target tabindex="-1">你們有 <span data-result-score>0</span> 題選得一樣（共 <span data-result-question-count>5</span> 題）。</h1>
           <p class="result-copy" data-result-copy>每個相同的選擇，都是認識彼此的一個小線索。</p>
           <div class="result-card">
             <div class="result-card-heading"><b>你們的共同選擇</b><span data-result-topic>旅行</span></div>
@@ -305,7 +312,7 @@
       <span class="modal-mark" aria-hidden="true">同</span>
       <p class="eyebrow centered-eyebrow">HOW TO PLAY</p>
       <h2 id="modal-title">用兩個選項，找到一點共鳴</h2>
-      <p class="modal-copy">選擇主題後，可以建立邀請房、輸入代碼或預覽隨機配對。完成五題後會揭曉共同選擇。設定 Supabase 並登入後可進行真人邀請房對局、查詢個人歷史；未連線時則只會使用本機示範資料。</p>
+      <p class="modal-copy">選擇主題和每局題數（5、10 或 15 題），再建立邀請房、輸入代碼或預覽隨機配對。雙方完成作答後會揭曉共同選擇。設定 Supabase 並登入後可進行真人邀請房對局、查詢個人歷史；未連線時則只會使用本機示範資料。</p>
       <button class="primary-button modal-action" type="button" data-close-modal>知道了</button>
     </dialog>
     <dialog class="modal privacy-modal" data-privacy-modal aria-labelledby="privacy-title">
@@ -314,13 +321,13 @@
       <h2 id="privacy-title">只保存遊戲需要的資料</h2>
       <p>本機示範只在你的瀏覽器操作，不會送出或保存暱稱、答案或對局。</p>
       <ul>
-        <li>真人服務會處理帳號識別碼、最多 12 字的暱稱、主題、房間狀態與作答，以完成配對和揭曉。</li>
+        <li>真人服務會處理帳號識別碼、最多 12 字的暱稱、主題、房間狀態與作答，以完成配對和揭曉。政治主題的選擇可能反映敏感偏好；原始作答最多保留 24 小時，歷史摘要保存 90 天。</li>
         <li>房間、配對票券與原始答案在對局結束或逾期後最多保留 24 小時；你自己的歷史摘要保存 90 天，可在歷史頁逐筆刪除。</li>
         <li>為防止猜測邀請代碼，加入嘗試會按帳號限速，暫存嘗試次數最多 24 小時；不保存你輸入的代碼。</li>
         <li>封鎖清單只有你能查閱，會保留到你解除封鎖或刪除帳號；封鎖會阻止再次隨機配對及互相加入邀請房。</li>
         <li>檢舉只記錄房間、類別及你填寫的說明，不保存答案；案件最多保存 180 天。請勿在說明中填入聯絡方式或他人的敏感資料。</li>
         <li>啟用自助刪除後，刪除帳號會移除你的歷史和封鎖清單；既有檢舉會解除雙方帳號連結，說明最多保留 180 天。</li>
-        <li>登入與資料儲存由 Supabase 提供。Google 登入可能將 Google 提供的帳號識別或 email 存在 Supabase Auth；本遊戲不會公開顯示 email 或登入 token。</li>
+        <li>玩家登入與資料儲存由 Supabase 提供。匿名帳號會由目前瀏覽器記住；清除網站資料或更換裝置後可能無法取回。Google 社群登入不提供給玩家使用。</li>
       </ul>
       <p class="privacy-operations-note">目前原型尚未配置人工審查人員，檢舉不代表即時有人處理。遇到不適狀況請先離開對局並封鎖對方；正式公開服務前會補上審查聯絡方式與處理流程。</p>
       <button class="primary-button modal-action" type="button" data-close-privacy>知道了</button>
