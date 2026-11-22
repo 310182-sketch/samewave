@@ -47,7 +47,15 @@
 - 狀態：Supabase Anonymous Auth、Manual Linking 與 Google provider 已啟用；線上 Auth settings 唯讀查核確認 anonymous_users=true、google=true、facebook=false、twitter=false，Instagram／Threads 未設定。以授權測試名單帳號透過公開網站完成 Google OAuth，確認新 client secret 可建立 session，且同來源新分頁能恢復登入狀態。
 - 決定：保留匿名玩家入口，Google 是唯一社群登入方式。Facebook、X、Instagram、Threads 登入不在產品範圍；Instagram 結果分享維持獨立功能。Google OAuth 仍在外部測試模式，只有測試名單使用者可登入。
 - **待核准的雲端變更：** Google OAuth app 仍是 Testing，只有測試名單可登入。建議在核對 Google Cloud 發布要求後改為 Production，讓一般 Google 帳號登入；這會擴大可登入對象。已於 2026-11-22 詢問使用者是否授權發布，在得到明確回覆前不變更該設定。
-- **目前存取阻塞（2026-11-22）：** 唯讀檢查 Google Auth Platform 時，側邊瀏覽器目前使用學校管理帳號，無法讀取個人 `samewave-auth` 專案；未送出存取權要求，也未變更 OAuth 設定。建議使用先前選定的個人 Google 帳號重新登入後，再檢查 Production 發布要求；不要把專案移到學校組織，也不要向學校要求存取權。
+- **帳號與發布狀態（2026-11-22）：** 使用者已切換至個人帳號 `c280617@gmail.com`，唯讀確認可存取 `samewave-auth`。OAuth 仍為 Testing，測試名單 1 人；發布按鈕停用並要求完成 Branding。品牌名稱和支援信箱已填；首頁與隱私政策欄位空白；授權網域只有 Supabase 網域。Verification Center 的免驗證提示只適用 Testing。獨立資料說明頁已建立，仍待營運者及適用地區覆核。
+- **推薦：** 優先沿用免費 GitHub Pages 網址完成品牌連結，先確認 `310182-sketch.github.io` 是否可列為授權網域，不先購買網域；不要上傳標誌，以免觸發送交 Google 驗證。若 Google 不接受 GitHub Pages 網域，需由使用者決定是否接受替代網址／可能費用。切換 Production 會讓測試名單外帳號也可嘗試 Google OAuth，操作前必須取得使用者明確核准；之後仍需非測試帳號驗收 Supabase callback。
+
+## Google OAuth 正式發布與品牌政策
+
+- **狀態：** Production 尚未核准；目前 app 為 Testing，只有 1 位測試使用者。品牌欄位和 GitHub Pages 網域尚未完成驗證；正式資料說明頁已建草稿。
+- **待決項目：** 確認產品服務營運者的正式名稱、主要服務地區與個資權利申請流程；確認 Google OAuth 是否接受 GitHub Pages 子網域作為授權網域；確認是否需要服務條款頁；取得 Production 發布的明確核准。
+- **推薦：** 依實際資料處理方式覆核 `site/privacy.html`，確認 operator/服務地區後再將其作為 OAuth 隱私政策 URL。Google 頁面沒有把服務條款欄位標為必填，故未確認必要前保持空白，不擅自創造法律承諾。先用目前免費網址；若授權網域不被接受，再提出付費網域等替代方案供決定。Production 變更延後至品牌資料齊備並且使用者明確核准。
+- **適用範圍：** Samewave Google OAuth 品牌設定與一般使用者上線；此決策不改變 Supabase 登入 callback、GitHub Pages 前端或匿名玩家入口。
 - 帳號連結：匿名玩家可連結 Google，完成後必須保留原 player ID 和歷史紀錄；真人 linking 驗收仍待完成。
 - 安全界線：provider secret 僅存於 Supabase Auth；GitHub Pages 只使用公開 Project URL／publishable key。不要把 OAuth secret 傳入聊天或 repository。
 - 下一步：驗證匿名玩家連結 Google 後是否保留原 player ID 與歷史；Google app 仍在外部測試模式，需完成 Google 的正式發布要求後才能向一般帳號開放。
