@@ -33,8 +33,33 @@ const browserTest = String.raw`
       });
       const visible = (selector) => !document.querySelector(selector).classList.contains("hidden");
       (async () => {
-        const counts = [5, 10, 15, 15];
-        const topics = ["旅行", "K-pop", "政治", "K-pop"];
+        const countSelectionRounds = [
+          { count: 5, topic: "旅行" },
+          { count: 10, topic: "K-pop" },
+          { count: 15, topic: "政治" },
+          { count: 15, topic: "K-pop" },
+        ];
+        const allTopics = [
+          "旅行",
+          "音樂",
+          "日常",
+          "飲食",
+          "影視娛樂",
+          "興趣嗜好",
+          "運動",
+          "寵物",
+          "閱讀學習",
+          "藝術文化",
+          "K-pop",
+          "F1",
+          "價值觀",
+          "感情觀",
+          "政治",
+        ];
+        const rounds = [
+          ...countSelectionRounds,
+          ...allTopics.map((topic) => ({ count: 15, topic })),
+        ];
         const expectedKpopPrompts = [
           "回歸行程表一公布，你通常會？",
           "概念照釋出後，你最喜歡？",
@@ -66,14 +91,14 @@ const browserTest = String.raw`
         if (document.documentElement.scrollWidth > document.documentElement.clientWidth) {
           throw new Error("the home view overflows horizontally at the mobile viewport");
         }
-        for (let round = 0; round < counts.length; round += 1) {
-          const count = counts[round];
+        for (let round = 0; round < rounds.length; round += 1) {
+          const { count, topic } = rounds[round];
           const countButton = document.querySelector('[data-question-count="' + count + '"]');
           countButton.click();
           if (countButton.getAttribute("aria-pressed") !== "true") {
             throw new Error(count + "-question selection is not reflected accessibly");
           }
-          document.querySelector('[data-topic-choice="' + topics[round] + '"]').click();
+          document.querySelector('[data-topic-choice="' + topic + '"]').click();
           document.querySelector("[data-start-form]").requestSubmit();
           await waitFor(() => visible('[data-view="game"]'), count + "-question demo starts");
           await waitFor(
@@ -84,15 +109,28 @@ const browserTest = String.raw`
           if (progress.getAttribute("aria-valuemax") !== String(count)) {
             throw new Error(count + "-question progress limit is incorrect");
           }
+          if (document.documentElement.scrollWidth > document.documentElement.clientWidth) {
+            throw new Error(topic + " game overflows horizontally at the mobile viewport");
+          }
 
           for (let question = 1; question <= count; question += 1) {
             if (progress.getAttribute("aria-valuenow") !== String(question)) {
               throw new Error(count + "-question game skipped question " + question);
             }
-            if (
-              topics[round] === "K-pop" &&
-              document.querySelector("[data-question]").textContent !== expectedKpopPrompts[question - 1]
-            ) {
+            const prompt = document.querySelector("[data-question]").textContent.trim();
+            const choices = [0, 1].map((index) =>
+              document.querySelector('[data-option-copy="' + index + '"]').textContent.trim()
+            );
+            if (!prompt || prompt === "題目載入中…") {
+              throw new Error(topic + " question " + question + " has no real prompt");
+            }
+            if (choices.some((choice) => !choice || choice === "選項 A" || choice === "選項 B")) {
+              throw new Error(topic + " question " + question + " has an empty or placeholder choice");
+            }
+            if (choices[0] === choices[1]) {
+              throw new Error(topic + " question " + question + " repeats the same choice twice");
+            }
+            if (topic === "K-pop" && prompt !== expectedKpopPrompts[question - 1]) {
               throw new Error(
                 "K-pop prompt " + question + " does not match the fandom-focused set",
               );
@@ -109,18 +147,21 @@ const browserTest = String.raw`
           }
 
           await waitFor(() => visible('[data-view="results"]'), count + "-question results");
+          if (document.documentElement.scrollWidth > document.documentElement.clientWidth) {
+            throw new Error(topic + " results overflow horizontally at the mobile viewport");
+          }
           if (document.querySelector("[data-result-question-count]").textContent !== String(count)) {
             throw new Error(count + "-question result summary is incorrect");
           }
-          if (document.querySelector("[data-result-topic]").textContent !== topics[round]) {
-            throw new Error(topics[round] + " demo topic did not reach the result");
+          if (document.querySelector("[data-result-topic]").textContent !== topic) {
+            throw new Error(topic + " demo topic did not reach the result");
           }
           document.querySelector('[data-view="results"] [data-home]').click();
           await waitFor(() => visible('[data-view="home"]'), "return to topic selection");
         }
 
         document.documentElement.setAttribute("data-question-count-test", "passed");
-        output.textContent = "PASS: 360px mobile controls remain readable without horizontal overflow; 5, 10, and 15 question games complete with accurate progress, results, and all K-pop prompts.";
+        output.textContent = "PASS: 360px mobile controls remain readable without horizontal overflow; all 15 topic sets display 15 distinct questions with two non-empty choices, and 5, 10, and 15 question games complete with accurate progress and results.";
       })().catch((error) => fail(error?.message || String(error)));
     });
   </script>`;
@@ -208,7 +249,7 @@ try {
   if (!output.includes('data-question-count-test="passed"')) {
     throw new Error(`Browser verification failed: ${output.slice(-5000)}`);
   }
-  console.log("360px mobile readability and 5, 10, and 15 question game flows passed in headless Chrome.");
+  console.log("360px mobile readability, all 15 topic banks, and 5, 10, and 15 question game flows passed in headless Chrome.");
 } finally {
   await new Promise((resolve) => server.close(resolve));
   const tempRoot = path.resolve(os.tmpdir());
