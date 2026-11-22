@@ -110,13 +110,15 @@ async function readFrontendQuestionBank() {
     let label = topic[1];
     if (label.startsWith('"')) label = JSON.parse(label) as string;
     else if (label.startsWith("'")) label = label.slice(1, -1);
-    questionBank[label] = [...topic[2].matchAll(questionPattern)].map(
-      (row) => [
+    const questions: [string, string, string][] = [];
+    for (const row of topic[2].matchAll(questionPattern)) {
+      questions.push([
         JSON.parse(row[1]) as string,
         JSON.parse(row[2]) as string,
         JSON.parse(row[3]) as string,
-      ] as [string, string, string],
-    );
+      ]);
+    }
+    questionBank[label] = questions;
   }
   return questionBank;
 }
