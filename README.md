@@ -16,7 +16,7 @@
 - 匯出 1080×1920 結果分享卡；可呼叫系統分享面板或下載 PNG。Instagram 交接仍需用實機確認。
 - 可在手機與桌面瀏覽器操作。
 
-網站已接上 Samewave Supabase 專案。玩家使用匿名登入，session 會保存在目前瀏覽器；清除網站資料或換裝置後可能無法找回匿名帳號。Google 登入從玩家頁面移除；獨立案件審查頁仍供核准審查員使用。政治主題的答案可能反映敏感偏好，依一般期限保存。Realtime 跨裝置通知和帳號刪除仍待驗收。公開 `main` 目前載入 `app.js?v=19`；15 份 Supabase migration 已部署並由 CLI 對帳，遠端唯讀查詢確認 15 個主題各有 15 題，並保留舊版五題 RPC。5／10／15 題的前端、回歸測試與部署尚待本輪發布；本機 PGlite 20 項與 headless Chrome 題數流程已通過。
+網站已接上 Samewave Supabase 專案。玩家使用匿名登入，session 會保存在目前瀏覽器；清除網站資料或換裝置後可能無法找回匿名帳號。Google 登入從玩家頁面移除；獨立案件審查頁仍供核准審查員使用。政治主題的答案可能反映敏感偏好，依一般期限保存。Realtime 跨裝置通知和帳號刪除仍待驗收。15 份 Supabase migration 已部署並由 CLI 對帳，遠端唯讀查詢確認 15 個主題各有 15 題，並保留舊版五題 RPC。5／10／15 題選擇已部署；GitHub Actions run #64 的 verify、block_race 和 deploy 均成功，公開頁載入 `app.js?v=20`、`styles.css?v=16`。本機 PGlite 20 項與 headless Chrome 題數流程已通過；真人邀請房、配對及跨裝置流程仍待驗收。
 
 ## Supabase Auth 設定
 
@@ -31,7 +31,7 @@ site/supabase-config.js 配置 Samewave 專案公開 Project URL 與 publishable
 
 ## 真人配對後端
 
-Public `main` contains twelve PostgreSQL migration files. PR #1 added six-digit numeric invite codes, server-side guess throttling and legacy-code transition support; the migration was applied in Supabase, passed seven remote checks, and its CLI ledger entry was reconciled without rerunning SQL. PR #1 was rebase-merged on 2026-11-22. Actions run 44931736216 passed `verify`, `block_race` and `deploy`; the public site now loads `app.js?v=19`. Per-account throttling is not a substitute for broader anti-abuse controls if account farming becomes a concern. Anonymous no-session `HEAD` probes with the public publishable key returned HTTP 401 for `game_answers`, `player_match_history` and `player_safety_reports`; no rows were read, and this does not verify authenticated users’ row ownership. The backend also provides RPCs for fifteen topic sets, matchmaking, paired answers, private history, moderation, rate limits and data cleanup. PGlite and PostgreSQL 16 results do not replace live Auth, RLS, Realtime or cross-device checks. Never put the service role key in the static site.
+Public `main` contains fifteen PostgreSQL migration files. PR #1 added six-digit numeric invite codes, server-side guess throttling and legacy-code transition support; the migration was applied in Supabase, passed seven remote checks, and its CLI ledger entry was reconciled without rerunning SQL. PR #1 was rebase-merged on 2026-11-22. Actions run #64 passed `verify`, `block_race` and `deploy`; the public site loads `app.js?v=20` and `styles.css?v=16`. Per-account throttling is not a substitute for broader anti-abuse controls if account farming becomes a concern. Anonymous no-session `HEAD` probes with the public publishable key returned HTTP 401 for `game_answers`, `player_match_history` and `player_safety_reports`; no rows were read, and this does not verify authenticated users’ row ownership. The backend also provides RPCs for fifteen topic sets, matchmaking, paired answers, private history, moderation, rate limits and data cleanup. PGlite and PostgreSQL 16 results do not replace live Auth, RLS, Realtime or cross-device checks. Never put the service role key in the static site.
 
 ### 本機 migration 回歸測試
 
@@ -56,7 +56,7 @@ deno test --allow-env --allow-net --allow-read supabase/tests/block_match_concur
 
 ## GitHub Pages 部署
 
-公開 repository `310182-sketch/samewave` 的 Pages 發布來源已設為 GitHub Actions。[run #29](https://github.com/310182-sketch/samewave/actions/runs/44785419073) 的 `verify`、`block_race` 和 `deploy` 全部成功；run #28 驗證了 Pages artifact 重試修正。網站 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/) 已上線，`robots.txt` 與 `sitemap.xml` 可公開讀取。Search Console 仍顯示無法讀取 sitemap，雖然 sitemap 對 Googlebot 回 HTTP 200。網站已載入 Samewave Supabase 公開設定；匿名登入和真人遊戲仍待真實 session 及跨裝置驗收。
+公開 repository `310182-sketch/samewave` 的 Pages 發布來源已設為 GitHub Actions。[run #64](https://github.com/310182-sketch/samewave/actions/runs/44980519034) 的 `verify`、`block_race` 和 `deploy` 全部成功；公開首頁及 `app.js?v=20`、`styles.css?v=16`、`privacy.html` 回 HTTP 200。網站 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/) 已更新。Search Console 曾顯示無法讀取 sitemap，雖然 sitemap 對 Googlebot 回 HTTP 200。網站已載入 Samewave Supabase 公開設定；匿名登入和真人遊戲仍待真實 session 及跨裝置驗收。
 
 `riddle-match` 是另一個專案；該 repository 的舊部署網址和 Actions 紀錄不代表本專案的發布狀態。
 

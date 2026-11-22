@@ -10,14 +10,14 @@
 
 ## 目前狀態
 
-- **階段：** 15 個主題各 15 題與每局 5／10／15 題已實作；題數貫穿房間、配對、續玩、結果與歷史。三份新 migration 已套用至 Samewave production，CLI ledger 15/15 對齊；遠端唯讀查詢確認每類 15 題、5／10／15 題限制與相容 RPC。前端尚待推送部署，公開網站仍載入 `app.js?v=19`。
-- **已驗證：** 本輪 PGlite migration 回歸 20 項全通過，headless Chrome 完整跑完 5／10／15 題並核對進度及結果；Deno 型別與 lint、前端 JS 語法、5 項 Auth helper 測試及匿名登入流程通過。遠端驗證目前是 migration ledger 與唯讀 schema／題庫查詢；真人新題數邀請房、配對、跨裝置及 RLS 流程仍待實測。
+- **階段：** 15 個主題各 15 題與每局 5／10／15 題已實作並部署；題數貫穿房間、配對、續玩、結果與歷史。三份新 migration 已套用至 Samewave production，CLI ledger 15/15 對齊；遠端唯讀查詢確認每類 15 題、5／10／15 題限制與相容 RPC。公開網站已載入 `app.js?v=20`、`styles.css?v=16`。
+- **已驗證：** 本輪 PGlite migration 回歸 20 項全通過，headless Chrome 完整跑完 5／10／15 題並核對進度及結果；Deno 型別與 lint、前端 JS 語法、5 項 Auth helper 測試及匿名登入流程通過。GitHub Actions run [#64](https://github.com/310182-sketch/samewave/actions/runs/44980519034) 的 `verify`、`block_race`、`deploy` 全成功；公開首頁及 app.js、styles.css、privacy.html 回 HTTP 200。遠端驗證另包括 migration ledger 與唯讀 schema／題庫查詢；真人新題數邀請房、配對、跨裝置及 RLS 流程仍待實測。
 - **仍待線上驗證：** 匿名登入及 session 恢復、真人房間／配對／歷史資料、完整 RLS 權限和跨裝置流程尚未實測。邀請房答題與隨機配對前端已接上 RPC，Chrome mock 驗證成功揭曉、雙方確認、結果讀取、配對成功、逾時重試及取消；尚未在 Supabase Realtime 或兩部裝置驗證。歷史頁查詢、分頁、默契排名及逐筆刪除也僅以 mock 驗證。結果分享卡尚未在 iOS／Android 實機確認 Instagram 交接。
 - **後端：** 共十五份 migration 已部署並對帳；新增五類題庫、將 15 類擴充到各 15 題，並在房間、配對票券、RPC、完局歷史與續玩加入題數欄位。production 唯讀查詢確認題庫／RPC／限制；真實使用者流程仍待測試。
 - **資料政策：** 真人房間、配對票券及原始答案最多保留 24 小時；個人歷史摘要保存 90 天且可逐筆刪除；檢舉資料保存 180 天；封鎖關係保留至解除或刪除帳號。相關 migration 與清理排程已部署，但資料保留週期和逾期刪除尚未經過實際時間週期驗證。
 - **登入與社群：** 玩家頁只提供 Supabase Anonymous Auth，persistSession 保存目前瀏覽器的玩家 session；清除網站資料或換裝置可能無法找回匿名帳號。玩家端 Google 登入和 linking 已移除；Google provider 保留給獨立審查頁的核准審查員，不切換 Google OAuth 玩家 Production，也不刪除既有帳號。
 - **前端設計：** 已完成第一輪整體字級、留白、按鈕及主題選項版面整理；登入卡片以獨立視覺層級呈現，同時保留先玩示範的主要流程。房間、真人答題、隨機配對等待及歷史頁已接上 RPC，無設定時仍保留清楚標示的操作預覽。Chrome mock 驗證流程分支；六種寬度與鍵盤流程的前一輪檢查已通過。真人服務環境的實際網路狀態仍待驗證。
-- **發布：** 公開頁目前載入 `app.js?v=19`，前端尚無 5／10／15 題選項；後端三份 migration 已部署。新前端與相應 headless Chrome 測試尚未推送／部署。
+- **發布：** 5／10／15 題選項及前端已部署至 GitHub Pages（Actions run #64）；公開頁載入 `app.js?v=20`、`styles.css?v=16`。正式 Supabase 的 15 份 migration 已部署並對帳。真人新題數房間／配對及隔離裝置流程仍待驗收。
 - **安全營運：** 前端已提供同房檢舉、封鎖／解除封鎖及隱私告知，並有獨立的審查員工作區；後端提供 allowlist、遮蔽細節的案件佇列、領案／結案及私有稽核事件，PGlite 和 headless Chrome 權限鎖定情境已由 CI 驗證。尚未建立審查員帳號或指定實際審查人員、玩家聯絡方式與值班安排；現有流程草案不是服務承諾，正式公開前不得宣稱有人即時處理。
 - **工作區：** 原型位於 `site/`，可直接開啟 `site/index.html` 操作，不需安裝套件或建置。
 - **產品方向：** 本專案以獨立的 `samewave` repository 發布二選一共同點遊戲，不沿用另一專案的 repository 歷史，詳見 [knowledge/decision.md](decision.md)。
@@ -102,7 +102,7 @@
 - [x] Supabase 上線後更新登入卡狀態與新手說明，清楚標出匿名登入和 Google provider 已啟用，並說明登入後可使用邀請房、隨機配對及歷史紀錄；更新 `app.js` 快取版本。
 - [x] 公開 Supabase Auth settings helper 保留給審查員頁使用；玩家頁不查詢也不顯示 Google provider。
 - [x] 曾收斂到 Google-only；現已移除玩家頁 Google OAuth 按鈕及呼叫，審查員頁的 Google 登入保留。
-- [x] Google-only 玩家登入曾部署；本輪撤下玩家入口的改動尚未發布。
+- [x] 移除玩家頁面的 Google 登入並部署；玩家使用匿名登入，Google provider 僅供核准的案件審查員登入。
 - [x] 將暱稱欄提示設為「企鵝」，並將遊戲畫面預設、前端 fallback 與資料庫 RPC 的空值／空白 fallback 統一為「企鵝」；Deno/PGlite 回歸測試覆蓋建立房間、加入房間和隨機配對；Actions run #7 的 verify、block_race 和 deploy 成功。部署後更改既有 RPC 預設時應新增 forward-only migration。
 - [ ] 完成後端後，再以不同裝置驗證房間邀請、隨機配對及 90 天歷史查詢權限。
 - [x] 加入建立邀請房、複製示範代碼及輸入房間代碼的前端預覽；畫面清楚說明尚未建立跨裝置房間。
@@ -163,6 +163,7 @@
 - [x] 完成六碼代碼前端、舊碼相容與服務端限流提示；headless Chrome 覆蓋錯誤碼、前導零、舊碼、限流回覆和 Enter 送出。
 - [x] 將 PR #1 更新至目前 main，Actions run 44930756543 的 `verify`／`block_race` 通過，Pages `deploy` 按 draft PR 規則略過。
 - [x] 審查並合併 PR #1，發布六碼邀請碼與自適應 Realtime 輪詢；Actions run 44931736216 的 verify、block_race、deploy 全成功，公開網站載入 `app.js?v=19`。
+- [x] 發布 15 類各 15 題及每局 5／10／15 題選擇；Actions run #64 的 verify、block_race、deploy 全成功，公開首頁與 app.js、styles.css、privacy.html 回 HTTP 200，網站載入 `app.js?v=20`、`styles.css?v=16`。
 - [x] 啟用 `pg_cron` 並建立即時遊戲資料每 15 分鐘、檢舉資料每日 03:17 的清理排程；線上確認兩者皆 active。
 - [x] 為網站設定 Supabase URL／公開 publishable key；Anonymous Auth 已啟用，Google provider 留給審查員使用。
 - [x] 線上核對檢舉資料 RLS、玩家無法直讀答案表，以及房間表加入 Realtime publication；完整角色權限和真實玩家資料存取仍待端對端測試。
