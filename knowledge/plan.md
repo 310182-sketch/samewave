@@ -172,7 +172,7 @@
 - [x] Google 玩家登入曾在測試名單成功；依最新決策不向玩家提供此登入，也不發布 Google OAuth 玩家 app。
 - [x] 曾加入 Google OAuth／linking Auth mock；玩家端相關呼叫已移除，匿名 session 真人驗收仍待完成。
 - [x] 排除 Facebook／X／Instagram／Threads 登入；Instagram 結果分享保留。
-- [x] 建立可直接連結的隱私與資料處理說明頁草稿，列出登入、遊戲資料用途及既定保存期限，並在頁面明示營運者法定名稱、適用地區及完整權利流程仍待正式覆核；已加首頁連結與 sitemap，尚未合併部署。這是產品資料說明草稿，尚不能視為法規覆核完成。
+- [x] 建立並發布可直接連結的隱私與資料處理說明頁草稿，列出登入、遊戲資料用途及既定保存期限；首頁連結、canonical、Open Graph 與 sitemap 已加入。頁面仍明示營運者法定名稱、適用地區及完整權利流程待正式覆核，因此不能視為法規覆核完成。
 - [ ] 完成公開隱私政策的營運者／適用地區覆核；Google OAuth 品牌頁不再是玩家登入上線條件。
 - [x] 玩家端不提供 Google 登入；Google provider 僅保留給核准的案件審查員。
 - [x] 不再把 Google OAuth 玩家 Production 發布列為待辦。
@@ -211,7 +211,7 @@
 - [x] 確認公開網址、`robots.txt` 和 `sitemap.xml` 均可讀取；README 已有網站立即遊玩連結。
 - [x] 將網站網址填入 GitHub About 的 Website 欄位並確認公開 repo 頁顯示正確連結。
 - [x] 以首頁 HTML 驗證標籤完成 Google Search Console 網站擁有權驗證；保留標籤以維持驗證狀態。
-- [ ] 發布 Supabase ledger 已到 15/15 的前端版本；等待 GitHub Actions `verify`、`block_race`、`deploy` 成功，再檢查公開頁載入 `app.js?v=20`／`styles.css?v=16` 並顯示 5／10／15 題選項。
+- [x] 發布 Supabase ledger 已到 15/15 的前端版本；Actions run #64 的 `verify`、`block_race`、`deploy` 全部成功，公開頁載入 `app.js?v=20`／`styles.css?v=16` 並提供 5／10／15 題選項。後續文件更新的部署 run 44980939196 亦全數通過。
 - [ ] 讓 Search Console 成功讀取 `sitemap.xml`；目前已接受提交但報表顯示「無法讀取 Sitemap」，直接 HTTP 與 Googlebot User-Agent 查詢皆為 200／`application/xml`，待 Google 處理後重查。網站已出現在 `site:` 搜尋結果，但收錄完整性和搜尋排名仍由 Google 決定。
 - [x] 為線上版本設定 Supabase URL／公開 publishable key；Anonymous Auth、Manual Linking 和正式網站 redirect allow list 已設定，Google OAuth callback 已設定；最新 client secret 登入和 session 恢復驗收成功。
 - [x] 修正帳號刪除停用說明：Edge Function 已部署但尚未用真實登入者驗收，介面改為說明「目前尚未開放」及待驗收條件；操作錯誤訊息改成不推斷刪除一定失敗，並遞增 `app.js` 快取版本；Actions run #16 部署成功。

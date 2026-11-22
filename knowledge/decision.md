@@ -144,7 +144,7 @@
 
 ## 發布
 
-- **現況（2026-11-22）：** `riddle-match` 的 Pages 網站屬於另一個專案。公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立，Pages 使用 GitHub Actions。題庫／題數前端及三份 migration 已部署；正式 Supabase CLI ledger 為 15/15，唯讀查詢確認 15 個主題各 15 題和相容 RPC 存在。GitHub Actions run #64 的 `verify`、`block_race`、`deploy` 全成功，公開頁載入 `app.js?v=20`、`styles.css?v=16`。匿名玩家流程及隔離裝置 Realtime 等真人服務驗收仍待完成。
+- **現況（2026-11-22）：** `riddle-match` 的 Pages 網站屬於另一個專案。公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立，Pages 使用 GitHub Actions。題庫／題數前端及三份 migration 已部署；正式 Supabase CLI ledger 為 15/15，唯讀查詢確認 15 個主題各 15 題和相容 RPC 存在。GitHub Actions run #64 的 `verify`、`block_race`、`deploy` 全成功，公開頁載入 `app.js?v=20`、`styles.css?v=16`；文件同步 commit 的 run 44980939196 也全成功。匿名玩家流程及隔離裝置 Realtime 等真人服務驗收仍待完成。
 - **決定：** 採公開 repository，因為目標包含 GitHub Pages 免費發布；建立時只納入同頻原始碼和文件，不沿用另一專案歷史。已檢查用戶端設定範本沒有真實 Supabase URL／key，測試中的 JWT 為假資料；provider secret 與 service role key 不得推送。
 - **PR #3：** Google-only 登入修改已於 2026-11-22 透過 rebase merge 合併；GitHub Pages 部署 run 44927437625 成功。未來公開 repository 合併前，須核對 commit author 和 committer 兩個欄位的 email；rebase 預覽或 noreply author 單獨不足以證明 committer 也隱去個人 email。
 - **下一階段：** 以兩個已授權測試 session 完成匿名登入／登出、session 恢復及新題數邀請房／配對／歷史的真人驗收，再用兩部隔離裝置測試 Auth、RLS、Realtime 和 RPC。玩家不使用 Google OAuth。帳號刪除 Edge Function 已部署且限制 origin，但需另外授權後才用一次性帳號驗證實際刪除。公開靜態網站及 schema 部署仍不代表真人遊戲已完成端對端驗收。
@@ -155,7 +155,7 @@
 - **狀態：** 專用專案已建立並部署 schema；公開網站設定已加入 URL／publishable key。
 - **決定：** Samewave 使用獨立 Supabase 專案 bbpfgavabdsdayuprhbp（Singapore），不與 riddle-match 共用資料庫。已啟用 Anonymous Auth 和 Manual Linking；玩家端只提供匿名登入，Google provider 僅供核准案件審查員使用。GitHub Pages 與 localhost 回跳網址已加入 Auth allow list；此設定不代表真人遊戲流程已全部驗收。
 - **安全界線：** site/supabase-config.js 只放公開 Project URL 和 publishable key；不得放 service role key、資料庫密碼或 OAuth client secret。Google provider 設定在 Supabase Auth；其他社群 provider 不在目前產品登入範圍。
-- **下一步：** 驗證匿名登入與帳號刪除 Edge Function，最後以兩部裝置驗證 Supabase Auth、RLS、Realtime、RPC 和歷史流程。
+- **下一步：** 使用既有兩個測試 session 驗證匿名登入／登出、session 恢復、RLS、Realtime、題數配對與歷史流程；不另建測試帳號。帳號刪除 Edge Function 雖已部署，但驗證真實刪除前仍須取得該不可逆操作的明確授權。
 
 ## 正式 Supabase 真人驗收帳號
 

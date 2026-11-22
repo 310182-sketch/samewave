@@ -56,7 +56,7 @@ deno test --allow-env --allow-net --allow-read supabase/tests/block_match_concur
 
 ## GitHub Pages 部署
 
-公開 repository `310182-sketch/samewave` 的 Pages 發布來源已設為 GitHub Actions。[run #64](https://github.com/310182-sketch/samewave/actions/runs/44980519034) 的 `verify`、`block_race` 和 `deploy` 全部成功；公開首頁及 `app.js?v=20`、`styles.css?v=16`、`privacy.html` 回 HTTP 200。網站 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/) 已更新。Search Console 曾顯示無法讀取 sitemap，雖然 sitemap 對 Googlebot 回 HTTP 200。網站已載入 Samewave Supabase 公開設定；匿名登入和真人遊戲仍待真實 session 及跨裝置驗收。
+公開 repository `310182-sketch/samewave` 的 Pages 發布來源已設為 GitHub Actions。[功能部署 run #64](https://github.com/310182-sketch/samewave/actions/runs/44980519034) 及[後續文件部署 run 44980939196](https://github.com/310182-sketch/samewave/actions/runs/44980939196) 的 `verify`、`block_race` 和 `deploy` 全部成功；公開首頁及 `app.js?v=20`、`styles.css?v=16`、`privacy.html` 回 HTTP 200。網站 [https://310182-sketch.github.io/samewave/](https://310182-sketch.github.io/samewave/) 已更新。Search Console 曾顯示無法讀取 sitemap，雖然 sitemap 對 Googlebot 回 HTTP 200。網站已載入 Samewave Supabase 公開設定；匿名登入和真人遊戲仍待真實 session 及跨裝置驗收。
 
 `riddle-match` 是另一個專案；該 repository 的舊部署網址和 Actions 紀錄不代表本專案的發布狀態。
 
