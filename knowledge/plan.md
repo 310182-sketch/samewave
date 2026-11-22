@@ -11,7 +11,7 @@
 ## 目前狀態
 
 - **階段：** 15 個主題各 15 題與每局 5／10／15 題已實作；K-pop 題目為追星情境，其餘 14 個主題已改成具體日常情境。前端快取版本 `app.js?v=22` 已部署；題庫內容 migration `20261122000400_refine_kpop_fandom_questions.sql` 和 `20261122000500_refine_everyday_topic_questions.sql` 尚未套用至 Samewave production，真人對局仍讀取原題庫。
-- **已驗證：** 360px headless Chrome 的手機可讀性及 5／10／15 題流程通過；Node 語法與題庫解析確認 15 個主題各 15 題，210 筆 migration 和前端題目逐題一致。Actions run [#45021996623](https://github.com/310182-sketch/samewave/actions/runs/45021996623) 的 `verify`、`block_race`、`deploy` 全成功；PGlite 比對前端與資料庫的全部 225 題一致。真人邀請、配對、跨裝置及 RLS 流程仍待實測。
+- **已驗證：** 360px headless Chrome 的手機可讀性及 5／10／15 題流程通過；Node 語法與題庫解析確認 15 個主題各 15 題，210 筆 migration 和前端題目逐題一致。Actions run [#45021996623](https://github.com/310182-sketch/samewave/actions/runs/45021996623) 的題庫 parity、`block_race`、`deploy` 全成功；run [#45022926868](https://github.com/310182-sketch/samewave/actions/runs/45022926868) 的全主題逐題 Chrome 覆蓋也通過。真人邀請、配對、跨裝置及 RLS 流程仍待實測。
 - **仍待線上驗證：** 匿名登入及 session 恢復、真人房間／配對／歷史資料、完整 RLS 權限和跨裝置流程尚未實測。邀請房答題與隨機配對前端已接上 RPC，Chrome mock 驗證成功揭曉、雙方確認、結果讀取、配對成功、逾時重試及取消；尚未在 Supabase Realtime 或兩部裝置驗證。歷史頁查詢、分頁、默契排名及逐筆刪除也僅以 mock 驗證。結果分享卡尚未在 iOS／Android 實機確認 Instagram 交接。
 - **後端：** 既有 migration ledger 維持 15/15；K-pop 15 筆和其他主題 210 筆內容 migration 均已推送，但尚未套用至 production。真實使用者流程仍待測試。
 - **資料政策：** 真人房間、配對票券及原始答案最多保留 24 小時；個人歷史摘要保存 90 天且可逐筆刪除；檢舉資料保存 180 天；封鎖關係保留至解除或刪除帳號。相關 migration 與清理排程已部署，但資料保留週期和逾期刪除尚未經過實際時間週期驗證。
@@ -95,7 +95,7 @@
 - [x] 題庫擴充至 15 類、每類 15 題；加入每局 5／10／15 題選項，預設 5 題。邀請房、隨機配對、進度、結果、分享卡、歷史與續玩沿用所選題數；random matchmaking 僅配對相同題數。
 - [x] 使用 headless Chrome 跑完本機 5、10、15 題示範對局，確認題目進度、完成題數、結果摘要及主題在流程間一致；Pages workflow 在部署前執行此測試。
 - [x] 更新 headless Chrome 題數流程，逐題核對 15 個 K-pop prompt，並保留 5／10／15 題及其他主題流程；本機測試通過。
-- [x] 擴充 360px headless Chrome 流程，逐題操作全部 15 個主題各 15 題，檢查題目／選項非空、選項不重複、遊戲與結果頁沒有水平溢出；並保留 5／10／15 題數流程。本機通過，待 Pages workflow 回歸。
+- [x] 擴充 360px headless Chrome 流程，逐題操作全部 15 個主題各 15 題，檢查題目／選項非空、選項不重複、遊戲與結果頁沒有水平溢出；並保留 5／10／15 題數流程。本機及 Actions run #45022926868 通過。
 - [x] 在 360px headless Chrome 題數流程檢查主題及題數選項的 computed font-size 至少 14px，並確認首頁沒有水平溢出；本機 5／10／15 題和 K-pop 逐題流程通過；Actions run [#45019607947](https://github.com/310182-sketch/samewave/actions/runs/45019607947) 的 verify、block_race、deploy 均成功。
 - [x] 以 PGlite 逐列比對 15 個 K-pop prompt 和雙選項；Actions run #45018311959 的 `verify` 通過。本機未安裝 Deno，由 CI 執行 PGlite。
 - [x] 加入手機版版面、鍵盤焦點樣式和減少動態效果支援。
