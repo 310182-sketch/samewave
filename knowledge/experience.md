@@ -106,7 +106,7 @@
 
 - **經驗：** 更新前端題庫只會改變本機示範；真人房間從 Supabase `question_bank` 取得題目，必須另外以 forward-only migration 更新資料列。GitHub Pages 部署成功不代表遊戲資料庫內容已更新。
 - **適用範圍：** 靜態前端展示題庫、但正式互動由 API／資料庫載入題目的遊戲、測驗或多語內容網站。
-- **本專案做法：** 前端 `questionBank` 和資料庫題目保持同一套 15 個題號；內容修改以 `(topic_key, question_no)` upsert 新 migration，避免改寫已部署 seed migration；同步增加 `app.js` 查詢參數以刷新瀏覽器快取。推送後分別確認 Actions／公開腳本版本，以及 production migration ledger／題目列。K-pop 題庫 commit `55d80d5` 的 Pages 部署成功、公開頁載入 `app.js?v=21`；後續一致性測試 Actions run #45018311959 的 `verify`、`block_race`、`deploy` 均通過。但第十六份資料 migration 尚未執行，因此真人對局仍讀取舊文案；不可將前端發布當成完整題庫發布。
+- **本專案做法：** 前端 `questionBank` 和資料庫題目保持同一套 15 個題號；內容修改以 `(topic_key, question_no)` upsert 新 migration，避免改寫已部署 seed migration；同步增加 `app.js` 查詢參數以刷新瀏覽器快取。推送後分別確認 Actions／公開腳本版本，以及 production migration ledger／題目列。K-pop 題庫 commit `55d80d5` 的 Pages 部署成功、公開頁載入 `app.js?v=21`；後續一致性測試 Actions run #45018311959 的 `verify`、`block_race`、`deploy` 均通過，文件更新 run #45018613460 也成功部署。但第十六份資料 migration 尚未執行，因此真人對局仍讀取舊文案；不可將前端發布當成完整題庫發布。
 - **一致性檢查：** 前端 headless Chrome 測試逐題核對 15 個 K-pop prompt；PGlite 在依序套用 migration 後比對資料庫題目的 prompt 與雙選項。兩者均由本機／CI 驗證通過後，仍需另外查 production，因為本機 SQL 測試不能證明遠端 migration 已執行。
 - **測試環境：** 若本機缺少 Deno、而 repository 的 GitHub Actions 已固定 Deno 版本，先跑可用的 Node／Chrome 檢查，再把 PGlite 回歸交給該 workflow；只有確認 `verify` 成功才記為通過，不需為單一檢查另裝未設定的 runtime。
 
@@ -120,7 +120,7 @@
 
 - **經驗：** PGlite 可在瀏覽器執行 PostgreSQL，讓 migration 在建立雲端專案前先做套用和 RPC 回歸測試。把最小 `auth.users`、`auth.uid()`、角色及登入 claim stub 寫進版本控制，可讓後續 migration 修改重複檢查 PostgreSQL／PLpgSQL 語法、權限邊界及核心資料流程，不必依賴一次性的手動 smoke test。
 - **適用範圍：** 使用 PostgreSQL、RPC、觸發器和 RLS 的 Supabase 專案，且本機沒有 Docker、PostgreSQL 或 Supabase CLI 時。
-- **本專案做法：** `supabase/tests/migrations.test.ts` 以固定版本的 PGlite 自動讀取 `supabase/migrations/` 內所有 SQL 檔案，再按檔名順序套用；新增 migration 不必再更新測試中的重複清單。測試可用 `deno test --allow-read --allow-net supabase/tests/migrations.test.ts` 重複執行。現有 14 項測試涵蓋 migration／權限、房間與配對票券恢復、security-definer 權限、雙人揭曉與歷史、配對與封鎖、主題目錄擴充、歷史範圍與排名、保留期限、限量、檢舉及帳號刪除收尾；Actions run #7 的 verify 與 PostgreSQL 16 `block_race` 通過。測試需以不同 JWT subject 呼叫 security-definer RPC，驗證讀取與刪除都只作用於該玩家資料，並確認未登入呼叫被拒絕；刪除帳號測試也應同時核對 cascade、匿名化和保留期限，避免只看 Auth row 是否消失。所有應用 security-definer 函式都固定空 `search_path`，回歸測試直接檢查 `pg_proc.proconfig`，並確認匿名角色沒有任何應用 security-definer 函式的執行權。PGlite 的共用鎖檢查只能驗證不變條件；PostgreSQL 16 多連線整合測試另已驗證封鎖與配對／邀請加入、兩種帳號限量競態。這些本機檢查仍不等同 Supabase Auth 或跨裝置遊戲驗收。
+- **本專案做法：** `supabase/tests/migrations.test.ts` 以固定版本的 PGlite 自動讀取 `supabase/migrations/` 內所有 SQL 檔案，再按檔名順序套用；新增 migration 不必再更新測試中的重複清單。測試可用 `deno test --allow-read --allow-net supabase/tests/migrations.test.ts` 重複執行。現有 20 個 `Deno.test` 案例涵蓋 migration／權限、房間與配對票券恢復、security-definer 權限、雙人揭曉與歷史、配對與封鎖、主題目錄擴充、歷史範圍與排名、保留期限、限量、檢舉及帳號刪除收尾；Actions run #7 的 verify 與 PostgreSQL 16 `block_race` 通過。測試需以不同 JWT subject 呼叫 security-definer RPC，驗證讀取與刪除都只作用於該玩家資料，並確認未登入呼叫被拒絕；刪除帳號測試也應同時核對 cascade、匿名化和保留期限，避免只看 Auth row 是否消失。所有應用 security-definer 函式都固定空 `search_path`，回歸測試直接檢查 `pg_proc.proconfig`，並確認匿名角色沒有任何應用 security-definer 函式的執行權。PGlite 的共用鎖檢查只能驗證不變條件；PostgreSQL 16 多連線整合測試另已驗證封鎖與配對／邀請加入、兩種帳號限量競態。這些本機檢查仍不等同 Supabase Auth 或跨裝置遊戲驗收。
 
 ## 多連線交易競態要用真實 PostgreSQL 驗證
 

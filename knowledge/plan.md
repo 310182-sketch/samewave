@@ -17,7 +17,7 @@
 - **資料政策：** 真人房間、配對票券及原始答案最多保留 24 小時；個人歷史摘要保存 90 天且可逐筆刪除；檢舉資料保存 180 天；封鎖關係保留至解除或刪除帳號。相關 migration 與清理排程已部署，但資料保留週期和逾期刪除尚未經過實際時間週期驗證。
 - **登入與社群：** 玩家頁只提供 Supabase Anonymous Auth，persistSession 保存目前瀏覽器的玩家 session；清除網站資料或換裝置可能無法找回匿名帳號。玩家端 Google 登入和 linking 已移除；Google provider 保留給獨立審查頁的核准審查員，不切換 Google OAuth 玩家 Production，也不刪除既有帳號。
 - **前端設計：** 已完成第一輪整體字級、留白、按鈕及主題選項版面整理；登入卡片以獨立視覺層級呈現，同時保留先玩示範的主要流程。房間、真人答題、隨機配對等待及歷史頁已接上 RPC，無設定時仍保留清楚標示的操作預覽。Chrome mock 驗證流程分支；六種寬度與鍵盤流程的前一輪檢查已通過。真人服務環境的實際網路狀態仍待驗證。
-- **發布：** K-pop 追星題目與快取版本 `app.js?v=21` 已推至 Samewave `main`；Actions run [#45018311959](https://github.com/310182-sketch/samewave/actions/runs/45018311959) 的 `verify`、`block_race`、`deploy` 均成功，公開首頁與腳本已部署。題庫更新 migration 尚未套用至 Supabase，因此真人對局仍使用舊題；其餘 5／10／15 題前端與前十五份資料庫 migration 已部署。真人新題數房間／配對及隔離裝置流程仍待驗收。
+- **發布：** K-pop 追星題目與快取版本 `app.js?v=21` 已推至 Samewave `main`；Actions run [#45018311959](https://github.com/310182-sketch/samewave/actions/runs/45018311959) 的 `verify`、`block_race`、`deploy` 均成功，公開首頁與腳本已部署；文件更新 run [#45018613460](https://github.com/310182-sketch/samewave/actions/runs/45018613460) 也成功。題庫更新 migration 尚未套用至 Supabase，因此真人對局仍使用舊題；其餘 5／10／15 題前端與前十五份資料庫 migration 已部署。真人新題數房間／配對及隔離裝置流程仍待驗收。
 - **安全營運：** 前端已提供同房檢舉、封鎖／解除封鎖及隱私告知，並有獨立的審查員工作區；後端提供 allowlist、遮蔽細節的案件佇列、領案／結案及私有稽核事件，PGlite 和 headless Chrome 權限鎖定情境已由 CI 驗證。尚未建立審查員帳號或指定實際審查人員、玩家聯絡方式與值班安排；現有流程草案不是服務承諾，正式公開前不得宣稱有人即時處理。
 - **工作區：** 原型位於 `site/`，可直接開啟 `site/index.html` 操作，不需安裝套件或建置。
 - **產品方向：** 本專案以獨立的 `samewave` repository 發布二選一共同點遊戲，不沿用另一專案的 repository 歷史，詳見 [knowledge/decision.md](decision.md)。
