@@ -91,6 +91,36 @@ function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
 }
 
+async function readFrontendQuestionBank() {
+  const source = await Deno.readTextFile(
+    new URL("../../site/app.js", import.meta.url),
+  );
+  const block = source.match(
+    /const questionBank = \{([\s\S]*?)\r?\n  \};\r?\n\r?\n  const state =/,
+  );
+  assert(block, "frontend question bank is present");
+
+  const questionBank: Record<string, [string, string, string][]> = {};
+  const topicPattern =
+    /^    ((?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|[$_\p{ID_Start}][$\u200C\u200D_\p{ID_Continue}]*)\s*:\s*\[\r?\n([\s\S]*?)^    \]/gmu;
+  const questionPattern =
+    /^[ \t]*\{ prompt: ("(?:\\.|[^"\\])*"), choices: \[("(?:\\.|[^"\\])*"), ("(?:\\.|[^"\\])*")\], demoAnswer: [01] \},?\r?$/gm;
+
+  for (const topic of block[1].matchAll(topicPattern)) {
+    let label = topic[1];
+    if (label.startsWith('"')) label = JSON.parse(label) as string;
+    else if (label.startsWith("'")) label = label.slice(1, -1);
+    questionBank[label] = [...topic[2].matchAll(questionPattern)].map(
+      (row) => [
+        JSON.parse(row[1]) as string,
+        JSON.parse(row[2]) as string,
+        JSON.parse(row[3]) as string,
+      ] as [string, string, string],
+    );
+  }
+  return questionBank;
+}
+
 async function assertRejects(
   action: () => Promise<unknown>,
   messagePart: string,
@@ -1339,6 +1369,56 @@ Deno.test("expanded topic catalog supports questions, invite rooms, and live mat
         topic.question_count,
         15,
         `${topic.topic_key} has fifteen questions`,
+      );
+    }
+
+    const frontendLabelByTopicKey: Record<string, string> = {
+      travel: "旅行",
+      music: "音樂",
+      daily: "日常",
+      food: "飲食",
+      entertainment: "影視娛樂",
+      hobbies: "興趣嗜好",
+      sports: "運動",
+      pets: "寵物",
+      reading: "閱讀學習",
+      culture: "藝術文化",
+      kpop: "K-pop",
+      f1: "F1",
+      values: "價值觀",
+      relationships: "感情觀",
+      politics: "政治",
+    };
+    const frontendQuestions = await readFrontendQuestionBank();
+    const storedQuestions = await db.query<{
+      topic_key: string;
+      question_no: number;
+      prompt: string;
+      choice_a: string;
+      choice_b: string;
+    }>(`
+      select topic_key, question_no, prompt, choice_a, choice_b
+      from public.question_bank
+      order by topic_key, question_no
+    `);
+    assertEquals(
+      storedQuestions.rows.length,
+      225,
+      "all 225 frontend questions are represented in the database",
+    );
+    for (const [topicKey, label] of Object.entries(frontendLabelByTopicKey)) {
+      const databaseSet = storedQuestions.rows
+        .filter((row) => row.topic_key === topicKey)
+        .map((row) => [row.prompt, row.choice_a, row.choice_b]);
+      assertEquals(
+        frontendQuestions[label]?.length,
+        15,
+        `${label} frontend question bank contains fifteen questions`,
+      );
+      assertEquals(
+        JSON.stringify(databaseSet),
+        JSON.stringify(frontendQuestions[label]),
+        `${label} frontend and Supabase question sets match`,
       );
     }
 

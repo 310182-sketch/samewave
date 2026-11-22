@@ -107,8 +107,15 @@
 
 - **狀態：** 十五題追星情境已更新於前端，`app.js?v=21` 已部署至 GitHub Pages；forward-only migration `20261122000400_refine_kpop_fandom_questions.sql` 已推至 Samewave `main`，PGlite 與逐題 Chrome 一致性檢查通過，Actions run #45018311959 的 `verify`、`block_race`、`deploy` 全成功，文件更新 run #45018613460 也完成部署。但 migration 尚未套用至 production；正式資料庫目前仍供應舊版 K-pop 題目。
 - **建議：** 在 Samewave Supabase SQL Editor 執行該 migration，再唯讀確認 `question_bank` 的 `kpop` 題號 1–15、題目及選項與 repository 一致。此 migration 只 upsert K-pop 題目列，不修改玩家資料或其他主題。
-- **操作界線：** 套用前先檢查遠端 migration ledger 確認版本仍是 15/15；SQL Editor 執行會更換公開真人對局顯示的題目文案，須在按下執行前取得本次明確確認。完成後將路線圖狀態改為已部署，記錄遠端 ledger 和題目查詢結果。
+- **操作界線：** 使用者已確認套用 00400；因新增的 migration 00500 尚待確認，兩份 migration 預計一起執行，避免正式資料庫只有部分主題更新。操作前檢查遠端 migration ledger，執行後唯讀核對題庫並同步記錄結果。
 - **適用範圍：** 已發布的靜態網站使用資料庫作為正式題庫，且需在不改寫舊 migration 的情況下更新遊戲內容。
+
+## 其他主題題庫內容更新
+
+- **範圍：** K-pop 以外 14 個主題，每類 15 題；題目改用具體生活場景和容易比較的兩種做法。政治題保持中立，不提政黨或候選人。
+- **狀態：** 前端文案、快取版本 `app.js?v=22` 和 migration `20261122000500_refine_everyday_topic_questions.sql` 已在本機準備；migration 只 upsert 210 筆，保留 K-pop 題目及各題原有示範答案。Node 已核對前端與 SQL 逐題相同，headless Chrome 的 360px 及 5／10／15 題流程通過；新增的 PGlite 225 題完整比對待 GitHub Actions 執行。尚未推送部署或套用至 Supabase。
+- **部署界線：** 遊戲前端正式題目由 Supabase 題庫供應；Pages 部署不會更新真人題庫。K-pop migration 00400 已獲先前授權；本 migration 00500 涵蓋另外 14 個主題，尚待使用者明確確認後才可套用。建議確認後與 00400 一起執行，並先檢查 remote ledger，再唯讀核對全部 225 筆。
+- **適用範圍：** 需同步維護靜態前端示範題庫和 Supabase 正式題庫，且不重寫已套用 migration 的題目內容更新。
 
 ## 歷史紀錄與共同點統計
 
