@@ -1606,8 +1606,8 @@ Deno.test("blank nicknames use 企鵝 across the UI, invite rooms, and matching"
   assert(app.includes('nickname: "企鵝"'), "client state uses the default");
   assertEquals(
     (app.match(/\|\| "企鵝"/g) ?? []).length,
-    2,
-    "both client nickname readers use the default",
+    4,
+    "match and challenge nickname readers use the default",
   );
 
   const db = await createDatabase();

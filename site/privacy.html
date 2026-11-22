@@ -15,7 +15,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=15">
+    <link rel="stylesheet" href="styles.css?v=17">
     <style>
       .policy-shell { max-width: 1000px; }
       .policy-main { padding: clamp(28px, 6vw, 68px) 0; }
@@ -63,6 +63,7 @@
             <ul>
               <li>玩家登入資料：匿名玩家帳號的識別碼。玩家頁面不提供 Google 社群登入，也不會要求玩家提供 email。</li>
               <li>遊戲資料：玩家暱稱、主題選擇、房間與配對狀態、作答，以及已完成對局的個人歷史摘要。政治主題的選擇與答案可能反映敏感偏好；原始作答最多保存 24 小時，歷史摘要保存 90 天。你可略過政治主題。</li>
+              <li>猜題挑戰：出題者暱稱、題目快照和答案以 Base64url 編碼在分享網址的 fragment；不會上傳到 Supabase、寫入帳號或加入遊戲歷史。Base64url 不是加密，持有完整連結的人都能查看答案；連結不會到期或撤銷，請只分享給信任的人。朋友的猜測只留在當次瀏覽器頁面，重新載入後不會保留。</li>
               <li>安全資料：封鎖關係、邀請代碼猜測限流紀錄，以及你主動提交的檢舉類別和補充說明。</li>
               <li>本機示範的暱稱、答案與對局只在瀏覽器操作，不會送到真人服務或保存成帳號歷史。</li>
             </ul>
@@ -80,6 +81,7 @@
               <li>房間、配對票券、暱稱和原始答案會在對局結束或逾期後最多保留 24 小時。</li>
               <li>邀請代碼猜測限流紀錄最多保留 24 小時；不保存玩家輸入的邀請代碼。</li>
               <li>個人歷史摘要保存 90 天，玩家可在歷史頁逐筆刪除。</li>
+              <li>猜題連結由使用者自行保存和轉傳；Samewave 不保存連結或猜測，也無法替使用者撤回已分享的連結。</li>
               <li>檢舉內容最多保存 180 天；刪除帳號時會解除案件與雙方帳號識別碼的連結，但仍依期限保留檢舉說明。</li>
               <li>封鎖關係保留到玩家解除封鎖或刪除帳號。</li>
             </ul>
