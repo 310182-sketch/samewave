@@ -208,7 +208,7 @@
 - [x] 加入公開首頁的搜尋標題、描述、canonical、Open Graph metadata、robots.txt 和 sitemap.xml；Google `site:310182-sketch.github.io/samewave` 搜尋已回傳網站。
 - [x] 在 repository Settings > Pages 選擇 GitHub Actions 作為發布來源；Actions run #5 的部署 job 通過。
 - [x] 使 Pages workflow 重跑使用唯一 artifact 名稱並等待 artifact 登記；run #28 的 `verify`、`block_race` 和 `deploy` 全部通過。
-- [x] 確認公開網址、`robots.txt` 和 `sitemap.xml` 均可讀取；README 已有網站立即遊玩連結。
+- [x] 確認公開網址、`robots.txt` 和 `sitemap.xml` 均可讀取；Sitemap 以 Googlebot User-Agent 回 HTTP 200 並列出首頁和隱私頁，兩個 URL 都回 HTTP 200；首頁 `lastmod` 已更新至 2026-11-22。Search Console 報表狀態另列為待完成。
 - [x] 將網站網址填入 GitHub About 的 Website 欄位並確認公開 repo 頁顯示正確連結。
 - [x] 以首頁 HTML 驗證標籤完成 Google Search Console 網站擁有權驗證；保留標籤以維持驗證狀態。
 - [x] 發布 Supabase ledger 已到 15/15 的前端版本；Actions run #64 的 `verify`、`block_race`、`deploy` 全部成功，公開頁載入 `app.js?v=20`／`styles.css?v=16` 並提供 5／10／15 題選項。後續文件更新的部署 run 44980939196 亦全數通過。

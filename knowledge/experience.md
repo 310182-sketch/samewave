@@ -288,7 +288,7 @@
 
 - **經驗：** Google 的 `site:` 查詢能確認搜尋結果中是否已出現某個網址，但不能證明所有頁面都已收錄或保證排名。公開 `robots.txt` 和 sitemap 回應成功也不代表 sitemap 已提交到 Search Console；提交需要網站擁有權驗證。Search Console 顯示「已成功提交」仍不代表已讀取或解析 sitemap，應另外檢查已提交列表中的抓取狀態與找到的 URL 數。
 - **適用範圍：** GitHub Pages 等靜態網站，以及沒有伺服器端搜尋分析工具的公開網站。
-- **本專案做法：** 2026-11-21 以 `site:310182-sketch.github.io/samewave` 查詢，Google 結果已出現同頻網站；`robots.txt` 和 `sitemap.xml` 均回 HTTP 200。以首頁 HTML 標籤驗證 Search Console 擁有權並提交 sitemap 後，Search Console 接受提交，但當時詳細狀態顯示「無法讀取 Sitemap」及 0 個已探索網頁。2026-11-22 重新以 Googlebot User-Agent 取得公開 XML，回 HTTP 200、`application/xml`，可解析且列出首頁和隱私頁兩個 URL，兩個頁面也都回 HTTP 200；首頁 `lastmod` 已更新至實際發布日。Search Console 是否已處理仍須查看擁有者報表；不要只憑提交成功或直接 HTTP 請求就勾選處理完成。
+- **本專案做法：** 2026-11-21 以 `site:310182-sketch.github.io/samewave` 查詢，Google 結果已出現同頻網站；`robots.txt` 和 `sitemap.xml` 均回 HTTP 200。以首頁 HTML 標籤驗證 Search Console 擁有權並提交 sitemap 後，Search Console 接受提交，但當時詳細狀態顯示「無法讀取 Sitemap」及 0 個已探索網頁。2026-11-22 重新以 Googlebot User-Agent 取得公開 XML，回 HTTP 200、`application/xml`，可解析且列出首頁和隱私頁兩個 URL，兩個頁面也都回 HTTP 200；首頁 `lastmod` 已更新至實際發布日。Sitemap 修正 Actions run [44981675147](https://github.com/310182-sketch/samewave/actions/runs/44981675147) 的驗證和部署全通過。Search Console 是否已處理仍須查看擁有者報表；不要只憑提交成功或直接 HTTP 請求就勾選處理完成。
 
 ## 部署破壞性 Edge Function 前先限制來源並驗證預檢
 
