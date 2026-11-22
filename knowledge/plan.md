@@ -10,14 +10,14 @@
 
 ## 目前狀態
 
-- **階段：** 15 個主題各 15 題與每局 5／10／15 題已實作並部署；題數貫穿房間、配對、續玩、結果與歷史。三份新 migration 已套用至 Samewave production，CLI ledger 15/15 對齊；遠端唯讀查詢確認每類 15 題、5／10／15 題限制與相容 RPC。公開網站已載入 `app.js?v=20`、`styles.css?v=16`。
+- **階段：** 15 個主題各 15 題與每局 5／10／15 題已實作並部署；K-pop 題目已改為回歸、打歌直拍、小卡交換、台灣場售票及應援等追星情境。公開網站載入 `app.js?v=21`。第十六份題庫內容 migration 已推送並通過 GitHub Actions，但尚未套用至 Samewave production；遠端 ledger 目前仍為 15/15，真人對局仍讀取舊版 K-pop 題目。
 - **已驗證：** 本輪 PGlite migration 回歸 20 項全通過，headless Chrome 完整跑完 5／10／15 題並核對進度及結果；Deno 型別與 lint、前端 JS 語法、5 項 Auth helper 測試及匿名登入流程通過。GitHub Actions run [#64](https://github.com/310182-sketch/samewave/actions/runs/44980519034) 的 `verify`、`block_race`、`deploy` 全成功；公開首頁及 app.js、styles.css、privacy.html 回 HTTP 200。遠端驗證另包括 migration ledger 與唯讀 schema／題庫查詢；真人新題數邀請房、配對、跨裝置及 RLS 流程仍待實測。
 - **仍待線上驗證：** 匿名登入及 session 恢復、真人房間／配對／歷史資料、完整 RLS 權限和跨裝置流程尚未實測。邀請房答題與隨機配對前端已接上 RPC，Chrome mock 驗證成功揭曉、雙方確認、結果讀取、配對成功、逾時重試及取消；尚未在 Supabase Realtime 或兩部裝置驗證。歷史頁查詢、分頁、默契排名及逐筆刪除也僅以 mock 驗證。結果分享卡尚未在 iOS／Android 實機確認 Instagram 交接。
-- **後端：** 共十五份 migration 已部署並對帳；新增五類題庫、將 15 類擴充到各 15 題，並在房間、配對票券、RPC、完局歷史與續玩加入題數欄位。production 唯讀查詢確認題庫／RPC／限制；真實使用者流程仍待測試。
+- **後端：** 共十五份 migration 已部署並對帳；新增五類題庫、將 15 類擴充到各 15 題，並在房間、配對票券、RPC、完局歷史與續玩加入題數欄位。第十六份 migration 只更新 15 筆 K-pop 題目，尚未套用至 production；真實使用者流程仍待測試。
 - **資料政策：** 真人房間、配對票券及原始答案最多保留 24 小時；個人歷史摘要保存 90 天且可逐筆刪除；檢舉資料保存 180 天；封鎖關係保留至解除或刪除帳號。相關 migration 與清理排程已部署，但資料保留週期和逾期刪除尚未經過實際時間週期驗證。
 - **登入與社群：** 玩家頁只提供 Supabase Anonymous Auth，persistSession 保存目前瀏覽器的玩家 session；清除網站資料或換裝置可能無法找回匿名帳號。玩家端 Google 登入和 linking 已移除；Google provider 保留給獨立審查頁的核准審查員，不切換 Google OAuth 玩家 Production，也不刪除既有帳號。
 - **前端設計：** 已完成第一輪整體字級、留白、按鈕及主題選項版面整理；登入卡片以獨立視覺層級呈現，同時保留先玩示範的主要流程。房間、真人答題、隨機配對等待及歷史頁已接上 RPC，無設定時仍保留清楚標示的操作預覽。Chrome mock 驗證流程分支；六種寬度與鍵盤流程的前一輪檢查已通過。真人服務環境的實際網路狀態仍待驗證。
-- **發布：** 5／10／15 題選項及前端已部署至 GitHub Pages（Actions run #64）；公開頁載入 `app.js?v=20`、`styles.css?v=16`。正式 Supabase 的 15 份 migration 已部署並對帳。真人新題數房間／配對及隔離裝置流程仍待驗收。
+- **發布：** K-pop 追星題目與快取版本 `app.js?v=21` 已推至 Samewave `main`；Actions run [#45002608644](https://github.com/310182-sketch/samewave/actions/runs/45002608644) 的驗證及部署成功，公開首頁與腳本回 HTTP 200。題庫更新 migration 尚未套用至 Supabase，因此此刻真人對局仍用舊題；其餘 5／10／15 題前端與前十五份資料庫 migration 已部署。真人新題數房間／配對及隔離裝置流程仍待驗收。
 - **安全營運：** 前端已提供同房檢舉、封鎖／解除封鎖及隱私告知，並有獨立的審查員工作區；後端提供 allowlist、遮蔽細節的案件佇列、領案／結案及私有稽核事件，PGlite 和 headless Chrome 權限鎖定情境已由 CI 驗證。尚未建立審查員帳號或指定實際審查人員、玩家聯絡方式與值班安排；現有流程草案不是服務承諾，正式公開前不得宣稱有人即時處理。
 - **工作區：** 原型位於 `site/`，可直接開啟 `site/index.html` 操作，不需安裝套件或建置。
 - **產品方向：** 本專案以獨立的 `samewave` repository 發布二選一共同點遊戲，不沿用另一專案的 repository 歷史，詳見 [knowledge/decision.md](decision.md)。
@@ -124,6 +124,7 @@
 ### 3. 完整後端與真人遊戲服務
 
 - [x] 將三份 forward-only migration 套用至 Samewave production；Supabase CLI 確認 remote ledger 15/15，本機 PGlite 20 項回歸通過。遠端唯讀查詢確認 15 類各 15 題、5／10／15 題 constraints、新舊邀請／配對 RPC 及續玩 RPC 存在。
+- [ ] 套用 `20261122000400_refine_kpop_fandom_questions.sql` 至 Samewave production，並唯讀確認 K-pop 題庫 15 筆均已更新；Pages 已部署 `app.js?v=21`，但真人對局目前仍從資料庫讀取舊題。
 - [ ] 用兩個已授權測試 session 驗證 production 邀請房 10／15 題、相同題數隨機配對、跨題數不配對、續玩題數繼承與歷史；尚未驗證前不把本機 PGlite 結果描述成真人流程通過。
 - [ ] 完成完整真人線上服務後端驗收：資料庫 migration、migration ledger、Anonymous Auth／Manual Linking、核心 schema、主要 RLS、Realtime publication、清理排程及帳號刪除 Edge Function 已部署或設定；仍須以真實登入、跨裝置對局和權限測試驗證。migration、mock 或 CI 通過都不單獨算完成。
 - [x] 新增並部署同一玩家續玩 migration：私有邀請資料、10 分鐘逾期、雙方同意、相同玩家與主題的新房間、封鎖／有效房間檢查；18 項 PGlite migration 測試通過，CLI 確認第十一份 migration 已列入遠端 ledger。

@@ -102,6 +102,18 @@
 - **適用範圍：** 使用版本化 SQL migration 管理 PostgreSQL、Supabase 或其他資料庫結構的專案。
 - **本專案做法：** 保留初版即時配對 migration，另建 forward-only 檔案加入邀請房間、歷史摘要及後續功能。第十二份六碼邀請 migration 曾由 SQL Editor 手動套用；在包含該檔的分支用官方 CLI repair 登記後，十二個 local／remote 版本一致。部署後先確認 migration SQL 已套用並驗證遠端功能，再只修復 ledger 記錄；不要重跑 SQL 或直接修改 history table。
 
+## 遊戲題庫同時由前端與資料庫提供
+
+- **經驗：** 更新前端題庫只會改變本機示範；真人房間從 Supabase `question_bank` 取得題目，必須另外以 forward-only migration 更新資料列。GitHub Pages 部署成功不代表遊戲資料庫內容已更新。
+- **適用範圍：** 靜態前端展示題庫、但正式互動由 API／資料庫載入題目的遊戲、測驗或多語內容網站。
+- **本專案做法：** 前端 `questionBank` 和資料庫題目保持同一套 15 個題號；內容修改以 `(topic_key, question_no)` upsert 新 migration，避免改寫已部署 seed migration；同步增加 `app.js` 查詢參數以刷新瀏覽器快取。推送後分別確認 Actions／公開腳本版本，以及 production migration ledger／題目列。K-pop 題庫 commit `55d80d5` 的 Pages run #45002608644 已成功、公開頁載入 `app.js?v=21`，但第十六份資料 migration 尚未執行，因此真人對局仍讀取舊文案；不可將前端發布當成完整題庫發布。
+
+## 共用工作目錄的 Git remote 可能指向另一個產品
+
+- **經驗：** 同一台電腦可同時有產品相似但歷史不同的 repository；新 worktree 可能沿用來源 repository 的 remote 設定。只看 `origin` 名稱或當前分支不夠，推送前要核對遠端 URL、遠端 HEAD 與目標產品。
+- **適用範圍：** 多個相似網站／品牌、fork、重建 repository、Git worktree 或需要把舊工作移植到新 repository 的情境。
+- **本專案做法：** Samewave 的工作目錄由 `samewave` main commit `230f718` 建立，但繼承的 `origin` 仍指向 `riddle-match`。先讀取 Samewave main、將工作移植到其最新基線，再以完整 Samewave URL 明確推送；確認 Actions 與公開頁後才記為發布。不要盲目對 `origin` 執行 push，也不要把舊 repository 的完整歷史推進新產品。
+
 ## 沒有 Supabase 專案時可用 PGlite 預檢 SQL migration
 
 - **經驗：** PGlite 可在瀏覽器執行 PostgreSQL，讓 migration 在建立雲端專案前先做套用和 RPC 回歸測試。把最小 `auth.users`、`auth.uid()`、角色及登入 claim stub 寫進版本控制，可讓後續 migration 修改重複檢查 PostgreSQL／PLpgSQL 語法、權限邊界及核心資料流程，不必依賴一次性的手動 smoke test。

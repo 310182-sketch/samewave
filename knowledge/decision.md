@@ -103,6 +103,13 @@
 - **本輪狀態：** 前端和三份 migration 已完成；migration 回歸涵蓋建立邀請房、加入、真人答題、結果、歷史、續玩、同題數配對及拒絕 7 題等無效設定。production ledger 15/15 對齊，遠端唯讀查詢確認 15×15 題庫與相關 RPC／限制。GitHub Actions run #64 的 `verify`、`block_race`、`deploy` 全成功；公開頁已載入 `app.js?v=20`、`styles.css?v=16`。真人新題數邀請／配對尚未端對端驗收。
 - **部署狀態：** 前端和 forward-only migration 已部署至 GitHub Pages 與 Samewave production；新題數真人流程仍待實測，不應只依本機 mock 或唯讀 schema 查詢視為已上線驗收。
 
+## K-pop 題庫內容更新
+
+- **狀態：** 十五題追星情境已更新於前端，`app.js?v=21` 已部署至 GitHub Pages；forward-only migration `20261122000400_refine_kpop_fandom_questions.sql` 已推至 Samewave `main`，但尚未套用至 production。正式資料庫目前仍供應舊版 K-pop 題目。
+- **建議：** 在 Samewave Supabase SQL Editor 執行該 migration，再唯讀確認 `question_bank` 的 `kpop` 題號 1–15、題目及選項與 repository 一致。此 migration 只 upsert K-pop 題目列，不修改玩家資料或其他主題。
+- **操作界線：** 套用前先檢查遠端 migration ledger 確認版本仍是 15/15；SQL Editor 執行會更換公開真人對局顯示的題目文案，須在按下執行前取得本次明確確認。完成後將路線圖狀態改為已部署，記錄遠端 ledger 和題目查詢結果。
+- **適用範圍：** 已發布的靜態網站使用資料庫作為正式題庫，且需在不改寫舊 migration 的情況下更新遊戲內容。
+
 ## 歷史紀錄與共同點統計
 
 - **狀態：** 產品規格已採用；歷史資料表、完局摘要 trigger 與查詢 RPC 已部署至 Samewave Supabase。歷史頁前端已接上 RPC 契約並以 mock 驗證清單、分頁、排名、刪除和帳號切換；真實使用者資料、跨帳號隔離及歷史權限仍待驗證。
