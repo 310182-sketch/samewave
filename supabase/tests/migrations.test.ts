@@ -96,13 +96,13 @@ async function readFrontendQuestionBank() {
     new URL("../../site/app.js", import.meta.url),
   );
   const block = source.match(
-    /const questionBank = \{([\s\S]*?)\r?\n  \};\r?\n\r?\n  const state =/,
+    /const questionBank = \{([\s\S]*?)\r?\n\x20{2}\};\r?\n\r?\n\x20{2}const state =/,
   );
   assert(block, "frontend question bank is present");
 
   const questionBank: Record<string, [string, string, string][]> = {};
   const topicPattern =
-    /^    ((?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|[$_\p{ID_Start}][$\u200C\u200D_\p{ID_Continue}]*)\s*:\s*\[\r?\n([\s\S]*?)^    \]/gmu;
+    /^\x20{4}((?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|[$_\p{ID_Start}][$\u200C\u200D_\p{ID_Continue}]*)\s*:\s*\[\r?\n([\s\S]*?)^\x20{4}\]/gmu;
   const questionPattern =
     /^[ \t]*\{ prompt: ("(?:\\.|[^"\\])*"), choices: \[("(?:\\.|[^"\\])*"), ("(?:\\.|[^"\\])*")\], demoAnswer: [01] \},?\r?$/gm;
 
