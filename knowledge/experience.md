@@ -114,7 +114,7 @@
 
 - **經驗：** 同一台電腦可同時有產品相似但歷史不同的 repository；新 worktree 可能沿用來源 repository 的 remote 設定。只看 `origin` 名稱或當前分支不夠，推送前要核對遠端 URL、遠端 HEAD 與目標產品。
 - **適用範圍：** 多個相似網站／品牌、fork、重建 repository、Git worktree 或需要把舊工作移植到新 repository 的情境。
-- **本專案做法：** Samewave 的工作目錄由 `samewave` main commit `230f718` 建立，但繼承的 `origin` 仍指向 `riddle-match`。先讀取 Samewave main、將工作移植到其最新基線，再以完整 Samewave URL 明確推送；確認 Actions 與公開頁後才記為發布。不要盲目對 `origin` 執行 push，也不要把舊 repository 的完整歷史推進新產品。
+- **本專案做法：** Samewave 工作樹仍共用指向 `riddle-match` 的 `origin`。2026-11-22 核對時，Samewave `main` SHA `cd941e442dd81b91f26a4b9730f96a3dd6cbee17` 與題庫更新工作樹 HEAD 相同，而 `origin/main` 是另一個 SHA；公開 Samewave 首頁回 HTTP 200 並載入 `app.js?v=22`。保留共用 `origin` 不變，後續 fetch／push 都以完整 Samewave URL 指定目標，並比對 GitHub 上的目標 SHA 和 Pages 資產後才記為發布。不要盲目對 `origin` 執行 push，也不要把舊 repository 的完整歷史推進新產品。
 
 ## 沒有 Supabase 專案時可用 PGlite 預檢 SQL migration
 

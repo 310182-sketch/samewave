@@ -158,7 +158,9 @@
 
 ## 發布
 
-- **現況（2026-11-22）：** `riddle-match` 的 Pages 網站屬於另一個專案。公開 repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 已建立，Pages 使用 GitHub Actions。題庫／題數前端及三份 migration 已部署；正式 Supabase CLI ledger 為 15/15，唯讀查詢確認 15 個主題各 15 題和相容 RPC 存在。GitHub Actions run #64 的 `verify`、`block_race`、`deploy` 全成功，公開頁載入 `app.js?v=20`、`styles.css?v=16`；文件同步 commit 的 run 44980939196 也全成功。匿名玩家流程及隔離裝置 Realtime 等真人服務驗收仍待完成。
+- **現況（2026-11-22，更新）：** `riddle-match` 的 Pages 網站屬於另一個專案。Samewave repository [310182-sketch/samewave](https://github.com/310182-sketch/samewave) 的 `main` 已推進至 `cd941e442dd81b91f26a4b9730f96a3dd6cbee17`，與本工作樹 `codex/kpop-fandom-questions` 的 HEAD 相同；公開首頁回 HTTP 200 並載入 `app.js?v=22`。本工作樹共用的 `origin` 仍指向 `riddle-match`，不可盲目推送至 `origin`；後續以完整 Samewave repository URL 指定目標。
+- **題庫上線界線：** K-pop 15 筆 migration `20261122000400_refine_kpop_fandom_questions.sql` 與其他 14 類 210 筆 migration `20261122000500_refine_everyday_topic_questions.sql` 已推送至 Samewave `main`，但尚未套用至 Supabase production；真人對局仍讀取舊題庫。使用者先前已授權 00400，00500 尚待確認。推薦確認後先檢查遠端 ledger，再一起套用兩份 migration，最後唯讀核對全部 225 題。
+- **真人服務驗收：** 匿名玩家流程及隔離裝置 Realtime 等真人服務驗收仍待完成。
 - **決定：** 採公開 repository，因為目標包含 GitHub Pages 免費發布；建立時只納入同頻原始碼和文件，不沿用另一專案歷史。已檢查用戶端設定範本沒有真實 Supabase URL／key，測試中的 JWT 為假資料；provider secret 與 service role key 不得推送。
 - **PR #3：** Google-only 登入修改已於 2026-11-22 透過 rebase merge 合併；GitHub Pages 部署 run 44927437625 成功。未來公開 repository 合併前，須核對 commit author 和 committer 兩個欄位的 email；rebase 預覽或 noreply author 單獨不足以證明 committer 也隱去個人 email。
 - **下一階段：** 以兩個已授權測試 session 完成匿名登入／登出、session 恢復及新題數邀請房／配對／歷史的真人驗收，再用兩部隔離裝置測試 Auth、RLS、Realtime 和 RPC。玩家不使用 Google OAuth。帳號刪除 Edge Function 已部署且限制 origin，但需另外授權後才用一次性帳號驗證實際刪除。公開靜態網站及 schema 部署仍不代表真人遊戲已完成端對端驗收。
